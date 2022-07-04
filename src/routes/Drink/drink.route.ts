@@ -20,3 +20,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req: Request, res: Response) => {
   drinkController.update(req, res)
 })
+
+router.delete('/:id', (req: Request, res: Response) => {
+  drinkController.delete(req, res)
+})
