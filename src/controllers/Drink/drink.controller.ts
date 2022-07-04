@@ -17,7 +17,8 @@ export class DrinkController extends CrudController {
     } else {
       try {
         const { ingredients, ...rest } = body
-        const drink = await Drink.create(rest)
+        console.log(ingredients)
+        const drink = await Drink.create(body)
         console.log(drink.toJSON())
         res.json(drink)
       } catch (err) {
@@ -59,10 +60,13 @@ export class DrinkController extends CrudController {
     res.json(drink)
   }
 
-  public delete(
+  public async delete(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
-  ): void {
-    throw new Error('Method not implemented.')
+  ): Promise<void> {
+    const { id } = req.params;
+
+    await Drink.destroy({ where: { id} })
+    res.json({})
   }
 }
