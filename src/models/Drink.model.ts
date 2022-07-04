@@ -1,7 +1,7 @@
 import { Model, InferAttributes, InferCreationAttributes, CreationOptional, DataTypes, HasManyAddAssociationsMixin, HasManyGetAssociationsMixin, NonAttribute } from 'sequelize'
 import { sequelize } from '.'
 
-export class Drink extends Model<
+class Drink extends Model<
   InferAttributes<Drink>,
   InferCreationAttributes<Drink>
 > {
@@ -58,3 +58,5 @@ Drink.init({
   sequelize,
   modelName: 'Drink',
 })
+
+export { Drink }
