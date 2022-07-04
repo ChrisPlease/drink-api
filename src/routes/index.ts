@@ -1,5 +1,5 @@
-import { router as userRouter } from './User/User';
+import { router as drinkRouter } from './Drink/drink.route'
 
 export {
-  userRouter,
+  drinkRouter,
 }

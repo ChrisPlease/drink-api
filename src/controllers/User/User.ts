@@ -1,7 +1,6 @@
-import { Request, response, Response } from 'express'
+import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { pool } from '../../db'
 import { CrudController  } from '../CrudController'
 
 export class UserController extends CrudController {

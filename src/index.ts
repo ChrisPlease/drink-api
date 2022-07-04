@@ -1,24 +1,28 @@
 import 'dotenv/config'
-
 import express from 'express'
 import bodyParser from 'body-parser'
-import { userRouter } from './routes';
+import { drinkRouter } from './routes'
+import { PORT } from './config/constants'
+import { db } from './models'
 
 const app: express.Application = express()
 
-const port = 3000
-
 app.use(bodyParser.json())
-app.use(
-  bodyParser.urlencoded({ extended: true })
-)
+app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use('/users', userRouter)
+app.use('/drinks', drinkRouter)
 
 app.get('/', (req, res) => {
   res.json({ info: 'Typescript With Express' })
 })
 
-app.listen(port, () => {
-  console.log(`Typescript with Express http://localhost:${port}`)
+db.sequelize.sync({ alter: true })
+  .then(() => {
+    console.log('Sync complete')
+  })
+  .catch(err => console.log(err))
+
+app.listen(PORT, () => {
+  console.log(`Typescript with Express http://localhost:${PORT}`)
 })
+
