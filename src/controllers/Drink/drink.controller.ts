@@ -3,8 +3,6 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { CrudController  } from '../CrudController'
 import { Drink, Ingredient } from '../../models'
-import { IngredientModel } from '../../models/Ingredient.model'
-import { Op } from 'sequelize'
 
 export class DrinkController extends CrudController {
 
