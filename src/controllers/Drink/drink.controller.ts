@@ -2,7 +2,9 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { CrudController  } from '../CrudController'
-import { Drink } from '../../models/Drink.model'
+import { Drink, Ingredient } from '../../models'
+import { IngredientModel } from '../../models/Ingredient.model'
+import { Op } from 'sequelize'
 
 export class DrinkController extends CrudController {
 
@@ -16,9 +18,21 @@ export class DrinkController extends CrudController {
       res.status(400).json({ message: 'Name is required' })
     } else {
       try {
-        const { ingredients, ...rest } = body
-        console.log(ingredients)
-        const drink = await Drink.create(body)
+        const drink = await Drink.create(
+          body,
+          {
+            include: [{
+              as: 'ingredients',
+              model: Ingredient,
+              include: [
+                {
+                  model: Drink,
+                  attributes: ['caffeine', 'coefficient'],
+                },
+              ],
+            }],
+          },
+        )
         console.log(drink.toJSON())
         res.json(drink)
       } catch (err) {
@@ -32,7 +46,18 @@ export class DrinkController extends CrudController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ): Promise<void> {
-    const drinks = await Drink.findAll()
+    const drinks = await Drink.findAll({
+      include: [
+        {
+          model: Ingredient,
+          as: 'ingredients',
+          include: [{
+            model: Drink,
+            attributes: ['caffeine', 'coefficient'],
+          }]
+        },
+      ],
+    })
     res.json(drinks)
   }
 
@@ -40,7 +65,22 @@ export class DrinkController extends CrudController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ): Promise<void> {
-    const drink = await Drink.findByPk(req.params.id)
+    const drink = await Drink.findByPk(
+      req.params.id,
+      {
+        include: [
+          {
+            model: Ingredient,
+            as: 'ingredients',
+            include: [{
+              model: Drink,
+              attributes: ['caffeine', 'coefficient'],
+            }],
+          },
+        ],
+      },
+    )
+    console.log(drink?.isMixedDrink)
     if (drink === null) {
       res.status(404).json({ message: 'Not Found' })
     } else {
@@ -66,7 +106,7 @@ export class DrinkController extends CrudController {
   ): Promise<void> {
     const { id } = req.params;
 
-    await Drink.destroy({ where: { id} })
+    await Drink.destroy({ where: { id } })
     res.json({})
   }
 }

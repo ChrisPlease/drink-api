@@ -1,62 +1,80 @@
-import { Model, InferAttributes, InferCreationAttributes, CreationOptional, DataTypes, HasManyAddAssociationsMixin, HasManyGetAssociationsMixin, NonAttribute } from 'sequelize'
-import { sequelize } from '.'
+import { Model, InferAttributes, InferCreationAttributes, CreationOptional, DataTypes, HasManyAddAssociationsMixin, HasManyGetAssociationsMixin, NonAttribute, Sequelize } from 'sequelize'
+import { IngredientModel } from './Ingredient.model';
 
-class Drink extends Model<
-  InferAttributes<Drink>,
-  InferCreationAttributes<Drink>
+export class DrinkModel extends Model<
+  InferAttributes<DrinkModel>,
+  InferCreationAttributes<DrinkModel>
 > {
   declare id: CreationOptional<number>;
   declare name: string;
   declare coefficient: CreationOptional<number>;
   declare caffeine: CreationOptional<number>;
 
-  declare getIngredients: HasManyGetAssociationsMixin<Drink>;
-  declare addIngredients: HasManyAddAssociationsMixin<Drink, number>;
+  declare getIngredients: HasManyGetAssociationsMixin<IngredientModel>;
+  declare addIngredients: HasManyAddAssociationsMixin<IngredientModel, number>;
 
-  declare ingredients?: NonAttribute<Drink[]>;
+  declare ingredients?: NonAttribute<IngredientModel[]>;
 
-  declare isMixedDrink: boolean;
+  declare isMixedDrink: CreationOptional<boolean>;
+
+  get percentage(): NonAttribute<number> {
+    console.log('this.ingredients', this.ingredients, this.id)
+    return 1;
+  }
+
+  get totalParts(): NonAttribute<number> {
+    return this.ingredients?.reduce((acc, { parts }) => acc += parts, 0) || 1;
+  }
 }
 
-Drink.init({
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
+export const DrinkFactory = (sequelize: Sequelize) => {
 
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-
-  coefficient: {
-    type: DataTypes.FLOAT(3),
-    validate: {
-      max: 1,
+  const Drink = DrinkModel.init({
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-  },
 
-  caffeine: {
-    type: DataTypes.INTEGER,
-    validate: {
-      min: 0,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
     },
-  },
 
-  isMixedDrink: {
-    type: DataTypes.VIRTUAL,
-    get(): boolean {
-      return !!this.ingredients?.length
+    coefficient: {
+      type: DataTypes.FLOAT(3),
+      validate: {
+        max: 1,
+      },
     },
-    set(value: unknown): void {
-      throw new Error('Unable to set the `isMixedDrink` property')
-    }
-  },
-}, {
-  tableName: 'dictionary',
-  sequelize,
-  modelName: 'Drink',
-})
 
-export { Drink }
+    caffeine: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      validate: {
+        min: 0,
+      },
+    },
+
+    isMixedDrink: {
+      type: DataTypes.VIRTUAL,
+      get(): boolean {
+        return !!this.ingredients?.length
+      },
+      /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+      set(value: unknown): void {
+        throw new Error('Unable to set the `isMixedDrink` property')
+      }
+    },
+  }, {
+    modelName: 'drink',
+    sequelize,
+  })
+
+  Drink.beforeCreate((drink, opts) => {
+    console.log('before creating', drink)
+  })
+
+  return Drink
+}
