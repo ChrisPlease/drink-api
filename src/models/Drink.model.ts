@@ -17,11 +17,6 @@ export class DrinkModel extends Model<
 
   declare isMixedDrink: CreationOptional<boolean>;
 
-  get percentage(): NonAttribute<number> {
-    console.log('this.ingredients', this.ingredients, this.id)
-    return 1;
-  }
-
   get totalParts(): NonAttribute<number> {
     return this.ingredients?.reduce((acc, { parts }) => acc += parts, 0) || 1;
   }
@@ -72,7 +67,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     sequelize,
   })
 
-  Drink.beforeCreate((drink, opts) => {
+  Drink.beforeCreate((drink) => {
     console.log('before creating', drink)
   })
 
