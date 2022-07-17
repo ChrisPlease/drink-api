@@ -2,6 +2,7 @@ import { config } from '../config/constants'
 import { Sequelize } from 'sequelize'
 import { DrinkFactory } from './Drink.model'
 import { IngredientFactory } from './Ingredient.model'
+import { UserFactory } from './User.model'
 
 export const sequelize = new Sequelize(
   config.database,
@@ -14,10 +15,11 @@ export const sequelize = new Sequelize(
   },
 )
 
+const User = UserFactory(sequelize)
 const Drink = DrinkFactory(sequelize)
 const Ingredient = IngredientFactory(sequelize)
 
 Drink.hasMany(Ingredient, { as: 'ingredients' })
 Ingredient.belongsTo(Drink)
 
-export { Drink, Ingredient }
+export { User, Drink, Ingredient }

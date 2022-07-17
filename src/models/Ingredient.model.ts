@@ -19,7 +19,7 @@ export class IngredientModel extends Model<
 }
 
 export const IngredientFactory = (sequelize: Sequelize) => {
-  return IngredientModel.init({
+  const Ingredient = IngredientModel.init({
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -35,4 +35,6 @@ export const IngredientFactory = (sequelize: Sequelize) => {
     modelName: 'ingredient',
     timestamps: false,
   })
+
+  return Ingredient
 }

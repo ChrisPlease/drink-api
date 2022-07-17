@@ -18,6 +18,17 @@ module.exports = {
         "@typescript-eslint"
     ],
     "rules": {
+      "semi": "off",
+      "comma-dangle": "off",
+
+      // Typescript rules
+      "@typescript-eslint/semi": ["error", "never"],
+      "@typescript-eslint/member-delimiter-style": [{
+        "delimiter": "semi",
+        "requireLast": true,
+      }],
+      "@typescript-eslint/no-explicit-any": ["off"],
+      "@typescript-eslint/comma-dangle": ["error"]
     },
     "settings": {
       "import/resolver": {
