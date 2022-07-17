@@ -67,9 +67,5 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     sequelize,
   })
 
-  Drink.beforeCreate((drink) => {
-    console.log('before creating', drink)
-  })
-
   return Drink
 }

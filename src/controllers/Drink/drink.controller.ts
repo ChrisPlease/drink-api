@@ -1,42 +1,32 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { CrudController  } from '../CrudController'
+import { CrudController  } from '../controller'
 import { Drink, Ingredient } from '../../models'
 
 export class DrinkController extends CrudController {
 
   public async create(
-    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    req: Request<
+      ParamsDictionary, any, any, ParsedQs, Record<string, any>
+    >,
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
-    const { body } = req
+    const { ingredients, ...rest } = req.body
+    try {
+      console.log(ingredients)
+      const drink = await Drink.build(rest)
 
-    if (!body.name) {
-      res.status(400).json({ message: 'Name is required' })
-    } else {
-      try {
-        const drink = await Drink.create(
-          body,
-          {
-            include: [{
-              as: 'ingredients',
-              model: Ingredient,
-              include: [
-                {
-                  model: Drink,
-                  attributes: ['caffeine', 'coefficient'],
-                },
-              ],
-            }],
-          },
-        )
-        console.log(drink.toJSON())
-        res.json(drink)
-      } catch (err) {
-        console.log(err)
-        res.status(500)
-      }
+      await drink.addIngredients(ingredients)
+
+      console.log(await drink.getIngredients())
+      console.log(drink.toJSON())
+
+      // console.log(await drink.save())
+      res.json(drink)
+    } catch (err) {
+      console.log(err)
+      res.status(500)
     }
   }
 
@@ -91,7 +81,7 @@ export class DrinkController extends CrudController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ): Promise<void> {
-    const { id } = req.params;
+    const { id } = req.params
 
     await Drink.update(req.body, { where: { id } })
     const drink = await Drink.findByPk(id)
@@ -102,7 +92,7 @@ export class DrinkController extends CrudController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ): Promise<void> {
-    const { id } = req.params;
+    const { id } = req.params
 
     await Drink.destroy({ where: { id } })
     res.json({})
