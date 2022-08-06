@@ -1,4 +1,5 @@
-import { Model, InferAttributes, InferCreationAttributes, CreationOptional, DataTypes, HasManyAddAssociationsMixin, HasManyGetAssociationsMixin, NonAttribute, Sequelize } from 'sequelize'
+import { Model, InferAttributes, InferCreationAttributes, CreationOptional, DataTypes, HasManyAddAssociationsMixin, HasManyGetAssociationsMixin, NonAttribute, Sequelize, HasManySetAssociationsMixin, HasManyAddAssociationMixin } from 'sequelize'
+import { Ingredient } from '.';
 import { IngredientModel } from './Ingredient.model';
 
 export class DrinkModel extends Model<
@@ -6,19 +7,22 @@ export class DrinkModel extends Model<
   InferCreationAttributes<DrinkModel>
 > {
   declare id: CreationOptional<number>;
+
   declare name: string;
   declare coefficient: CreationOptional<number>;
   declare caffeine: CreationOptional<number>;
 
-  declare getIngredients: HasManyGetAssociationsMixin<IngredientModel>;
+  declare setIngredients: HasManySetAssociationsMixin<IngredientModel, number>;
+  declare addIngredient: HasManyAddAssociationMixin<DrinkModel, number>;
   declare addIngredients: HasManyAddAssociationsMixin<IngredientModel, number>;
+  declare getIngredients: HasManyGetAssociationsMixin<IngredientModel>;
 
   declare ingredients?: NonAttribute<IngredientModel[]>;
 
-  declare isMixedDrink: CreationOptional<boolean>;
+  declare totalParts: CreationOptional<number>;
 
-  get totalParts(): NonAttribute<number> {
-    return this.ingredients?.reduce((acc, { parts }) => acc += parts, 0) || 1;
+  get isMixedDrink(): NonAttribute<boolean> {
+    return !!this.ingredients?.length
   }
 }
 
@@ -46,25 +50,24 @@ export const DrinkFactory = (sequelize: Sequelize) => {
 
     caffeine: {
       type: DataTypes.INTEGER,
-      defaultValue: 0,
       validate: {
         min: 0,
       },
+      get(): number {
+        return this.getDataValue('caffeine')
+      }
     },
 
-    isMixedDrink: {
+    totalParts: {
       type: DataTypes.VIRTUAL,
-      get(): boolean {
-        return !!this.ingredients?.length
-      },
-      /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-      set(value: unknown): void {
-        throw new Error('Unable to set the `isMixedDrink` property')
+      get(): number {
+        return this.ingredients?.reduce((acc, { parts }) => acc += parts, 0) || 1
       }
     },
   }, {
     modelName: 'drink',
     sequelize,
+    timestamps: false,
   })
 
   return Drink
