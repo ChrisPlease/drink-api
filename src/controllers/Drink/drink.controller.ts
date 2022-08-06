@@ -2,7 +2,9 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { CrudController  } from '../controller'
-import { Drink, Ingredient } from '../../models'
+import { Drink, Ingredient, sequelize } from '../../models'
+import { IngredientModel } from '../../models/Ingredient.model'
+import { DrinkModel } from '../../models/Drink.model'
 
 export class DrinkController extends CrudController {
 
@@ -12,17 +14,38 @@ export class DrinkController extends CrudController {
     >,
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
-    const { ingredients, ...rest } = req.body
     try {
-      console.log(ingredients)
-      const drink = await Drink.build(rest)
+      let drink = await Drink.create(
+        req.body,
+        {
+          include: [
+            {
+              model: Ingredient,
+              as: 'ingredients',
+            }
+          ]
+        })
 
-      await drink.addIngredients(ingredients)
+      drink = await Drink.findByPk(
+        drink.id,
+        {
+          include: [
+            {
+              model: Ingredient,
+              as: 'ingredients',
+              through: {
+                attributes: []
+              },
+              attributes: ['parts'],
+              include: [{
+                model: Drink,
+                attributes: ['caffeine', 'coefficient', 'name']
+              }],
+            }
+          ]
+        }
+      ) as DrinkModel
 
-      console.log(await drink.getIngredients())
-      console.log(drink.toJSON())
-
-      // console.log(await drink.save())
       res.json(drink)
     } catch (err) {
       console.log(err)
@@ -34,45 +57,64 @@ export class DrinkController extends CrudController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ): Promise<void> {
-    const drinks = await Drink.findAll({
-      include: [
-        {
+    try {
+      const drinks = await Drink.findAll({
+        include: [{
           model: Ingredient,
           as: 'ingredients',
+          through: { attributes: [] },
+          attributes: ['parts'],
           include: [{
             model: Drink,
-            attributes: ['caffeine', 'coefficient'],
+            attributes: ['caffeine', 'coefficient', 'name'],
           }]
-        },
-      ],
-    })
-    res.json(drinks)
+        }],
+      })
+      res.json(drinks)
+    } catch (err) {
+      res.json
+    }
   }
 
   public async readById(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>
   ): Promise<void> {
-    const drink = await Drink.findByPk(
-      req.params.id,
-      {
-        include: [
-          {
-            model: Ingredient,
-            as: 'ingredients',
-            include: [{
-              model: Drink,
-              attributes: ['caffeine', 'coefficient'],
-            }],
-          },
-        ],
-      },
-    )
-    console.log(drink?.isMixedDrink)
-    if (drink === null) {
-      res.status(404).json({ message: 'Not Found' })
-    } else {
-      res.json(drink)
+    try {
+      const drink = await Drink.findByPk(
+        req.params.id,
+        // {
+        //   include: [
+        //     {
+        //       model: Ingredient,
+        //       as: 'ingredients',
+        //       attributes: {
+        //         include: [
+        //           'parts'
+        //         ],
+        //       },
+        //       through: { attributes: [] },
+        //       include: [{
+        //         model: Drink,
+        //         attributes: ['caffeine', 'coefficient'],
+        //       }],
+        //     },
+        //   ],
+        // },
+      )
+
+      const ing = await drink?.getIngredients()
+      console.log(ing)
+      ing?.forEach((ing) => console.log(ing.toJSON()))
+      console.log(drink?.isMixedDrink, drink?.totalParts)
+      if (drink === null) {
+        res.status(404).json({ message: 'Not Found' })
+      } else {
+        res.json(drink)
+      }
+
+    } catch (err) {
+      res.json(err)
     }
 
   }

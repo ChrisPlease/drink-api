@@ -20,6 +20,10 @@ const Drink = DrinkFactory(sequelize)
 const Ingredient = IngredientFactory(sequelize)
 
 Drink.hasMany(Ingredient, { as: 'ingredients' })
-Ingredient.belongsTo(Drink)
+Ingredient.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id'  } })
+
+const DrinkIngredients = sequelize.define('DrinkIngredients', {}, { timestamps: false, underscored: true, tableName: 'drink_ingredients' })
+
+Drink.belongsToMany(Ingredient, { through: DrinkIngredients })
 
 export { User, Drink, Ingredient }
