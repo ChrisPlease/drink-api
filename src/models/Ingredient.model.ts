@@ -33,6 +33,7 @@ export const IngredientFactory = (sequelize: Sequelize) => {
   }, {
     sequelize,
     modelName: 'ingredient',
+    underscored: true,
     timestamps: false,
   })
 

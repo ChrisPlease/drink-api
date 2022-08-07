@@ -18,63 +18,63 @@ app.get('/', (req, res) => {
 
 sequelize.sync({ alter: true })
   .then(async () => {
-    // await Drink.bulkCreate([
-    //   {
-    //     name: 'Water',
-    //     coefficient: 1,
-    //     caffeine: 0
-    //   },
-    //   {
-    //     name: 'Coffee',
-    //     coefficient: 0.8,
-    //     caffeine: 73,
+  //   await Drink.bulkCreate([
+  //     {
+  //       name: 'Water',
+  //       coefficient: 1,
+  //       caffeine: 0
+  //     },
+  //     {
+  //       name: 'Coffee',
+  //       coefficient: 0.8,
+  //       caffeine: 73,
 
-    //   },
-    //   {
-    //     name: 'Tea',
-    //     coefficient: 0.85,
-    //     caffeine: 26,
-    //   },
-    //   {
-    //     name: 'Smoothie',
-    //     coefficient: 0.33,
-    //     caffeine: 0,
-    //   },
-    //   {
-    //     name: 'Yogurt',
-    //     coefficient: 0.5,
-    //     caffeine: 0,
-    //   },
-    //   {
-    //     name: 'Soda',
-    //     coefficient: 0.6,
-    //     caffeine: 25,
-    //   },
-    //   {
-    //     name: 'Juice',
-    //     coefficient: 0.55,
-    //     caffeine: 0,
-    //   },
-    //   {
-    //     name: 'Milk',
-    //     coefficient: 0.78,
-    //     caffeine: 0,
-    //   },
-    //   {
-    //     name: 'Wine',
-    //     coefficient: -1.6,
-    //     caffeine: 0,
-    //   },
-    //   {
-    //     name: 'Beer',
-    //     coefficient: -0.6,
-    //     caffeine: 0,
-    //   },
-    //   {
-    //     name: 'Alcohol',
-    //     coefficient: -3.5,
-    //     caffeine: 0,
-    //   }
+  //     },
+  //     {
+  //       name: 'Tea',
+  //       coefficient: 0.85,
+  //       caffeine: 26,
+  //     },
+  //     {
+  //       name: 'Smoothie',
+  //       coefficient: 0.33,
+  //       caffeine: 0,
+  //     },
+  //     {
+  //       name: 'Yogurt',
+  //       coefficient: 0.5,
+  //       caffeine: 0,
+  //     },
+  //     {
+  //       name: 'Soda',
+  //       coefficient: 0.6,
+  //       caffeine: 25,
+  //     },
+  //     {
+  //       name: 'Juice',
+  //       coefficient: 0.55,
+  //       caffeine: 0,
+  //     },
+  //     {
+  //       name: 'Milk',
+  //       coefficient: 0.78,
+  //       caffeine: 0,
+  //     },
+  //     {
+  //       name: 'Wine',
+  //       coefficient: -1.6,
+  //       caffeine: 0,
+  //     },
+  //     {
+  //       name: 'Beer',
+  //       coefficient: -0.6,
+  //       caffeine: 0,
+  //     },
+  //     {
+  //       name: 'Alcohol',
+  //       coefficient: -3.5,
+  //       caffeine: 0,
+  //     }
   // ])
     console.log('Sync complete')
   })

@@ -25,6 +25,7 @@ export class DrinkController extends CrudController {
             }
           ]
         })
+      console.log(drink.toJSON())
 
       drink = await Drink.findByPk(
         drink.id,
@@ -59,6 +60,11 @@ export class DrinkController extends CrudController {
   ): Promise<void> {
     try {
       const drinks = await Drink.findAll({
+        // attributes: {
+        //   include: [
+        //     [sequelize.literal(`(SELECT * FROM "ingredients" i`), 'foo']
+        //   ],
+        // },
         include: [{
           model: Ingredient,
           as: 'ingredients',
@@ -70,6 +76,8 @@ export class DrinkController extends CrudController {
           }]
         }],
       })
+      // console.log()
+      // drinks.map(d => console.log(d.toJSON()))
       res.json(drinks)
     } catch (err) {
       res.json
@@ -83,24 +91,24 @@ export class DrinkController extends CrudController {
     try {
       const drink = await Drink.findByPk(
         req.params.id,
-        // {
-        //   include: [
-        //     {
-        //       model: Ingredient,
-        //       as: 'ingredients',
-        //       attributes: {
-        //         include: [
-        //           'parts'
-        //         ],
-        //       },
-        //       through: { attributes: [] },
-        //       include: [{
-        //         model: Drink,
-        //         attributes: ['caffeine', 'coefficient'],
-        //       }],
-        //     },
-        //   ],
-        // },
+        {
+          include: [
+            {
+              model: Ingredient,
+              as: 'ingredients',
+              attributes: {
+                include: [
+                  'parts'
+                ],
+              },
+              through: { attributes: [] },
+              include: [{
+                model: Drink,
+                attributes: ['caffeine', 'coefficient'],
+              }],
+            },
+          ],
+        },
       )
 
       const ing = await drink?.getIngredients()
