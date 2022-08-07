@@ -24,7 +24,6 @@ export class DrinkController extends CrudController {
             }
           ]
         })
-      console.log(drink.toJSON())
 
       drink = await Drink.findByPk(
         drink.id,
@@ -46,7 +45,6 @@ export class DrinkController extends CrudController {
 
       res.json(drink)
     } catch (err) {
-      console.log(err)
       res.status(500)
     }
   }
