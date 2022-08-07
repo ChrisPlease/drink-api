@@ -21,8 +21,8 @@ export class DrinkController extends CrudController {
             {
               model: Ingredient,
               as: 'ingredients',
-            }
-          ]
+            },
+          ],
         })
 
       drink = await Drink.findByPk(
@@ -51,7 +51,7 @@ export class DrinkController extends CrudController {
 
   public async read(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
       const drinks = await Drink.findAll()
@@ -63,7 +63,7 @@ export class DrinkController extends CrudController {
 
   public async readById(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
       const drink = await Drink.findByPk(
@@ -101,7 +101,7 @@ export class DrinkController extends CrudController {
 
   public async update(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     const { id } = req.params
 
@@ -112,7 +112,7 @@ export class DrinkController extends CrudController {
 
   public async delete(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     const { id } = req.params
 

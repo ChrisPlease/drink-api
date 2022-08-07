@@ -7,36 +7,36 @@ export class UserController extends CrudController {
 
   public create(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
-  ): void {
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
     throw new Error('Method not implemented.')
   }
 
   public async read(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     res.json({ foo: 'bar' })
   }
 
   public readById(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
-  ): void {
-
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
+    throw new Error('Method not implemented.')
   }
 
   public update(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
-  ): void {
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
     throw new Error('Method not implemented.')
   }
 
   public delete(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
-  ): void {
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
     throw new Error('Method not implemented.')
   }
 }
