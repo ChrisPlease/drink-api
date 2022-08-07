@@ -3,7 +3,6 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { CrudController  } from '../controller'
 import { Drink, Ingredient, sequelize } from '../../models'
-import { IngredientModel } from '../../models/Ingredient.model'
 import { DrinkModel } from '../../models/Drink.model'
 
 export class DrinkController extends CrudController {
@@ -29,26 +28,23 @@ export class DrinkController extends CrudController {
       drink = await Drink.findByPk(
         drink.id,
         {
-          include: [
-            {
-              model: Ingredient,
-              as: 'ingredients',
-              through: {
-                attributes: []
-              },
-              attributes: ['parts'],
-              include: [{
-                model: Drink,
-                attributes: ['caffeine', 'coefficient', 'name']
-              }],
-            }
-          ]
-        }
-      ) as DrinkModel
+          include: [{
+            model: Ingredient,
+            as: 'ingredients',
+            through: { attributes: [] },
+            attributes: {
+              exclude: ['drinkId', 'id'],
+              include: [
+                'parts',
+                [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
+                [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id'],
+              ],
+            },
+          }],
+        }) as DrinkModel
 
       res.json(drink)
     } catch (err) {
-      console.log(err)
       res.status(500)
     }
   }
@@ -63,11 +59,14 @@ export class DrinkController extends CrudController {
           model: Ingredient,
           as: 'ingredients',
           through: { attributes: [] },
-          attributes: ['parts'],
-          include: [{
-            model: Drink,
-            attributes: ['caffeine', 'coefficient', 'name'],
-          }]
+          attributes: {
+            exclude: ['drinkId', 'id'],
+            include: [
+              'parts',
+              [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
+              [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id'],
+            ],
+          },
         }],
       })
       res.json(drinks)
@@ -83,30 +82,25 @@ export class DrinkController extends CrudController {
     try {
       const drink = await Drink.findByPk(
         req.params.id,
-        // {
-        //   include: [
-        //     {
-        //       model: Ingredient,
-        //       as: 'ingredients',
-        //       attributes: {
-        //         include: [
-        //           'parts'
-        //         ],
-        //       },
-        //       through: { attributes: [] },
-        //       include: [{
-        //         model: Drink,
-        //         attributes: ['caffeine', 'coefficient'],
-        //       }],
-        //     },
-        //   ],
-        // },
+        {
+          include: [
+            {
+              model: Ingredient,
+              as: 'ingredients',
+              attributes: {
+                exclude: ['drinkId', 'id'],
+                include: [
+                  'parts',
+                  [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
+                  [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id'],
+                ],
+              },
+              through: { attributes: [] },
+            },
+          ],
+        },
       )
 
-      const ing = await drink?.getIngredients()
-      console.log(ing)
-      ing?.forEach((ing) => console.log(ing.toJSON()))
-      console.log(drink?.isMixedDrink, drink?.totalParts)
       if (drink === null) {
         res.status(404).json({ message: 'Not Found' })
       } else {

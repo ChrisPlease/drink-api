@@ -27,7 +27,6 @@ export class DrinkModel extends Model<
 }
 
 export const DrinkFactory = (sequelize: Sequelize) => {
-
   const Drink = DrinkModel.init({
     id: {
       type: DataTypes.INTEGER,
@@ -49,7 +48,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     },
 
     caffeine: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.FLOAT(3),
       validate: {
         min: 0,
       },
@@ -68,6 +67,23 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     modelName: 'drink',
     sequelize,
     timestamps: false,
+  })
+
+  Drink.beforeCreate(async (drink, opts) => {
+    let caffeine = drink.getDataValue('caffeine') ?? 0
+    let coefficient = drink.getDataValue('coefficient') ?? 0
+
+    if (drink.ingredients && drink.ingredients?.length > 1) {
+      const { ingredients } = drink;
+      for (let ingredient of ingredients) {
+        const { coefficient: drinkCoefficient, caffeine: drinkCaffeine } = await Drink.findByPk(ingredient.drinkId) as DrinkModel
+        caffeine += ((ingredient.parts/drink.totalParts)*drinkCaffeine)
+        coefficient += ((ingredient.parts/drink.totalParts)*drinkCoefficient)
+      }
+
+      drink.setDataValue('caffeine', caffeine)
+      drink.setDataValue('coefficient', coefficient)
+    }
   })
 
   return Drink
