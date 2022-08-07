@@ -60,24 +60,20 @@ export class DrinkController extends CrudController {
   ): Promise<void> {
     try {
       const drinks = await Drink.findAll({
-        // attributes: {
-        //   include: [
-        //     [sequelize.literal(`(SELECT * FROM "ingredients" i`), 'foo']
-        //   ],
-        // },
         include: [{
           model: Ingredient,
           as: 'ingredients',
           through: { attributes: [] },
-          attributes: ['parts'],
-          include: [{
-            model: Drink,
-            attributes: ['caffeine', 'coefficient', 'name'],
-          }]
+          attributes: {
+            exclude: ['drinkId', 'id'],
+            include: [
+              'parts',
+              [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
+              [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id']
+            ],
+          },
         }],
       })
-      // console.log()
-      // drinks.map(d => console.log(d.toJSON()))
       res.json(drinks)
     } catch (err) {
       res.json
@@ -97,24 +93,18 @@ export class DrinkController extends CrudController {
               model: Ingredient,
               as: 'ingredients',
               attributes: {
+                exclude: ['drinkId', 'id'],
                 include: [
-                  'parts'
+                  'parts',
+                  [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name']
                 ],
               },
               through: { attributes: [] },
-              include: [{
-                model: Drink,
-                attributes: ['caffeine', 'coefficient'],
-              }],
             },
           ],
         },
       )
 
-      const ing = await drink?.getIngredients()
-      console.log(ing)
-      ing?.forEach((ing) => console.log(ing.toJSON()))
-      console.log(drink?.isMixedDrink, drink?.totalParts)
       if (drink === null) {
         res.status(404).json({ message: 'Not Found' })
       } else {
