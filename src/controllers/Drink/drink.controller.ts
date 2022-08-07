@@ -3,7 +3,6 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { CrudController  } from '../controller'
 import { Drink, Ingredient, sequelize } from '../../models'
-import { IngredientModel } from '../../models/Ingredient.model'
 import { DrinkModel } from '../../models/Drink.model'
 
 export class DrinkController extends CrudController {
@@ -30,22 +29,20 @@ export class DrinkController extends CrudController {
       drink = await Drink.findByPk(
         drink.id,
         {
-          include: [
-            {
-              model: Ingredient,
-              as: 'ingredients',
-              through: {
-                attributes: []
-              },
-              attributes: ['parts'],
-              include: [{
-                model: Drink,
-                attributes: ['caffeine', 'coefficient', 'name']
-              }],
-            }
-          ]
-        }
-      ) as DrinkModel
+          include: [{
+            model: Ingredient,
+            as: 'ingredients',
+            through: { attributes: [] },
+            attributes: {
+              exclude: ['drinkId', 'id'],
+              include: [
+                'parts',
+                [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
+                [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id']
+              ],
+            },
+          }],
+        }) as DrinkModel
 
       res.json(drink)
     } catch (err) {
