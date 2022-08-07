@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { Entry } from '../../models'
+import { DateLog, Entry } from '../../models'
 import { CrudController } from '../controller'
 
 export class EntryController extends CrudController {
@@ -10,9 +10,15 @@ export class EntryController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const log = await Entry.create(req.body)
-      res.json(log)
+      const entry = await Entry.create(req.body, {
+        include: { model: DateLog },
+      })
 
+      if (entry) {
+        entry.createLog()
+      }
+
+      res.json(entry)
     } catch (err) {
       res.status(400).json(err)
     }

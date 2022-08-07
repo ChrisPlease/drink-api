@@ -2,11 +2,13 @@ import {
   CreationOptional,
   DataTypes,
   ForeignKey,
+  HasManyCreateAssociationMixin,
   InferAttributes,
   InferCreationAttributes,
   Model,
   Sequelize,
 } from 'sequelize'
+import { DateLogModel } from './DateLog.model'
 
 export class EntryModel extends Model<
   InferAttributes<EntryModel>,
@@ -15,6 +17,8 @@ export class EntryModel extends Model<
   declare id: CreationOptional<number>
 
   declare volume: number
+
+  declare createLog: HasManyCreateAssociationMixin<DateLogModel, 'entryId'>
 
   declare drinkId: ForeignKey<number>
 }
