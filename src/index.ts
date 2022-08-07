@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import bodyParser from 'body-parser'
-import { drinkRouter, logRouter } from './routes'
+import { drinkRouter, entryRouter } from './routes'
 import { PORT } from './config/constants'
 import { sequelize } from './models'
 
@@ -11,7 +11,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use('/drinks', drinkRouter)
-app.use('/entry', logRouter)
+app.use('/entries', entryRouter)
 
 app.get('/', (req, res) => {
   res.json({ info: 'Typescript With Express' })

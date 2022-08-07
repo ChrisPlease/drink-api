@@ -68,7 +68,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     timestamps: false,
   })
 
-  Drink.beforeCreate(async (drink, opts) => {
+  Drink.beforeCreate(async (drink) => {
     let caffeine = drink.getDataValue('caffeine') ?? 0
     let coefficient = drink.getDataValue('coefficient') ?? 0
 
