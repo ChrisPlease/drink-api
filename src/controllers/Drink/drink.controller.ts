@@ -54,21 +54,7 @@ export class DrinkController extends CrudController {
     res: Response<any, Record<string, any>>
   ): Promise<void> {
     try {
-      const drinks = await Drink.findAll({
-        include: [{
-          model: Ingredient,
-          as: 'ingredients',
-          through: { attributes: [] },
-          attributes: {
-            exclude: ['drinkId', 'id'],
-            include: [
-              'parts',
-              [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
-              [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id'],
-            ],
-          },
-        }],
-      })
+      const drinks = await Drink.findAll()
       res.json(drinks)
     } catch (err) {
       res.json
