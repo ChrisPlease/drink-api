@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { DateLog, Drink, Entry, sequelize } from '../../models'
-import { CrudController, ICrudController } from '../controller'
+import { CrudController } from '../controller'
 
 export class EntryController extends CrudController {
   public async create(
