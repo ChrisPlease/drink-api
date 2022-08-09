@@ -36,7 +36,7 @@ export const EntryFactory = (sequelize: Sequelize) => {
       allowNull: false,
     },
   }, {
-    modelName: 'Entry',
+    modelName: 'entry',
     sequelize,
     timestamps: false,
     underscored: true,
