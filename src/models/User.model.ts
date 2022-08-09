@@ -11,9 +11,9 @@ export class UserModel extends Model<
   InferAttributes<UserModel>,
   InferCreationAttributes<UserModel>
 > {
-  declare id: CreationOptional<number>;
-  declare username?: string;
-  declare email: string;
+  declare id: CreationOptional<number>
+  declare username?: string
+  declare email: string
 }
 
 export const UserFactory = (sequelize: Sequelize) => {
@@ -37,7 +37,7 @@ export const UserFactory = (sequelize: Sequelize) => {
       },
       set(value: string) {
         this.setDataValue('email', value.toLowerCase())
-      }
+      },
     },
   }, {
     sequelize,

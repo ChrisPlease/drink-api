@@ -21,8 +21,8 @@ export class DrinkController extends CrudController {
             {
               model: Ingredient,
               as: 'ingredients',
-            }
-          ]
+            },
+          ],
         })
 
       drink = await Drink.findByPk(
@@ -51,24 +51,10 @@ export class DrinkController extends CrudController {
 
   public async read(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const drinks = await Drink.findAll({
-        include: [{
-          model: Ingredient,
-          as: 'ingredients',
-          through: { attributes: [] },
-          attributes: {
-            exclude: ['drinkId', 'id'],
-            include: [
-              'parts',
-              [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
-              [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id'],
-            ],
-          },
-        }],
-      })
+      const drinks = await Drink.findAll()
       res.json(drinks)
     } catch (err) {
       res.json
@@ -77,7 +63,7 @@ export class DrinkController extends CrudController {
 
   public async readById(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
       const drink = await Drink.findByPk(
@@ -115,7 +101,7 @@ export class DrinkController extends CrudController {
 
   public async update(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     const { id } = req.params
 
@@ -126,7 +112,7 @@ export class DrinkController extends CrudController {
 
   public async delete(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>
+    res: Response<any, Record<string, any>>,
   ): Promise<void> {
     const { id } = req.params
 

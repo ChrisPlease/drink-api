@@ -3,6 +3,8 @@ import { Sequelize } from 'sequelize'
 import { DrinkFactory } from './Drink.model'
 import { IngredientFactory } from './Ingredient.model'
 import { UserFactory } from './User.model'
+import { EntryFactory } from './Entry.model'
+import { DateLogFactory } from './DateLog.model'
 
 export const sequelize = new Sequelize(
   config.database,
@@ -16,14 +18,30 @@ export const sequelize = new Sequelize(
 )
 
 const User = UserFactory(sequelize)
+
 const Drink = DrinkFactory(sequelize)
 const Ingredient = IngredientFactory(sequelize)
+const DrinkIngredients = sequelize.define(
+  'DrinkIngredients',
+  {},
+  {
+    timestamps: false,
+    underscored: true,
+    tableName: 'drink_ingredients',
+  },
+)
+
+const Entry = EntryFactory(sequelize)
+const DateLog = DateLogFactory(sequelize)
 
 Drink.hasMany(Ingredient, { as: 'ingredients', foreignKey: { name: 'drinkId', field: 'drink_id' } })
 Ingredient.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id'  } })
-
-const DrinkIngredients = sequelize.define('DrinkIngredients', {}, { timestamps: false, underscored: true, tableName: 'drink_ingredients' })
-
 Drink.belongsToMany(Ingredient, { through: DrinkIngredients })
 
-export { User, Drink, Ingredient }
+Drink.hasMany(Entry, { foreignKey: { name: 'drinkId', field: 'drink_id' }})
+Entry.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id' } })
+
+Entry.hasOne(DateLog, { foreignKey: { name: 'entryId', field: 'entry_id' } })
+DateLog.belongsTo(Entry, { foreignKey: { name: 'entryId', field: 'entry_id' } })
+
+export { User, Drink, Ingredient, Entry, DateLog }
