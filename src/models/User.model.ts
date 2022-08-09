@@ -14,6 +14,7 @@ export class UserModel extends Model<
   declare id: CreationOptional<number>
   declare username?: string
   declare email: string
+  declare password: string
 }
 
 export const UserFactory = (sequelize: Sequelize) => {
@@ -39,8 +40,21 @@ export const UserFactory = (sequelize: Sequelize) => {
         this.setDataValue('email', value.toLowerCase())
       },
     },
+
+    password: {
+      type: DataTypes.STRING,
+      get() {
+        return this.getDataValue('password')
+      },
+      set(value: string) {
+        console.log(value)
+        this.setDataValue('password', value.toLowerCase())
+      },
+    },
+
   }, {
     sequelize,
+    underscored: true,
     modelName: 'user',
   })
 
