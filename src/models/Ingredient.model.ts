@@ -12,10 +12,10 @@ export class IngredientModel extends Model<
   InferAttributes<IngredientModel>,
   InferCreationAttributes<IngredientModel>
 > {
-  declare id: CreationOptional<number>;
-  declare parts: number;
+  declare id: CreationOptional<number>
+  declare parts: number
 
-  declare drinkId: ForeignKey<number>;
+  declare drinkId: ForeignKey<number>
 }
 
 export const IngredientFactory = (sequelize: Sequelize) => {

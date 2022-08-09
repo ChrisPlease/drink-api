@@ -1,7 +1,7 @@
 module.exports = {
     "env": {
         "es2021": true,
-        "node": true
+        "node": true,
     },
     "extends": [
         "eslint:recommended",
@@ -12,10 +12,10 @@ module.exports = {
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": "latest",
-        "sourceType": "module"
+        "sourceType": "module",
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
     ],
     "rules": {
       "semi": "off",
@@ -23,18 +23,28 @@ module.exports = {
 
       // Typescript rules
       "@typescript-eslint/semi": ["error", "never"],
-      "@typescript-eslint/member-delimiter-style": [{
-        "delimiter": "semi",
-        "requireLast": true,
+      "@typescript-eslint/member-delimiter-style": ["error", {
+        "multiline": {
+          "delimiter": "comma",
+          "requireLast": true,
+        },
+        "overrides": {
+          "interface": {
+            "multiline": {
+              "delimiter": "semi",
+              "requireLast": true,
+            },
+          },
+        },
       }],
       "@typescript-eslint/no-explicit-any": ["off"],
-      "@typescript-eslint/comma-dangle": ["error"]
+      "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
     },
     "settings": {
       "import/resolver": {
         "typescript": {
           "alwaysTryTypes": true,
-        }
+        },
       },
       "import/parsers": {
         "@typescript-eslint/parser": [".ts", ".tsx"],
