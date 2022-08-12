@@ -11,22 +11,17 @@ export const router = Router({
 
 passport.use(new LocalStrategy(async (username, password, done) => {
   try {
-    const user = await User.findOne({ where: { username } })
-    if (!user) {
-      return done(new AuthError(400, 'Username does not exist'))
-    }
-
+    const user = await User.scope('withPassword').findOne({ where: { username } })
     const isAuth = await user?.authenticate(password)
 
-    if (!isAuth) {
-      return done(new AuthError(401, 'Incorrect credentials'))
+    if (!isAuth || !user) {
+      throw new AuthError(401, 'Invalid credentials. Please try again or sign up')
     }
 
-    console.log('have the user')
     return done(null, user)
 
   } catch (err) {
-    return done({ message: `error: ${err}` })
+    return done(err)
   }
 }))
 
