@@ -14,5 +14,10 @@ router.post(
 router.post(
   '/login',
   passport.authenticate('local'),
-  (req, res) => authController.login(req, res),
+  (req, res) =>  authController.login(req, res),
+)
+
+router.post(
+  '/logout',
+  (req, res) => authController.logout(req, res),
 )
