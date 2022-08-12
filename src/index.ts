@@ -4,11 +4,13 @@ import session, { Store } from 'express-session'
 import bodyParser from 'body-parser'
 import { authRouter, drinkRouter, entryRouter, userRouter } from './routes'
 import { PORT } from './config/constants'
-import { /* Drink,  */sequelize } from './models'
+import { sequelize } from './models'
 import SequelizeSessionInit from 'connect-session-sequelize'
 import passport from 'passport'
-
+import { authHandler } from './middleware/authHandler'
+import { errorHandler } from './middleware/errorHandler'
 import './config/passport'
+
 
 const SequelizeStore = SequelizeSessionInit(Store)
 
@@ -32,15 +34,17 @@ app.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.use(authRouter)
+app.use('/auth', authRouter)
 
-app.use('/drinks', passport.authenticate('local'), drinkRouter)
-app.use('/entries', entryRouter)
-app.use('/users', passport.authenticate('local'), userRouter)
+app.use('/drinks', authHandler, drinkRouter)
+app.use('/entries', authHandler, entryRouter)
+app.use('/users', authHandler, userRouter)
 
 app.get('/', (req, res) => {
   res.json({ info: 'Typescript With Express' })
 })
+
+app.use(errorHandler)
 
 sequelize.sync({ alter: true })
   .then(async () => {
