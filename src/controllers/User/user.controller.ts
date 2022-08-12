@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { User } from '../../models'
+import { UserModel } from '../../models/User.model'
 import { CrudController } from '../controller'
 
 export class UserController extends CrudController {
@@ -31,13 +32,39 @@ export class UserController extends CrudController {
     }
     res.json({ title: 'foo' })
   }
-  public readById(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void> {
-    throw new Error('Method not implemented.')
+  public async readById(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
+    try {
+      const user = await User.findByPk(req.params.id)
+
+      if (!user) {
+        res.status(404).json({ message: 'user not found' })
+      }
+      res.json(user)
+    } catch (err) {
+      res.status(404).json({})
+    }
   }
   public update(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  public delete(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void> {
-    throw new Error('Method not implemented.')
+  public async delete(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
+    try {
+      const userId = (req.user as UserModel).id
+
+      if (+req.params.id === userId) {
+        await User.destroy({ where: { id: userId } })
+        res.status(201).json({})
+      } else {
+        res.status(403).json({ message: 'Lack Permissions' })
+      }
+    } catch (err) {
+      res.status(400).json('error')
+    }
   }
 }
