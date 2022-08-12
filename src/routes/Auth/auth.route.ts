@@ -13,7 +13,7 @@ router.post(
 
 router.post(
   '/login',
-  passport.authenticate('local'),
+  passport.authenticate('local', { failWithError: true }),
   (req, res) =>  authController.login(req, res),
 )
 
