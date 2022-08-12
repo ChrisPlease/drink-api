@@ -64,6 +64,18 @@ export const UserFactory = (sequelize: Sequelize) => {
     sequelize,
     underscored: true,
     modelName: 'user',
+    defaultScope: {
+      attributes: {
+        exclude: ['password'],
+      },
+    },
+    scopes: {
+      withPassword: {
+        attributes: {
+          exclude: [],
+        },
+      },
+    },
   })
 
   return User
