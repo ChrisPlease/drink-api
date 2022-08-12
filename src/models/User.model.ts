@@ -6,6 +6,7 @@ import {
   DataTypes,
   Sequelize,
 } from 'sequelize'
+import * as bcrypt from 'bcrypt'
 
 export class UserModel extends Model<
   InferAttributes<UserModel>,
@@ -15,6 +16,10 @@ export class UserModel extends Model<
   declare username?: string
   declare email: string
   declare password: string
+
+  async authenticate(password: string): Promise<boolean> {
+    return bcrypt.compare(password, this.password)
+  }
 }
 
 export const UserFactory = (sequelize: Sequelize) => {
@@ -28,11 +33,14 @@ export const UserFactory = (sequelize: Sequelize) => {
 
     username: {
       type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
     },
 
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       get() {
         return this.getDataValue('email')
       },
@@ -47,8 +55,8 @@ export const UserFactory = (sequelize: Sequelize) => {
         return this.getDataValue('password')
       },
       set(value: string) {
-        console.log(value)
-        this.setDataValue('password', value.toLowerCase())
+        const hashedPass = bcrypt.hashSync(value, 10)
+        this.setDataValue('password', hashedPass)
       },
     },
 

@@ -1,4 +1,17 @@
-import { Model, InferAttributes, InferCreationAttributes, CreationOptional, DataTypes, HasManyAddAssociationsMixin, HasManyGetAssociationsMixin, NonAttribute, Sequelize, HasManySetAssociationsMixin, HasManyAddAssociationMixin } from 'sequelize'
+import {
+  Model,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+  DataTypes,
+  HasManyAddAssociationsMixin,
+  HasManyGetAssociationsMixin,
+  NonAttribute,
+  Sequelize,
+  HasManySetAssociationsMixin,
+  HasManyAddAssociationMixin,
+  ForeignKey,
+} from 'sequelize'
 import { IngredientModel } from './Ingredient.model'
 
 export class DrinkModel extends Model<
@@ -19,6 +32,8 @@ export class DrinkModel extends Model<
   declare ingredients?: NonAttribute<IngredientModel[]>
 
   declare totalParts: CreationOptional<number>
+
+  declare userId: ForeignKey<number>
 
   get isMixedDrink(): NonAttribute<boolean> {
     return !!this.ingredients?.length
