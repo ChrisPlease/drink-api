@@ -1,9 +1,9 @@
-import express, { Request, Response } from 'express';
-import { drinkController } from '../../controllers';
+import express, { Request, Response } from 'express'
+import { drinkController } from '../../controllers'
 
 export const router = express.Router({
   strict: true,
-});
+})
 
 router.get('/', (req: Request, res: Response) => {
   drinkController.read(req, res)

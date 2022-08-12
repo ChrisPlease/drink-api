@@ -34,6 +34,12 @@ const DrinkIngredients = sequelize.define(
 const Entry = EntryFactory(sequelize)
 const DateLog = DateLogFactory(sequelize)
 
+User.hasMany(Drink, { as: 'drinks', foreignKey: { name: 'userId', field: 'user_id' } })
+Drink.belongsTo(User, { foreignKey: { name: 'userId', field: 'user_id' } })
+
+User.hasMany(Entry, { as: 'entries', foreignKey: { name: 'userId', field: 'user_id' } })
+Entry.belongsTo(User, { foreignKey: { name: 'userId', field: 'user_id' } })
+
 Drink.hasMany(Ingredient, { as: 'ingredients', foreignKey: { name: 'drinkId', field: 'drink_id' } })
 Ingredient.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id'  } })
 Drink.belongsToMany(Ingredient, { through: DrinkIngredients })

@@ -2,8 +2,9 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { CrudController  } from '../controller'
-import { Drink, Ingredient, sequelize } from '../../models'
+import { Drink, Ingredient, sequelize, User } from '../../models'
 import { DrinkModel } from '../../models/Drink.model'
+import { UserModel } from '../../models/User.model'
 
 export class DrinkController extends CrudController {
 
@@ -13,9 +14,10 @@ export class DrinkController extends CrudController {
     >,
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
+    const userId = (req.user as UserModel)?.id
     try {
       let drink = await Drink.create(
-        req.body,
+        { ...req.body, userId },
         {
           include: [
             {
@@ -57,7 +59,7 @@ export class DrinkController extends CrudController {
       const drinks = await Drink.findAll()
       res.json(drinks)
     } catch (err) {
-      res.json
+      res.status(401).json(err)
     }
   }
 
@@ -82,6 +84,9 @@ export class DrinkController extends CrudController {
                 ],
               },
               through: { attributes: [] },
+            },
+            {
+              model: User,
             },
           ],
         },
@@ -115,8 +120,15 @@ export class DrinkController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     const { id } = req.params
+    const userId = (req.user as UserModel)?.id
 
-    await Drink.destroy({ where: { id } })
-    res.json({})
+    const drink = await Drink.findByPk(id)
+
+    if (drink?.userId === userId) {
+      await Drink.destroy({ where: { id } })
+      res.json({})
+    } else {
+      res.status(403).json({ message: 'not enough stuff to delete this' })
+    }
   }
 }
