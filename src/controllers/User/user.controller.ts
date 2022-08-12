@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { Drink, User } from '../../models'
+import { User } from '../../models'
 import { CrudController } from '../controller'
 
 export class UserController extends CrudController {
