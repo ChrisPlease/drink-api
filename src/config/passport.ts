@@ -25,7 +25,7 @@ passport.use(new LocalStrategy(async (username, password, done) => {
   }
 }))
 
-interface PassportUser {
+export interface PassportUser {
   id: number;
   username: string;
 }
