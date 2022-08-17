@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { User } from "../../models"
+import { UserModel } from "../../models/User.model"
 
 export class AuthController {
   async signup(req: Request, res: Response): Promise<void> {
@@ -12,7 +13,9 @@ export class AuthController {
   }
 
   async login(req: Request, res: Response): Promise<void> {
-    res.status(201).json({})
+    const user = await User.findByPk((req.user as UserModel)?.id)
+
+    res.status(201).json(user)
   }
 
   async logout(req: Request, res: Response): Promise<void> {

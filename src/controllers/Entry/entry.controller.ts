@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { DateLog, Drink, Entry, sequelize } from '../../models'
+import { UserModel } from '../../models/User.model'
 import { CrudController } from '../controller'
 
 export class EntryController extends CrudController {
@@ -10,7 +11,8 @@ export class EntryController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const entry = await Entry.create(req.body, {
+      const userId = (req.user as UserModel)?.id
+      const entry = await Entry.create({ ...req.body, userId }, {
         include: { model: DateLog },
       })
 
@@ -29,7 +31,27 @@ export class EntryController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
+      const userId = (req.user as UserModel)?.id
+      const drinkId = req.query.drinkId ? +req.query.drinkId : null
       const entries = await Entry.findAll({
+        where: {
+          userId,
+          ...(drinkId ? { drinkId } : {}),
+        },
+        attributes: ['drink.name', 'volume', 'log.entry_timestamp'],
+        include: [
+          {
+            model: DateLog,
+            attributes: ['entryTimestamp'],
+          },
+          {
+            model: Drink,
+            attributes: ['name'],
+          },
+        ],
+      })
+
+      /* {
         ...(req.query.drinkId ? { where: { drinkId: +req.query.drinkId } } : {}),
         group: 'drink.name',
         attributes: [
@@ -41,7 +63,7 @@ export class EntryController extends CrudController {
           { model: Drink },
           { model: DateLog },
         ],
-      })
+      } */
 
       res.json(entries)
     } catch (err) {

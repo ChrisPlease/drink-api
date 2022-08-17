@@ -47,8 +47,11 @@ export class UserController extends CrudController {
       res.status(404).json({})
     }
   }
-  public update(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void> {
-    throw new Error('Method not implemented.')
+  public async update(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
+    await res.json({ message: 'method not implemented' })
   }
   public async delete(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
