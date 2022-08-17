@@ -1,7 +1,7 @@
-import express, { Request, Response } from 'express'
+import { Request, Response, Router } from 'express'
 import { drinkController } from '../controllers'
 
-export const router = express.Router({
+export const router = Router({
   strict: true,
 })
 

@@ -11,7 +11,6 @@ import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
 import './config/passport'
 
-
 const SequelizeStore = SequelizeSessionInit(Store)
 
 const app: express.Application = express()

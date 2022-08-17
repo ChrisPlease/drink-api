@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
-import { User } from "../../models"
-import { UserModel } from "../../models/User.model"
+import { User } from "../models"
+import { UserModel } from "../models/User.model"
 
 export class AuthController {
   async signup(req: Request, res: Response): Promise<void> {

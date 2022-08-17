@@ -1,8 +1,8 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { DateLog, Drink, Entry } from '../../models'
-import { Controller } from '../controller'
+import { DateLog, Drink, Entry } from '../models'
+import type { Controller } from './interfaces'
 
 export class EntryController implements Controller {
   public async create(
@@ -63,13 +63,18 @@ export class EntryController implements Controller {
   ): Promise<void> {
     throw new Error('Method not implemented.')
   }
+
   public update(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  public delete(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void> {
+
+  public delete(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
     throw new Error('Method not implemented.')
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */

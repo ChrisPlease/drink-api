@@ -1,10 +1,10 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { PassportUser } from '../../config/passport'
-import { AuthError } from '../../middleware/authHandler'
-import { Drink, User } from '../../models'
-import { Controller } from '../controller'
+import { PassportUser } from '../config/passport'
+import { AuthError } from '../middleware/authHandler'
+import { Drink, User } from '../models'
+import { Controller } from './interfaces'
 
 export class UserController implements Controller {
   public async create(

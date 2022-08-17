@@ -1,10 +1,10 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { Controller } from '../controller'
-import { Drink, Ingredient, sequelize, User } from '../../models'
-import { DrinkModel } from '../../models/Drink.model'
-import { UserModel } from '../../models/User.model'
+import { Controller } from './interfaces'
+import { Drink, Ingredient, sequelize, User } from '../models'
+import { DrinkModel } from '../models/Drink.model'
+import { UserModel } from '../models/User.model'
 
 export class DrinkController implements Controller {
 
