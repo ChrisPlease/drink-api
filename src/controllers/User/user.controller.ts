@@ -1,6 +1,8 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
+import { PassportUser } from '../../config/passport'
+import { AuthError } from '../../middleware/authHandler'
 import { User } from '../../models'
 import { UserModel } from '../../models/User.model'
 import { CrudController } from '../controller'
@@ -51,8 +53,28 @@ export class UserController extends CrudController {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
-    await res.json({ message: 'method not implemented' })
+    const userId = (req.user as PassportUser).id
+    const { password } = req.body
+
+    if (+req.params.id !== userId) {
+      throw new AuthError(403, 'insufficient perms')
+    }
+
+    try {
+      const user = await User.findByPk(userId)
+
+      if (user) {
+        user.password = password
+        await user.save()
+
+        res.status(201).json({ message: 'user has been updated' })
+      }
+
+    } catch (err) {
+      console.log(err)
+    }
   }
+
   public async delete(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,
