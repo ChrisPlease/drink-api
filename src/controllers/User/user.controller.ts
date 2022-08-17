@@ -3,11 +3,10 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { PassportUser } from '../../config/passport'
 import { AuthError } from '../../middleware/authHandler'
-import { User } from '../../models'
-import { UserModel } from '../../models/User.model'
-import { CrudController } from '../controller'
+import { Drink, User } from '../../models'
+import { Controller } from '../controller'
 
-export class UserController extends CrudController {
+export class UserController implements Controller {
   public async create(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>,
   ): Promise<void> {
@@ -39,14 +38,24 @@ export class UserController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const user = await User.findByPk(req.params.id)
+
+      const user = await User.findByPk(
+        req.params.id,
+        {
+          include: {
+            model: Drink,
+            as: 'drinks',
+            attributes: ['name', 'caffeine', 'coefficient'],
+          },
+        },
+      )
 
       if (!user) {
-        res.status(404).json({ message: 'user not found' })
+        throw new Error('foo')
       }
       res.json(user)
     } catch (err) {
-      res.status(404).json({})
+      res.status(404).json(err)
     }
   }
   public async update(
@@ -80,7 +89,7 @@ export class UserController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const userId = (req.user as UserModel).id
+      const userId = req.user?.id
 
       if (+req.params.id === userId) {
         await User.destroy({ where: { id: userId } })

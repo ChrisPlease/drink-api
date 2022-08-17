@@ -6,7 +6,7 @@ export class AuthController {
   async signup(req: Request, res: Response): Promise<void> {
     try {
       await User.create(req.body)
-      res.status(201)
+      res.status(201).json({})
     } catch (err) {
       res.status(400).json(err)
     }

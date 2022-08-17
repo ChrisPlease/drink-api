@@ -5,7 +5,10 @@ import {
   CreationOptional,
   DataTypes,
   Sequelize,
+  NonAttribute,
+  HasManyGetAssociationsMixin,
 } from 'sequelize'
+import { DrinkModel } from './Drink.model'
 import * as bcrypt from 'bcrypt'
 
 export class UserModel extends Model<
@@ -17,8 +20,12 @@ export class UserModel extends Model<
   declare email: string
   declare password: string
 
+  declare drinks?: NonAttribute<DrinkModel>
+
+  declare getDrinks: HasManyGetAssociationsMixin<DrinkModel[]>
+
   async authenticate(password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password)
+    return await bcrypt.compare(password, this.password)
   }
 }
 

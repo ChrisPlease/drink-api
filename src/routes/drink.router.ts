@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express'
-import { drinkController } from '../../controllers'
+import { drinkController } from '../controllers'
 
 export const router = express.Router({
   strict: true,

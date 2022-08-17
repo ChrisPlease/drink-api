@@ -1,12 +1,12 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { CrudController  } from '../controller'
+import { Controller } from '../controller'
 import { Drink, Ingredient, sequelize, User } from '../../models'
 import { DrinkModel } from '../../models/Drink.model'
 import { UserModel } from '../../models/User.model'
 
-export class DrinkController extends CrudController {
+export class DrinkController implements Controller {
 
   public async create(
     req: Request<
@@ -56,7 +56,7 @@ export class DrinkController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const drinks = await Drink.findAll()
+      const drinks = await Drink.findAll({ where: { userId: null || req.user?.id }})
       res.json(drinks)
     } catch (err) {
       res.status(401).json(err)
@@ -71,6 +71,9 @@ export class DrinkController extends CrudController {
       const drink = await Drink.findByPk(
         req.params.id,
         {
+          attributes: {
+            exclude: ['userId'],
+          },
           include: [
             {
               model: Ingredient,

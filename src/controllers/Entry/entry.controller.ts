@@ -2,16 +2,15 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { DateLog, Drink, Entry } from '../../models'
-import { UserModel } from '../../models/User.model'
-import { CrudController } from '../controller'
+import { Controller } from '../controller'
 
-export class EntryController extends CrudController {
+export class EntryController implements Controller {
   public async create(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const userId = (req.user as UserModel)?.id
+      const userId = req.user?.id
       const entry = await Entry.create({ ...req.body, userId }, {
         include: { model: DateLog },
       })
@@ -31,7 +30,7 @@ export class EntryController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const userId = (req.user as UserModel)?.id
+      const userId = req.user?.id
       const drinkId = req.query.drinkId ? +req.query.drinkId : null
       const entries = await Entry.findAll({
         where: {
@@ -73,5 +72,5 @@ export class EntryController extends CrudController {
   public delete(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void> {
     throw new Error('Method not implemented.')
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }
-/* eslint-enable @typescript-eslint/no-unused-vars */
