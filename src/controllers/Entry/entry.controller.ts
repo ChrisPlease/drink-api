@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { DateLog, Drink, Entry, sequelize } from '../../models'
+import { DateLog, Drink, Entry } from '../../models'
 import { UserModel } from '../../models/User.model'
 import { CrudController } from '../controller'
 
@@ -50,20 +50,6 @@ export class EntryController extends CrudController {
           },
         ],
       })
-
-      /* {
-        ...(req.query.drinkId ? { where: { drinkId: +req.query.drinkId } } : {}),
-        group: 'drink.name',
-        attributes: [
-          'drink.name',
-          [sequelize.fn('SUM', 'entry.volume'), 'total_volume'],
-          [sequelize.fn('COUNT', sequelize.col('log.entry_timestamp')), 'foo'],
-        ],
-        include: [
-          { model: Drink },
-          { model: DateLog },
-        ],
-      } */
 
       res.json(entries)
     } catch (err) {
