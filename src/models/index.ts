@@ -21,7 +21,7 @@ const User = UserFactory(sequelize)
 
 const Drink = DrinkFactory(sequelize)
 const Ingredient = IngredientFactory(sequelize)
-const DrinkIngredients = sequelize.define(
+export const DrinkIngredients = sequelize.define(
   'DrinkIngredients',
   {},
   {

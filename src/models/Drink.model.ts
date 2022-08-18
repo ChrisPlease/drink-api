@@ -12,6 +12,7 @@ import {
   HasManyAddAssociationMixin,
   ForeignKey,
 } from 'sequelize'
+import { DrinkIngredients } from '.'
 import { IngredientModel } from './Ingredient.model'
 
 export class DrinkModel extends Model<
@@ -24,19 +25,25 @@ export class DrinkModel extends Model<
   declare coefficient: CreationOptional<number>
   declare caffeine: CreationOptional<number>
 
-  declare setIngredients: HasManySetAssociationsMixin<IngredientModel, number>
-  declare addIngredient: HasManyAddAssociationMixin<DrinkModel, number>
+  declare setIngredients: HasManySetAssociationsMixin<IngredientModel, 'drinkId'>
+  declare addIngredient: HasManyAddAssociationMixin<IngredientModel, number>
   declare addIngredients: HasManyAddAssociationsMixin<IngredientModel, number>
   declare getIngredients: HasManyGetAssociationsMixin<IngredientModel>
 
   declare ingredients?: NonAttribute<IngredientModel[]>
 
+  declare getDrinkIngredients: HasManyGetAssociationsMixin<typeof DrinkIngredients>
+
   declare totalParts: CreationOptional<number>
 
-  declare userId: ForeignKey<number>
+  declare userId: ForeignKey<number | null>
 
   get isMixedDrink(): NonAttribute<boolean> {
     return !!this.ingredients?.length
+  }
+
+  isUserDrink(drinkId: number): NonAttribute<boolean> {
+    return drinkId === this.id
   }
 }
 
@@ -83,7 +90,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     timestamps: false,
   })
 
-  Drink.beforeCreate(async (drink) => {
+  Drink.beforeSave(async (drink) => {
     let caffeine = drink.getDataValue('caffeine') ?? 0
     let coefficient = drink.getDataValue('coefficient') ?? 0
 
