@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { PassportUser } from '../config/passport'
 import { AuthError } from '../middleware/authHandler'
 import { Drink, User } from '../models'
 import { Controller } from './interfaces'
@@ -62,7 +61,7 @@ export class UserController implements Controller {
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
-    const userId = (req.user as PassportUser).id
+    const userId = req.user?.id
     const { password } = req.body
 
     if (+req.params.id !== userId) {
