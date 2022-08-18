@@ -17,7 +17,7 @@ router.post('/', (req, res) => {
   drinkController.create(req, res)
 })
 
-router.put('/:id', (req: Request, res: Response) => {
+router.patch('/:id', (req: Request, res: Response) => {
   drinkController.update(req, res)
 })
 
