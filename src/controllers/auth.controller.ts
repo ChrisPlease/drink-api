@@ -1,6 +1,5 @@
-import { Request, Response } from "express"
-import { User } from "../models"
-import { UserModel } from "../models/User.model"
+import { Request, Response } from 'express'
+import { User } from '../models'
 
 export class AuthController {
   async signup(req: Request, res: Response): Promise<void> {
@@ -13,7 +12,7 @@ export class AuthController {
   }
 
   async login(req: Request, res: Response): Promise<void> {
-    const user = await User.findByPk((req.user as UserModel)?.id)
+    const user = await User.findByPk(req.user?.id)
 
     res.status(201).json(user)
   }

@@ -39,8 +39,8 @@ export class DrinkController implements Controller {
               exclude: ['drinkId', 'id'],
               include: [
                 'parts',
-                [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
-                [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id'],
+                [sequelize.literal('(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)'), 'name'],
+                [sequelize.literal('(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)'), 'id'],
               ],
             },
           }],
@@ -70,8 +70,8 @@ export class DrinkController implements Controller {
               exclude: ['drinkId', 'id'],
               include: [
                 'parts',
-                [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
-                [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id'],
+                [sequelize.literal('(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)'), 'name'],
+                [sequelize.literal('(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)'), 'id'],
               ],
             },
           }],
@@ -107,8 +107,8 @@ export class DrinkController implements Controller {
                 exclude: ['drinkId', 'id'],
                 include: [
                   'parts',
-                  [sequelize.literal(`(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)`), 'name'],
-                  [sequelize.literal(`(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)`), 'id'],
+                  [sequelize.literal('(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)'), 'name'],
+                  [sequelize.literal('(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)'), 'id'],
                 ],
               },
               through: { attributes: [] },
