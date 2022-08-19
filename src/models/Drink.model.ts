@@ -12,7 +12,6 @@ import {
   HasManyAddAssociationMixin,
   ForeignKey,
 } from 'sequelize'
-import { DrinkIngredients } from '.'
 import { IngredientModel } from './Ingredient.model'
 
 export class DrinkModel extends Model<
@@ -31,8 +30,6 @@ export class DrinkModel extends Model<
   declare getIngredients: HasManyGetAssociationsMixin<IngredientModel>
 
   declare ingredients?: NonAttribute<IngredientModel[]>
-
-  declare getDrinkIngredients: HasManyGetAssociationsMixin<typeof DrinkIngredients>
 
   declare totalParts: CreationOptional<number>
 
@@ -88,6 +85,12 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     modelName: 'drink',
     sequelize,
     timestamps: false,
+
+    defaultScope: {
+      attributes: {
+        exclude: ['userId', 'totalParts'],
+      },
+    },
   })
 
   Drink.beforeSave(async (drink) => {

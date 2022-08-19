@@ -140,11 +140,16 @@ export class DrinkController implements Controller {
     const newDrink = req.body
     console.log(newDrink)
     try {
-      const drink = await Drink.findByPk(id)
+      const drink = await Drink.findByPk(id, { include: { model: Ingredient, as: 'ingredients' }})
 
       if (!drink) {
         throw new Error('Not found')
+      }
 
+      console.log(drink.isMixedDrink)
+
+      if (drink.isMixedDrink) {
+        console.log('is mixed drink')
       }
 
       drink.name = req.body.name
@@ -171,7 +176,7 @@ export class DrinkController implements Controller {
 
     if (drink?.userId === userId) {
       await Drink.destroy({ where: { id } })
-      res.json({})
+      res.status(201).end()
     } else {
       res.status(403).json({ message: 'not enough stuff to delete this' })
     }
