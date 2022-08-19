@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import passport from 'passport'
-import { authController } from '../../controllers'
+import { authController } from '../controllers'
 
 export const router = Router({
   strict: true,

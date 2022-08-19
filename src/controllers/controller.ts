@@ -1,9 +1,0 @@
-import { Request, Response } from 'express'
-
-export abstract class CrudController {
-  public abstract create(req: Request, res: Response): Promise<void>
-  public abstract read(req: Request, res: Response): Promise<void>
-  public abstract readById(req: Request, res: Response): Promise<void>
-  public abstract update(req: Request,  res: Response): Promise<void>
-  public abstract delete(req: Request, res: Response): Promise<void>
-}

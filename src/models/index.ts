@@ -1,4 +1,4 @@
-import { config } from '../config/constants'
+import { dbConfig } from '../config/constants'
 import { Sequelize } from 'sequelize'
 import { DrinkFactory } from './Drink.model'
 import { IngredientFactory } from './Ingredient.model'
@@ -7,12 +7,13 @@ import { EntryFactory } from './Entry.model'
 import { DateLogFactory } from './DateLog.model'
 
 export const sequelize = new Sequelize(
-  config.database,
-  config.user,
-  config.password,
+  dbConfig.database,
+  dbConfig.user,
+  dbConfig.password,
   {
     // logging: false,
-    host: config.host,
+    quoteIdentifiers: false,
+    host: dbConfig.host,
     dialect: 'postgres',
   },
 )
@@ -21,7 +22,7 @@ const User = UserFactory(sequelize)
 
 const Drink = DrinkFactory(sequelize)
 const Ingredient = IngredientFactory(sequelize)
-const DrinkIngredients = sequelize.define(
+export const DrinkIngredients = sequelize.define(
   'DrinkIngredients',
   {},
   {

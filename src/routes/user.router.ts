@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express'
-import { userController } from '../../controllers'
+import { userController } from '../controllers'
 
 export const router = Router({
   strict: true,
@@ -17,9 +17,9 @@ router.post('/', (req, res) => {
   userController.create(req, res)
 })
 
-// router.put('/:id', (req: Request, res: Response) => {
-//   entryController.update(req, res)
-// })
+router.patch('/:id', (req: Request, res: Response) => {
+  userController.update(req, res)
+})
 
 router.delete('/:id', (req: Request, res: Response) => {
   userController.delete(req, res)
