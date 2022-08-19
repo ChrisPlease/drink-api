@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler)
 
-sequelize.sync({ alter: true })
+sequelize.sync()
   .then(async () => {
     // await Drink.bulkCreate([
     //   {

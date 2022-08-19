@@ -1,21 +1,13 @@
 import { Request, Response } from 'express'
-import { ParamsDictionary } from 'express-serve-static-core'
-import { ParsedQs } from 'qs'
 import { Controller } from './interfaces'
 import { Drink, Ingredient, sequelize, User } from '../models'
 import { DrinkModel } from '../models/Drink.model'
-import { UserModel } from '../models/User.model'
 import { Op } from 'sequelize'
 
 export class DrinkController implements Controller {
 
-  public async create(
-    req: Request<
-      ParamsDictionary, any, any, ParsedQs, Record<string, any>
-    >,
-    res: Response<any, Record<string, any>>,
-  ): Promise<void> {
-    const userId = (req.user as UserModel)?.id
+  public async create(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.id
     try {
       let drink = await Drink.create(
         { ...req.body, userId },
@@ -53,8 +45,8 @@ export class DrinkController implements Controller {
   }
 
   public async read(
-    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>,
+    req: Request,
+    res: Response,
   ): Promise<void> {
     try {
       const drinks = await Drink
@@ -89,8 +81,8 @@ export class DrinkController implements Controller {
   }
 
   public async readById(
-    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>,
+    req: Request,
+    res: Response,
   ): Promise<void> {
     try {
       const drink = await Drink.findByPk(
@@ -133,14 +125,20 @@ export class DrinkController implements Controller {
   }
 
   public async update(
-    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>,
+    req: Request,
+    res: Response,
   ): Promise<void> {
     const { id } = req.params
     const newDrink = req.body
     console.log(newDrink)
     try {
-      const drink = await Drink.findByPk(id, { include: { model: Ingredient, as: 'ingredients' }})
+      const drink = await Drink.findByPk(
+        id, {
+          include: {
+            model: Ingredient,
+            as: 'ingredients',
+          },
+        })
 
       if (!drink) {
         throw new Error('Not found')
@@ -166,11 +164,11 @@ export class DrinkController implements Controller {
   }
 
   public async delete(
-    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
-    res: Response<any, Record<string, any>>,
+    req: Request,
+    res: Response,
   ): Promise<void> {
     const { id } = req.params
-    const userId = (req.user as UserModel)?.id
+    const userId = req.user?.id
 
     const drink = await Drink.findByPk(id)
 

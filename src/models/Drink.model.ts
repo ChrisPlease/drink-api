@@ -11,6 +11,7 @@ import {
   HasManySetAssociationsMixin,
   HasManyAddAssociationMixin,
   ForeignKey,
+  Association,
 } from 'sequelize'
 import { IngredientModel } from './Ingredient.model'
 
@@ -36,11 +37,15 @@ export class DrinkModel extends Model<
   declare userId: ForeignKey<number | null>
 
   get isMixedDrink(): NonAttribute<boolean> {
-    return !!this.ingredients?.length
+    return this.totalParts > 1
   }
 
   isUserDrink(drinkId: number): NonAttribute<boolean> {
     return drinkId === this.id
+  }
+
+  declare static associations: {
+    ingredients: Association<DrinkModel, IngredientModel>,
   }
 }
 

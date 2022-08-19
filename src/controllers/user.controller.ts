@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { AuthError } from '../middleware/authHandler'
-import { Drink, User } from '../models'
+import { Drink, Entry, sequelize, User } from '../models'
 import { Controller } from './interfaces'
 
 export class UserController implements Controller {
@@ -41,17 +41,38 @@ export class UserController implements Controller {
       const user = await User.findByPk(
         req.params.id,
         {
-          include: {
-            model: Drink,
-            as: 'drinks',
-            attributes: ['name', 'caffeine', 'coefficient'],
-          },
+          include: [
+            {
+              model: Drink,
+              as: 'drinks',
+              attributes: ['name', 'caffeine', 'coefficient'],
+            },
+            {
+              model: Entry,
+              as: 'entries',
+              attributes: [
+                'volume',
+                [
+                  sequelize.literal('(SELECT d.coefficient*entries.volume FROM drinks d WHERE d.id = entries.drink_id)'),
+                  'waterContent',
+                ],
+                [
+                  sequelize.literal('(SELECT (d.caffeine/100)*(entries.volume/0.33814) FROM drinks d WHERE d.id = entries.drink_id)'),
+                  'caffeine',
+                ],
+              ],
+              include: [{ model: Drink, attributes: ['name'] }],
+            },
+          ],
         },
       )
 
       if (!user) {
         throw new Error('foo')
       }
+
+      const entries = await user.getEntries()
+      console.log(entries)
       res.json(user)
     } catch (err) {
       res.status(404).json(err)
