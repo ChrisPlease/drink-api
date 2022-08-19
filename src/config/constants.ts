@@ -1,6 +1,6 @@
 export const PORT = process.env.PORT || 4040
 
-export const config = {
+export const dbConfig = {
   user: process.env.PGUSER as string,
   host: process.env.PGHOST as string,
   database: process.env.PGDATABASE as string,

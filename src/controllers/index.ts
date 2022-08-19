@@ -1,7 +1,7 @@
-import { DrinkController } from './Drink/drink.controller'
-import { EntryController } from './Entry/entry.controller'
-import { UserController } from './User/user.controller'
-import { AuthController } from './Auth/auth.controller'
+import { DrinkController } from './drink.controller'
+import { EntryController } from './entry.controller'
+import { UserController } from './user.controller'
+import { AuthController } from './auth.controller'
 
 const drinkController = new DrinkController()
 const entryController = new EntryController()

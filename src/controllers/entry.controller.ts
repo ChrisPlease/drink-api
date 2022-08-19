@@ -1,16 +1,17 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { DateLog, Drink, Entry, sequelize } from '../../models'
-import { CrudController } from '../controller'
+import { DateLog, Drink, Entry } from '../models'
+import type { Controller } from './interfaces'
 
-export class EntryController extends CrudController {
+export class EntryController implements Controller {
   public async create(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const entry = await Entry.create(req.body, {
+      const userId = req.user?.id
+      const entry = await Entry.create({ ...req.body, userId }, {
         include: { model: DateLog },
       })
 
@@ -29,17 +30,23 @@ export class EntryController extends CrudController {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
+      const userId = req.user?.id
+      const drinkId = req.query.drinkId ? +req.query.drinkId : null
       const entries = await Entry.findAll({
-        ...(req.query.drinkId ? { where: { drinkId: +req.query.drinkId } } : {}),
-        group: 'drink.name',
-        attributes: [
-          'drink.name',
-          [sequelize.fn('SUM', 'entry.volume'), 'total_volume'],
-          [sequelize.fn('COUNT', sequelize.col('log.entry_timestamp')), 'foo'],
-        ],
+        where: {
+          userId,
+          ...(drinkId ? { drinkId } : {}),
+        },
+        attributes: ['drink.name', 'volume', 'log.entry_timestamp'],
         include: [
-          { model: Drink },
-          { model: DateLog },
+          {
+            model: DateLog,
+            attributes: ['entryTimestamp'],
+          },
+          {
+            model: Drink,
+            attributes: ['name'],
+          },
         ],
       })
 
@@ -56,14 +63,19 @@ export class EntryController extends CrudController {
   ): Promise<void> {
     throw new Error('Method not implemented.')
   }
+
   public update(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  public delete(req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, res: Response<any, Record<string, any>>): Promise<void> {
+
+  public delete(
+    req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
+    res: Response<any, Record<string, any>>,
+  ): Promise<void> {
     throw new Error('Method not implemented.')
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }
-/* eslint-enable @typescript-eslint/no-unused-vars */

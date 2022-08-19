@@ -1,7 +1,7 @@
-import express, { Request, Response } from 'express'
-import { drinkController } from '../../controllers'
+import { Request, Response, Router } from 'express'
+import { drinkController } from '../controllers'
 
-export const router = express.Router({
+export const router = Router({
   strict: true,
 })
 
@@ -17,7 +17,7 @@ router.post('/', (req, res) => {
   drinkController.create(req, res)
 })
 
-router.put('/:id', (req: Request, res: Response) => {
+router.patch('/:id', (req: Request, res: Response) => {
   drinkController.update(req, res)
 })
 

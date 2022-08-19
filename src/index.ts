@@ -11,7 +11,6 @@ import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
 import './config/passport'
 
-
 const SequelizeStore = SequelizeSessionInit(Store)
 
 const app: express.Application = express()
@@ -46,7 +45,7 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler)
 
-sequelize.sync({ alter: true })
+sequelize.sync()
   .then(async () => {
     // await Drink.bulkCreate([
     //   {

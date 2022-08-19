@@ -2,8 +2,7 @@ import { Router } from 'express'
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import { AuthError } from '../middleware/authHandler'
-import { User } from '../models/index'
-import { UserModel } from '../models/User.model'
+import { User } from '../models'
 
 export const router = Router({
   strict: true,
@@ -25,16 +24,11 @@ passport.use(new LocalStrategy(async (username, password, done) => {
   }
 }))
 
-interface PassportUser {
-  id: number;
-  username: string;
-}
-
 passport.serializeUser((user, done) => {
-  done(null, { id: (user as UserModel).id, name: (user as UserModel).username })
+  done(null, { id: +user.id })
 })
 
-passport.deserializeUser(async ({ id }: PassportUser, done) => {
+passport.deserializeUser(async ({ id }, done) => {
   const user = await User.findByPk(id)
   done(null, user)
 })
