@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { Controller } from './interfaces'
-import { Drink, Ingredient, sequelize, User } from '../models'
+import { Drink, Entry, Ingredient, sequelize, User } from '../models'
 import { DrinkModel } from '../models/Drink.model'
 import { Op } from 'sequelize'
 
@@ -66,6 +66,9 @@ export class DrinkController implements Controller {
                 [sequelize.literal('(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)'), 'id'],
               ],
             },
+          }, {
+            model: Entry,
+            as: 'entries',
           }],
           where: {
             [Op.or]: [
