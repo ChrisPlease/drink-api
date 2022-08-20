@@ -94,7 +94,7 @@ export const UserFactory = (sequelize: Sequelize) => {
 
   User.beforeSave(async (user) => {
     if (user.changed('password')) {
-      const hashedPass = await bcrypt.hash(user.getDataValue('password'), 10)
+      const hashedPass = await bcrypt.hash(user.getDataValue('password'), +(process.env.SALT_ROUNDS as string) || 10)
       user.setDataValue('password', hashedPass)
     }
   })
