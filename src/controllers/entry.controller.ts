@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { DateLog, Drink, Entry } from '../models'
+import { EntryModel } from '../models/Entry.model'
 import type { Controller } from './interfaces'
 
 export class EntryController implements Controller {
@@ -11,13 +12,22 @@ export class EntryController implements Controller {
   ): Promise<void> {
     try {
       const userId = req.user?.id
-      const entry = await Entry.create({ ...req.body, userId }, {
+      let entry = await Entry.create({ ...req.body, userId }, {
         include: { model: DateLog },
       })
 
+      if (!entry) {
+        throw new Error('Server Error')
+      }
+
       if (entry) {
         entry.createLog()
+        entry = await Entry.findByPk(entry.id,
+        {
+          include: [{ model: Drink }],
+        }) as EntryModel
       }
+
 
       res.json(entry)
     } catch (err) {

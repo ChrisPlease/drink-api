@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { Controller } from './interfaces'
-import { Drink, Ingredient, sequelize, User } from '../models'
+import { Drink, Entry, Ingredient, sequelize, User } from '../models'
 import { DrinkModel } from '../models/Drink.model'
 import { Op } from 'sequelize'
 
@@ -66,6 +66,13 @@ export class DrinkController implements Controller {
                 [sequelize.literal('(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)'), 'id'],
               ],
             },
+          }, {
+            model: Entry,
+            as: 'entries',
+            required: false,
+            where: {
+              userId: req.user?.id,
+            },
           }],
           where: {
             [Op.or]: [
@@ -125,42 +132,12 @@ export class DrinkController implements Controller {
   }
 
   public async update(
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     req: Request,
     res: Response,
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   ): Promise<void> {
-    const { id } = req.params
-    const newDrink = req.body
-    console.log(newDrink)
-    try {
-      const drink = await Drink.findByPk(
-        id, {
-          include: {
-            model: Ingredient,
-            as: 'ingredients',
-          },
-        })
-
-      if (!drink) {
-        throw new Error('Not found')
-      }
-
-      console.log(drink.isMixedDrink)
-
-      if (drink.isMixedDrink) {
-        console.log('is mixed drink')
-      }
-
-      drink.name = req.body.name
-
-      await drink.save()
-
-      res.json(drink)
-
-    } catch (err) {
-      console.log(err)
-      res.status(400).json(err)
-    }
-
+    throw 'not yet implemented'
   }
 
   public async delete(

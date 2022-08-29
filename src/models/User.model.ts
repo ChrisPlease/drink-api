@@ -53,6 +53,9 @@ export const UserFactory = (sequelize: Sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      validate: {
+        isEmail: { msg: 'Invalid email address' },
+      },
       get() {
         return this.getDataValue('email')
       },
@@ -63,12 +66,11 @@ export const UserFactory = (sequelize: Sequelize) => {
 
     password: {
       type: DataTypes.STRING,
-      get() {
-        return this.getDataValue('password')
-      },
-      set(value: string) {
-        const hashedPass = bcrypt.hashSync(value, 10)
-        this.setDataValue('password', hashedPass)
+      validate: {
+        is: {
+          args: /^.*(?=.{6,})(?=.*[a-zA-Z])(?=.*\d)(?=.*[!&$%&? "]).*$/,
+          msg: 'Password too weak',
+        },
       },
     },
 
@@ -88,6 +90,13 @@ export const UserFactory = (sequelize: Sequelize) => {
         },
       },
     },
+  })
+
+  User.beforeSave(async (user) => {
+    if (user.changed('password')) {
+      const hashedPass = await bcrypt.hash(user.getDataValue('password'), +(process.env.SALT_ROUNDS as string) || 10)
+      user.setDataValue('password', hashedPass)
+    }
   })
 
   return User
