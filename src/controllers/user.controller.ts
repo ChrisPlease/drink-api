@@ -71,8 +71,6 @@ export class UserController implements Controller {
         throw new Error('foo')
       }
 
-      const entries = await user.getEntries()
-      console.log(entries)
       res.json(user)
     } catch (err) {
       res.status(404).json(err)
