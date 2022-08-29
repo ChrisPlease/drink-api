@@ -8,7 +8,14 @@ export class AuthController {
       const user = User.build(req.body)
 
       await user.save()
-      res.status(201).json(user)
+
+      req.login(user, err => {
+        if (err) {
+          res.status(400).json(err)
+        }
+
+        res.status(201).json(user)
+      })
     } catch (err: any) {
       if (err instanceof UniqueConstraintError) {
         const fieldName = Object.keys(err.fields)[0]

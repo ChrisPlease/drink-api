@@ -69,6 +69,10 @@ export class DrinkController implements Controller {
           }, {
             model: Entry,
             as: 'entries',
+            required: false,
+            where: {
+              userId: req.user?.id,
+            },
           }],
           where: {
             [Op.or]: [
