@@ -7,3 +7,9 @@ export const dbConfig = {
   password: process.env.PGPASSWORD as string,
   port: +(process.env.PGPORT as string) || 5432,
 }
+
+export const pagination = {
+  size: 12,
+  page: 1,
+  records: 0,
+}

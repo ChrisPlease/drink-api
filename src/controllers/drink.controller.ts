@@ -1,5 +1,6 @@
 import { Request, Response } from 'express'
 import { Controller } from './interfaces'
+import { pagination } from '../config/constants'
 import { Drink, Entry, Ingredient, sequelize, User } from '../models'
 import { DrinkModel } from '../models/Drink.model'
 import { Op } from 'sequelize'
@@ -8,6 +9,11 @@ export class DrinkController implements Controller {
 
   public async create(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id
+
+    if (Object.keys(req.body).length === 0) {
+      res.status(400).json({ message: 'Object cannot be empty' })
+    }
+
     try {
       let drink = await Drink.create(
         { ...req.body, userId },
@@ -48,9 +54,12 @@ export class DrinkController implements Controller {
     req: Request,
     res: Response,
   ): Promise<void> {
+    const { search } = req.query
+
     try {
-      const drinks = await Drink
+      const { rows, count } = await Drink
         .findAndCountAll({
+          distinct: true,
           attributes: {
             exclude: ['userId'],
           },
@@ -75,13 +84,15 @@ export class DrinkController implements Controller {
             },
           }],
           where: {
+            ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
             [Op.or]: [
               { userId: { [Op.is]: null } },
               { userId: req.user?.id },
             ],
           },
         })
-      res.json(drinks)
+
+      res.json({ rows, count })
     } catch (err) {
       res.status(401).json(err)
     }
