@@ -22,8 +22,10 @@ export class DrinkModel extends Model<
   declare id: CreationOptional<number>
 
   declare name: string
+  declare icon: string
   declare coefficient: CreationOptional<number>
   declare caffeine: CreationOptional<number>
+  declare sugar: CreationOptional<number>
 
   declare setIngredients: HasManySetAssociationsMixin<IngredientModel, 'drinkId'>
   declare addIngredient: HasManyAddAssociationMixin<IngredientModel, number>
@@ -63,20 +65,38 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       unique: true,
     },
 
+    icon: {
+      type: DataTypes.STRING,
+      defaultValue: 'glass-water',
+    },
+
     coefficient: {
-      type: DataTypes.FLOAT(3),
+      type: DataTypes.FLOAT(2),
       validate: {
         max: 1,
+      },
+      get(): number {
+        return this.getDataValue('coefficient')
+      },
+      set(value: number): void {
+        this.setDataValue('coefficient', value)
       },
     },
 
     caffeine: {
-      type: DataTypes.FLOAT(3),
+      type: DataTypes.FLOAT(2),
       validate: {
         min: 0,
       },
       get(): number {
         return this.getDataValue('caffeine')
+      },
+    },
+
+    sugar: {
+      type: DataTypes.FLOAT(2),
+      validate: {
+        min: 0,
       },
     },
 
@@ -101,17 +121,24 @@ export const DrinkFactory = (sequelize: Sequelize) => {
   Drink.beforeSave(async (drink) => {
     let caffeine = drink.getDataValue('caffeine') ?? 0
     let coefficient = drink.getDataValue('coefficient') ?? 0
+    let sugar = drink.getDataValue('sugar') ?? 0
 
     if (drink.ingredients && drink.ingredients?.length > 1) {
       const { ingredients } = drink
       for (const ingredient of ingredients) {
-        const { coefficient: drinkCoefficient, caffeine: drinkCaffeine } = await Drink.findByPk(ingredient.drinkId) as DrinkModel
+        const {
+          coefficient: drinkCoefficient,
+          caffeine: drinkCaffeine,
+          sugar: drinkSugar,
+        } = await Drink.findByPk(ingredient.drinkId) as DrinkModel
         caffeine += ((ingredient.parts/drink.totalParts)*drinkCaffeine)
         coefficient += ((ingredient.parts/drink.totalParts)*drinkCoefficient)
+        sugar += ((ingredient.parts/drink.totalParts)*drinkSugar)
       }
 
       drink.setDataValue('caffeine', caffeine)
       drink.setDataValue('coefficient', coefficient)
+      drink.setDataValue('sugar', sugar)
     }
   })
 

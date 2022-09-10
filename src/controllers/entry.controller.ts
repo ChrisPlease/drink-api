@@ -47,7 +47,7 @@ export class EntryController implements Controller {
           userId,
           ...(drinkId ? { drinkId } : {}),
         },
-        attributes: ['drink.name', 'volume', 'log.entry_timestamp'],
+        attributes: ['drink.name', 'drink.icon', 'volume', 'log.entry_timestamp'],
         include: [
           {
             model: DateLog,
@@ -55,7 +55,7 @@ export class EntryController implements Controller {
           },
           {
             model: Drink,
-            attributes: ['name'],
+            attributes: ['name', 'icon'],
           },
         ],
       })
