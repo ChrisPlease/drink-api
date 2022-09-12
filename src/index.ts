@@ -2,9 +2,9 @@ import 'dotenv/config'
 import express from 'express'
 import session, { Store } from 'express-session'
 import bodyParser from 'body-parser'
-import { authRouter, drinkRouter, entryRouter, userRouter } from './routes'
+import { authRouter, drinkRouter, entryRouter, ingredientRouter, userRouter } from './routes'
 import { PORT } from './config/constants'
-import { Drink, sequelize } from './models'
+import { /* Drink, */ sequelize } from './models'
 import SequelizeSessionInit from 'connect-session-sequelize'
 import passport from 'passport'
 import { authHandler } from './middleware/authHandler'
@@ -36,6 +36,7 @@ app.use(passport.session())
 app.use('/auth', authRouter)
 
 app.use('/drinks', authHandler, drinkRouter)
+app.use('/ingredients', authHandler, ingredientRouter)
 app.use('/entries', authHandler, entryRouter)
 app.use('/users', authHandler, userRouter)
 
@@ -45,20 +46,22 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler)
 
-sequelize.sync(/* { alter: true } */)
+sequelize.sync(/* { force: true } */)
   .then(async () => {
-/*     await Drink.bulkCreate([
+    /* await Drink.bulkCreate([
       {
         name: 'Water',
         coefficient: 1,
         icon: 'glass-water',
         caffeine: 0,
+        sugar: 0,
       },
       {
         name: 'Coffee',
         coefficient: 0.8,
         icon: 'mug-saucer',
         caffeine: 73,
+        sugar: 0,
       },
       {
         name: 'Tea',
