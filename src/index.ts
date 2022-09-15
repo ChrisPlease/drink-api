@@ -1,22 +1,29 @@
 import 'dotenv/config'
 import express from 'express'
 import session, { Store } from 'express-session'
+import cors from 'cors'
 import bodyParser from 'body-parser'
 import { authRouter, drinkRouter, entryRouter, ingredientRouter, userRouter } from './routes'
 import { PORT } from './config/constants'
-import { /* Drink, */ sequelize } from './models'
+import {/*  Drink, Ingredient, */ sequelize } from './models'
 import SequelizeSessionInit from 'connect-session-sequelize'
 import passport from 'passport'
 import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
+import { jsonApiHandler } from './middleware/jsonApiHandler'
+
 import './config/passport'
 
 const SequelizeStore = SequelizeSessionInit(Store)
 
 const app: express.Application = express()
 
-app.use(bodyParser.json())
+app.use(bodyParser.json({
+  type: ['application/vnd.api+json', 'application/json'],
+}))
 app.use(bodyParser.urlencoded({ extended: true }))
+
+app.use(cors())
 
 app.use(
   session({
@@ -35,6 +42,8 @@ app.use(passport.session())
 
 app.use('/auth', authRouter)
 
+app.use(jsonApiHandler)
+
 app.use('/drinks', authHandler, drinkRouter)
 app.use('/ingredients', authHandler, ingredientRouter)
 app.use('/entries', authHandler, entryRouter)
@@ -48,7 +57,7 @@ app.use(errorHandler)
 
 sequelize.sync(/* { force: true } */)
   .then(async () => {
-    /* await Drink.bulkCreate([
+  /*   await Drink.bulkCreate([
       {
         name: 'Water',
         coefficient: 1,
@@ -171,7 +180,25 @@ sequelize.sync(/* { force: true } */)
         coefficient: 0.85,
         caffeine: 0,
       },
+      {
+        name: 'Lemonade',
+        icon: 'glass-water',
+        coefficient: 0.85,
+        caffeine: 0,
+      },
+    ])
+
+    await Ingredient.bulkCreate([
+      {
+        parts: 1,
+        drinkId: 3,
+      },
+      {
+        parts: 1,
+        drinkId: 21,
+      },
     ]) */
+
     console.log('Sync complete')
   })
   .catch(err => console.log(err))
