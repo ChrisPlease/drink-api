@@ -5,6 +5,7 @@ import { IngredientFactory } from './Ingredient.model'
 import { UserFactory } from './User.model'
 import { EntryFactory } from './Entry.model'
 import { DateLogFactory } from './DateLog.model'
+import { initScopes } from './scopes'
 
 export const sequelize = new Sequelize(
   dbConfig.database,
@@ -19,9 +20,10 @@ export const sequelize = new Sequelize(
 )
 
 const User = UserFactory(sequelize)
+const Ingredient = IngredientFactory(sequelize)
 
 const Drink = DrinkFactory(sequelize)
-const Ingredient = IngredientFactory(sequelize)
+
 export const DrinkIngredients = sequelize.define(
   'DrinkIngredients',
   {},
@@ -43,6 +45,8 @@ Entry.belongsTo(User, { foreignKey: { name: 'userId', field: 'user_id' } })
 
 Drink.hasMany(Ingredient, { as: 'ingredients', foreignKey: { name: 'drinkId', field: 'drink_id' } })
 Ingredient.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id'  } })
+
+Ingredient.belongsToMany(Drink, { through: DrinkIngredients })
 Drink.belongsToMany(Ingredient, { through: DrinkIngredients })
 
 Drink.hasMany(Entry, { foreignKey: { name: 'drinkId', field: 'drink_id' }})
@@ -50,5 +54,7 @@ Entry.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id' } })
 
 Entry.hasOne(DateLog, { foreignKey: { name: 'entryId', field: 'entry_id' } })
 DateLog.belongsTo(Entry, { foreignKey: { name: 'entryId', field: 'entry_id' } })
+
+initScopes()
 
 export { User, Drink, Ingredient, Entry, DateLog }
