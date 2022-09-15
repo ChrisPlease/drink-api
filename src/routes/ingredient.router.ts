@@ -9,9 +9,9 @@ router.get('/', (req: Request, res: Response) => {
   ingredientController.read(req, res)
 })
 
-// router.get('/:id', (req: Request, res: Response) => {
-//   drinkController.readById(req, res)
-// })
+router.get('/:id', (req: Request, res: Response) => {
+  ingredientController.readById(req, res)
+})
 
 router.post('/', (req, res) => {
   ingredientController.create(req, res)
