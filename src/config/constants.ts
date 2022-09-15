@@ -1,6 +1,6 @@
 export const PORT = process.env.PORT || 4040
 
-export const dbConfig = {
+export const DB_CONFIG = {
   user: process.env.PGUSER as string,
   host: process.env.PGHOST as string,
   database: process.env.PGDATABASE as string,
@@ -8,7 +8,7 @@ export const dbConfig = {
   port: +(process.env.PGPORT as string) || 5432,
 }
 
-export const pagination = {
+export const PAGINATION = {
   size: 12,
   page: 1,
   records: 0,

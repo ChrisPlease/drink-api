@@ -1,4 +1,4 @@
-import { dbConfig } from '../config/constants'
+import { DB_CONFIG } from '../config/constants'
 import { Sequelize } from 'sequelize'
 import { DrinkFactory } from './Drink.model'
 import { IngredientFactory } from './Ingredient.model'
@@ -8,13 +8,13 @@ import { DateLogFactory } from './DateLog.model'
 import { initScopes } from './scopes'
 
 export const sequelize = new Sequelize(
-  dbConfig.database,
-  dbConfig.user,
-  dbConfig.password,
+  DB_CONFIG.database,
+  DB_CONFIG.user,
+  DB_CONFIG.password,
   {
     // logging: false,
     quoteIdentifiers: false,
-    host: dbConfig.host,
+    host: DB_CONFIG.host,
     dialect: 'postgres',
   },
 )
