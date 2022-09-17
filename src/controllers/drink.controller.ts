@@ -55,9 +55,14 @@ export class DrinkController implements Controller {
     req: Request,
     res: Response,
   ): Promise<void> {
+    const { pagination } = req
     const { search } = req.query
+
+    console.log(pagination)
     const { rows, count } = await Drink
       .findAndCountAll({
+        limit: +pagination.size,
+        offset: 13,
         distinct: true,
         include: [{
           model: Ingredient,
@@ -79,11 +84,11 @@ export class DrinkController implements Controller {
       includeNames: ['user', 'ingredients', 'ingredients.drink'],
     })
 
+    pagination.records = count
+
     res.json({
       ...serializedRows,
-        meta: {
-        records: count,
-      },
+        meta: pagination,
     })
   }
 

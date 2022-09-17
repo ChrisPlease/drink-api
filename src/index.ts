@@ -13,6 +13,7 @@ import { errorHandler } from './middleware/errorHandler'
 import { jsonApiHandler } from './middleware/jsonApiHandler'
 
 import './config/passport'
+import { paginationHandler } from './middleware/paginationHandler'
 
 const SequelizeStore = SequelizeSessionInit(Store)
 
@@ -43,6 +44,7 @@ app.use(passport.session())
 app.use('/auth', authRouter)
 
 app.use(jsonApiHandler)
+app.use(paginationHandler)
 
 app.use('/drinks', authHandler, drinkRouter)
 app.use('/ingredients', authHandler, ingredientRouter)

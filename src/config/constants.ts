@@ -10,6 +10,6 @@ export const DB_CONFIG = {
 
 export const PAGINATION = {
   size: 12,
-  page: 1,
+  number: 1,
   records: 0,
 }
