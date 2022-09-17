@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
-import { AuthError } from '../middleware/authHandler'
 import { Drink, Entry, User } from '../models'
 import { DrinkModel } from '../models/Drink.model'
+import { ErrorHandler } from '../utils/error'
 import { dataFormatter } from '../utils/serializer'
 import { Controller } from './interfaces'
 
@@ -92,7 +92,7 @@ export class UserController implements Controller {
     const { password } = req.body
 
     if (+req.params.id !== userId) {
-      throw new AuthError(403, 'insufficient perms')
+      throw new ErrorHandler({ status: 403, message: 'insufficient perms' })
     }
 
     try {

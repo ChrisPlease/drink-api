@@ -56,42 +56,35 @@ export class DrinkController implements Controller {
     res: Response,
   ): Promise<void> {
     const { search } = req.query
-
-    try {
-      const { rows, count } = await Drink
-        .findAndCountAll({
-          distinct: true,
-          include: [{
-            model: Ingredient,
-            through: { attributes: [] },
-            include: [{ model: Drink, attributes: { exclude: ['userId'] } }],
-          }],
-          where: {
-            ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
-            [Op.or]: [
-              { userId: { [Op.is]: null } },
-              { userId: req.user?.id },
-            ],
-          },
-          order: [['id', 'ASC']],
-        })
-
-      const serializedRows = dataFormatter.serialize({
-        stuff: rows.map(r => r.toJSON()),
-        includeNames: ['user', 'ingredients', 'ingredients.drink'],
-      })
-
-      res.json({
-        ...serializedRows,
-         meta: {
-          records: count,
+    const { rows, count } = await Drink
+      .findAndCountAll({
+        distinct: true,
+        include: [{
+          model: Ingredient,
+          through: { attributes: [] },
+          include: [{ model: Drink, attributes: { exclude: ['userId'] } }],
+        }],
+        where: {
+          ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
+          [Op.or]: [
+            { userId: { [Op.is]: null } },
+            { userId: req.user?.id },
+          ],
         },
+        order: [['id', 'ASC']],
       })
 
-    } catch (err) {
-      console.log(err)
-      res.status(401).json(err)
-    }
+    const serializedRows = dataFormatter.serialize({
+      stuff: rows.map(r => r.toJSON()),
+      includeNames: ['user', 'ingredients', 'ingredients.drink'],
+    })
+
+    res.json({
+      ...serializedRows,
+        meta: {
+        records: count,
+      },
+    })
   }
 
   public async readById(
