@@ -43,11 +43,10 @@ Drink.belongsTo(User, { foreignKey: { name: 'userId', field: 'user_id' } })
 User.hasMany(Entry, { as: 'entries', foreignKey: { name: 'userId', field: 'user_id' } })
 Entry.belongsTo(User, { foreignKey: { name: 'userId', field: 'user_id' } })
 
-Drink.hasMany(Ingredient, { as: 'ingredients', foreignKey: { name: 'drinkId', field: 'drink_id' } })
-Ingredient.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id'  } })
-
-Ingredient.belongsToMany(Drink, { through: DrinkIngredients })
 Drink.belongsToMany(Ingredient, { through: DrinkIngredients })
+
+Drink.hasMany(Ingredient, { as: 'ingredient', foreignKey: { name: 'drinkId', field: 'drink_id' } })
+Ingredient.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id'  } })
 
 Drink.hasMany(Entry, { foreignKey: { name: 'drinkId', field: 'drink_id' }})
 Entry.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id' } })

@@ -16,6 +16,7 @@ export class UserModel extends Model<
   InferAttributes<UserModel>,
   InferCreationAttributes<UserModel>
 > {
+  type: CreationOptional<'user'> = 'user'
   declare id: CreationOptional<number>
   declare username?: string
   declare email: string
@@ -29,6 +30,8 @@ export class UserModel extends Model<
 
   declare getEntries: HasManyGetAssociationsMixin<EntryModel>
 
+  declare relationshipNames: CreationOptional<string[]>
+
   async authenticate(password: string): Promise<boolean> {
     return await bcrypt.compare(password, this.password)
   }
@@ -41,6 +44,11 @@ export const UserFactory = (sequelize: Sequelize) => {
       primaryKey: true,
       allowNull: false,
       autoIncrement: true,
+    },
+
+    type: {
+      type: DataTypes.VIRTUAL,
+      defaultValue: 'user',
     },
 
     username: {
@@ -64,6 +72,13 @@ export const UserFactory = (sequelize: Sequelize) => {
       },
     },
 
+    relationshipNames: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return ['drinks', 'entries']
+      },
+    },
+
     password: {
       type: DataTypes.STRING,
       validate: {
@@ -80,13 +95,13 @@ export const UserFactory = (sequelize: Sequelize) => {
     modelName: 'user',
     defaultScope: {
       attributes: {
-        exclude: ['password'],
+        exclude: ['password', 'updatedAt'],
       },
     },
     scopes: {
       withPassword: {
         attributes: {
-          exclude: [],
+          exclude: ['updatedAt'],
         },
       },
     },

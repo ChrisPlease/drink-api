@@ -19,6 +19,7 @@ export class DrinkModel extends Model<
   InferAttributes<DrinkModel>,
   InferCreationAttributes<DrinkModel>
 > {
+  type: CreationOptional<'drink'> = 'drink'
   declare id: CreationOptional<number>
 
   declare name: string
@@ -33,6 +34,8 @@ export class DrinkModel extends Model<
   declare getIngredients: HasManyGetAssociationsMixin<IngredientModel>
 
   declare ingredients?: NonAttribute<IngredientModel[]>
+
+  declare relationshipNames: CreationOptional<string[]>
 
   declare totalParts: CreationOptional<number>
 
@@ -57,6 +60,11 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
+    },
+
+    type: {
+      type: DataTypes.VIRTUAL,
+      defaultValue: 'drink',
     },
 
     name: {
@@ -98,6 +106,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       validate: {
         min: 0,
       },
+      defaultValue: 0,
     },
 
     totalParts: {
@@ -106,19 +115,22 @@ export const DrinkFactory = (sequelize: Sequelize) => {
         return this.ingredients?.reduce((acc, { parts }) => acc += parts, 0) || 1
       },
     },
+
+    relationshipNames: {
+      type: DataTypes.VIRTUAL,
+      get(): string[] {
+        return ['user', 'ingredients']
+      },
+    },
   }, {
     modelName: 'drink',
     sequelize,
     timestamps: false,
-
-    defaultScope: {
-      attributes: {
-        exclude: ['userId', 'totalParts'],
-      },
-    },
   })
 
+
   Drink.beforeSave(async (drink) => {
+    console.log('maybe updating?', drink.toJSON())
     let caffeine = drink.getDataValue('caffeine') ?? 0
     let coefficient = drink.getDataValue('coefficient') ?? 0
     let sugar = drink.getDataValue('sugar') ?? 0
@@ -141,6 +153,5 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       drink.setDataValue('sugar', sugar)
     }
   })
-
   return Drink
 }
