@@ -2,7 +2,9 @@ import { Request, Response } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { AuthError } from '../middleware/authHandler'
-import { Drink, Entry, sequelize, User } from '../models'
+import { Drink, Entry, User } from '../models'
+import { DrinkModel } from '../models/Drink.model'
+import { dataFormatter } from '../utils/serializer'
 import { Controller } from './interfaces'
 
 export class UserController implements Controller {
@@ -12,9 +14,10 @@ export class UserController implements Controller {
     try {
       const { username, email, password } = req.body
 
-      const user = await User.create({ username, email, password })
+      const user = await User.create({ username, email, password }).then(u => u.toJSON())
 
-      res.json(user)
+      const serializedUser = dataFormatter.serialize({ stuff: user })
+      res.json(serializedUser)
 
     } catch (err) {
       res.status(400).json(err)
@@ -25,12 +28,24 @@ export class UserController implements Controller {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const users = await User.findAll()
-      res.json(users)
+      const users = await User.findAll({
+        attributes: {
+          exclude: ['updatedAt'],
+        },
+        include: [{
+          model: Drink,
+          as: 'drinks',
+          attributes: { exclude: ['relationshipNames', 'userId'] },
+        }]})
+        .then(result => result.map(r => r.toJSON()))
+
+      const serializedUsers = dataFormatter.serialize({ stuff: users, includeNames: ['drinks' ]})
+
+      res.json(serializedUsers)
     } catch (err) {
+      console.log(err)
       res.status(400).json(err)
     }
-    res.json({ title: 'foo' })
   }
   public async readById(
     req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
@@ -45,33 +60,26 @@ export class UserController implements Controller {
             {
               model: Drink,
               as: 'drinks',
-              attributes: ['name', 'caffeine', 'coefficient'],
+              attributes: {
+                exclude: ['userId'],
+              },
             },
             {
               model: Entry,
               as: 'entries',
-              attributes: [
-                'volume',
-                [
-                  sequelize.literal('(SELECT d.coefficient*entries.volume FROM drinks d WHERE d.id = entries.drink_id)'),
-                  'waterContent',
-                ],
-                [
-                  sequelize.literal('(SELECT (d.caffeine/100)*(entries.volume/0.33814) FROM drinks d WHERE d.id = entries.drink_id)'),
-                  'caffeine',
-                ],
-              ],
-              include: [{ model: Drink, attributes: ['name'] }],
+              include: [{ model: Drink }],
             },
           ],
         },
-      )
+      ).then(u => u?.toJSON()) as DrinkModel
+
+      const serializedUser = dataFormatter.serialize({ stuff: user, includeNames: ['drinks', 'entries'] })
 
       if (!user) {
         throw new Error('foo')
       }
 
-      res.json(user)
+      res.json(serializedUser)
     } catch (err) {
       res.status(404).json(err)
     }

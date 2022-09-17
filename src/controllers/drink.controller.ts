@@ -1,53 +1,54 @@
 import { Request, Response } from 'express'
 import { Controller } from './interfaces'
-import { pagination } from '../config/constants'
-import { Drink, Entry, Ingredient, sequelize, User } from '../models'
+import type { TJsonaModel } from 'jsona/lib/JsonaTypes'
+import { Drink, Ingredient, User } from '../models'
 import { DrinkModel } from '../models/Drink.model'
 import { Op } from 'sequelize'
+import { dataFormatter } from '../utils/serializer'
 
 export class DrinkController implements Controller {
 
   public async create(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id
-
     if (Object.keys(req.body).length === 0) {
       res.status(400).json({ message: 'Object cannot be empty' })
     }
 
-    try {
-      let drink = await Drink.create(
-        { ...req.body, userId },
-        {
-          include: [
-            {
-              model: Ingredient,
-              as: 'ingredients',
-            },
-          ],
-        })
+    const { ingredients: ing, ...rest } = req.body
+    let drink = await Drink.create({ ...rest, userId })
+    const ingredients = await Ingredient
+      .findAll({
+        where: {
+          id: {
+            [Op.in]: ing.map(({ id }: { id: number }) => id),
+          },
+        },
+        include: {
+          model: Drink,
+          attributes: {
+            exclude: ['relationshipNames', 'ingredients', 'userId', 'totalParts'],
+          },
+        },
+      })
 
-      drink = await Drink.findByPk(
-        drink.id,
-        {
-          include: [{
-            model: Ingredient,
-            as: 'ingredients',
-            through: { attributes: [] },
-            attributes: {
-              exclude: ['drinkId', 'id'],
-              include: [
-                'parts',
-                [sequelize.literal('(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)'), 'name'],
-                [sequelize.literal('(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)'), 'id'],
-              ],
-            },
-          }],
-        }) as DrinkModel
+    await drink.setIngredients(ingredients)
 
-      res.json(drink)
-    } catch (err) {
-      res.status(500)
-    }
+    drink = await Drink.findByPk(
+      drink.id, {
+        include: [{
+          model: Ingredient,
+          through: { attributes: [] },
+          include: [{ model: Drink }],
+        }],
+      },
+    ) as DrinkModel
+    drink = (await drink.save()).toJSON()
+
+    const serializedDrink = dataFormatter.serialize({
+      stuff: drink,
+      includeNames: ['user', 'ingredients', 'ingredients.drink'],
+    })
+    res.json(serializedDrink)
   }
 
   public async read(
@@ -60,28 +61,10 @@ export class DrinkController implements Controller {
       const { rows, count } = await Drink
         .findAndCountAll({
           distinct: true,
-          attributes: {
-            exclude: ['userId'],
-          },
           include: [{
             model: Ingredient,
-            as: 'ingredients',
             through: { attributes: [] },
-            attributes: {
-              exclude: ['drinkId', 'id'],
-              include: [
-                'parts',
-                [sequelize.literal('(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)'), 'name'],
-                [sequelize.literal('(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)'), 'id'],
-              ],
-            },
-          }, {
-            model: Entry,
-            as: 'entries',
-            required: false,
-            where: {
-              userId: req.user?.id,
-            },
+            include: [{ model: Drink, attributes: { exclude: ['userId'] } }],
           }],
           where: {
             ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
@@ -90,10 +73,23 @@ export class DrinkController implements Controller {
               { userId: req.user?.id },
             ],
           },
+          order: [['id', 'ASC']],
         })
 
-      res.json({ rows, count })
+      const serializedRows = dataFormatter.serialize({
+        stuff: rows.map(r => r.toJSON()),
+        includeNames: ['user', 'ingredients', 'ingredients.drink'],
+      })
+
+      res.json({
+        ...serializedRows,
+         meta: {
+          records: count,
+        },
+      })
+
     } catch (err) {
+      console.log(err)
       res.status(401).json(err)
     }
   }
@@ -103,41 +99,33 @@ export class DrinkController implements Controller {
     res: Response,
   ): Promise<void> {
     try {
-      const drink = await Drink.findByPk(
-        req.params.id,
-        {
-          attributes: {
-            exclude: ['userId'],
-          },
-          include: [
-            {
-              model: Ingredient,
-              as: 'ingredients',
-              attributes: {
-                exclude: ['drinkId', 'id'],
-                include: [
-                  'parts',
-                  [sequelize.literal('(SELECT name FROM drinks d WHERE d.id=ingredients.drink_id)'), 'name'],
-                  [sequelize.literal('(SELECT id FROM drinks d WHERE d.id=ingredients.drink_id)'), 'id'],
-                ],
-              },
-              through: { attributes: [] },
-            },
-            {
-              model: User,
-            },
-          ],
+      let drink = await Drink.findByPk(req.params.id, {
+        attributes: {
+          exclude: ['userId'],
         },
-      )
+        include: [{
+          model: Ingredient,
+          through: { attributes: [] },
+          include: [{ model: Drink, attributes: { exclude: ['userId'] } }],
+        }, {
+          model: User,
+        }],
+      })
 
       if (drink === null) {
         res.status(404).json({ message: 'Not Found' })
       } else {
-        res.json(drink)
+        drink = <TJsonaModel & DrinkModel> drink.toJSON()
+        const serializedDrink = dataFormatter.serialize({
+          stuff: drink,
+          includeNames: ['ingredients', 'ingredients.drink', 'user'],
+        })
+
+        res.json(serializedDrink)
       }
 
     } catch (err) {
-      res.json(err)
+      res.status(400).json(err)
     }
 
   }

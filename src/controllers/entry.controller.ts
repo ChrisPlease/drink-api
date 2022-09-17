@@ -3,6 +3,7 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { ParsedQs } from 'qs'
 import { DateLog, Drink, Entry } from '../models'
 import { EntryModel } from '../models/Entry.model'
+import { dataFormatter } from '../utils/serializer'
 import type { Controller } from './interfaces'
 
 export class EntryController implements Controller {
@@ -11,26 +12,31 @@ export class EntryController implements Controller {
     res: Response<any, Record<string, any>>,
   ): Promise<void> {
     try {
-      const userId = req.user?.id
-      let entry = await Entry.create({ ...req.body, userId }, {
-        include: { model: DateLog },
-      })
+      const user = { type: 'user', id: req.user?.id }
+      const { drink, ...rest } = req.body
 
-      if (!entry) {
-        throw new Error('Server Error')
-      }
+      let entry = await Entry.create(rest)
 
       if (entry) {
-        entry.createLog()
-        entry = await Entry.findByPk(entry.id,
-        {
-          include: [{ model: Drink }],
-        }) as EntryModel
+        await Promise.all([
+          entry.setUser(user.id),
+          entry.setDrink(drink.id),
+          entry.createLog(),
+        ])
       }
 
+      entry = await Entry.findByPk(entry.id, {
+        include: [
+          { model: Drink, attributes: { exclude: ['userId'] } },
+          { model: DateLog, attributes: { exclude: ['entryId'] } },
+        ],
+        attributes: { exclude: ['drinkId', 'userId'] },
+      }).then(e => e?.toJSON()) as EntryModel
+      const serializedEntry = dataFormatter.serialize({ stuff: entry, includeNames: ['drink'] })
 
-      res.json(entry)
+      res.json({ entry, serializedEntry })
     } catch (err) {
+      console.log(err)
       res.status(400).json(err)
     }
   }
@@ -42,25 +48,23 @@ export class EntryController implements Controller {
     try {
       const userId = req.user?.id
       const drinkId = req.query.drinkId ? +req.query.drinkId : null
-      const entries = await Entry.findAll({
+      const { entries, count } = await Entry.findAndCountAll({
+        distinct: true,
         where: {
           userId,
           ...(drinkId ? { drinkId } : {}),
         },
-        attributes: ['drink.name', 'drink.icon', 'volume', 'log.entry_timestamp'],
         include: [
-          {
-            model: DateLog,
-            attributes: ['entryTimestamp'],
-          },
-          {
-            model: Drink,
-            attributes: ['name', 'icon'],
-          },
+          { model: Drink, attributes: { exclude: ['userId'] } },
+          { model: DateLog },
         ],
-      })
+        attributes: {
+          exclude: ['userId', 'drinkId'],
+        },
+      }).then(({ rows, count }) => ({ entries: rows.map(e => e.toJSON()), count }))
 
-      res.json(entries)
+      const serializedEntries = dataFormatter.serialize({ stuff: entries, includeNames: ['drink', 'user'] })
+      res.json({ ...serializedEntries, meta: { records: count } })
     } catch (err) {
       res.status(400).json(err)
     }

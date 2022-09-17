@@ -6,7 +6,14 @@ import { Controller } from './interfaces'
 
 export class IngredientController implements Controller {
   public async read(req: Request, res: Response) {
-    const { rows, count } = await Ingredient.findAndCountAll()
+    const { rows, count } = await Ingredient
+      .findAndCountAll({
+        attributes: { exclude: ['drinkId'] },
+        include: [{
+          model: Drink,
+          attributes: { exclude: ['userId'] },
+        }],
+      })
 
     if (rows) {
       const mappedRows = rows.map((ingredient) => ingredient.toJSON())
@@ -19,7 +26,13 @@ export class IngredientController implements Controller {
   public async readById(req: Request, res: Response) {
     const id = req.params.id
 
-    const ingredient = await Ingredient.findByPk(id)
+    const ingredient = await Ingredient.findByPk(id, {
+      attributes: { exclude: ['drinkId'] },
+      include: [{
+        model: Drink,
+        attributes: { exclude: ['userId'] },
+      }],
+    })
 
     if (ingredient) {
       const serializedIngredient = dataFormatter
@@ -35,7 +48,7 @@ export class IngredientController implements Controller {
     const ingredientIds: number[] = []
 
     for (const { drink: { id }, ...rest } of body) {
-      const ingredient = await Ingredient.scope('withDrinkId').create(rest)
+      const [ingredient] = await Ingredient.findOrCreate({ where: { parts: rest.parts, drinkId: id } })
       if (ingredient) {
         ingredientIds.push(ingredient.id)
         await ingredient.setDrink(id)
@@ -44,7 +57,10 @@ export class IngredientController implements Controller {
 
     const ingredients = await Ingredient.findAll({
       attributes: { exclude: ['drinkId'] },
-      include: { model: Drink, as: 'drink' },
+      include: [{
+        model: Drink,
+        attributes: { exclude: ['userId'] },
+      }],
       where: { id: { [Op.in]: ingredientIds } },
     })
       .then(res => res.map((i) => i.toJSON()))
@@ -52,6 +68,5 @@ export class IngredientController implements Controller {
     const serializedIngredients = dataFormatter.serialize({ stuff: ingredients, includeNames: ['drink'] })
 
     res.status(201).json(serializedIngredients)
-    // throw 'Not yet implemented'
   }
 }
