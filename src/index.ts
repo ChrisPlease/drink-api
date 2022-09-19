@@ -4,11 +4,13 @@ import session, { Store } from 'express-session'
 import bodyParser from 'body-parser'
 import { authRouter, drinkRouter, entryRouter, userRouter } from './routes'
 import { PORT } from './config/constants'
-import { Drink, sequelize } from './models'
+import { sequelize } from './models'
 import SequelizeSessionInit from 'connect-session-sequelize'
 import passport from 'passport'
 import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
+import { graphqlHTTP } from 'express-graphql'
+import { schema } from './schemas'
 import './config/passport'
 
 const SequelizeStore = SequelizeSessionInit(Store)
@@ -34,6 +36,17 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.use('/auth', authRouter)
+
+app.use(
+  '/graphql',
+  authHandler,
+  graphqlHTTP(() => {
+    return {
+      graphiql: true,
+      schema,
+    }
+  }),
+)
 
 app.use('/drinks', authHandler, drinkRouter)
 app.use('/entries', authHandler, entryRouter)
