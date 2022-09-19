@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
 import { Controller } from './interfaces'
-import { pagination } from '../config/constants'
 import { Drink, Entry, Ingredient, sequelize, User } from '../models'
 import { DrinkModel } from '../models/Drink.model'
 import { Op } from 'sequelize'
