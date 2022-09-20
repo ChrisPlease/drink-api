@@ -11,6 +11,7 @@ import { drinkType, drinkInput } from './drinks'
 import { ingredientType } from './ingredients'
 import { Op } from 'sequelize'
 import { DrinkModel } from '../models/Drink.model'
+import { drinkResolver } from '../resolvers/drinks.resolver'
 
 const queryType = new GraphQLObjectType({
   name: 'Query',
@@ -20,24 +21,7 @@ const queryType = new GraphQLObjectType({
       args: {
         id: { type: GraphQLID },
       },
-      async resolve(_, { id }) {
-        const drink = await Drink.findByPk(id, {
-          include: [{
-            model: Ingredient,
-            as: 'ingredients',
-            through: {
-              attributes: [],
-            },
-            include: [{
-              model: Drink,
-            }],
-          }],
-        })
-
-        console.log(drink?.isMixedDrink)
-
-        return drink
-      },
+      resolve: drinkResolver,
     },
     drinks: {
       type: paginationType('Drinks', drinkType),
