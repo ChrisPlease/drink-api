@@ -23,6 +23,7 @@ export const ingredientsResolver: GraphQLFieldResolver<any, any> = async (
     after,
   },
 ) => {
+  console.log('resolving ingredients')
   const { rows: ingredients, count } = await Ingredient.findAndCountAll({
     where: {
       ...(after ? { id: { [Op.gt]: +after } } : {}),
