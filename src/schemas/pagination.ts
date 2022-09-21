@@ -8,8 +8,8 @@ const edgeType = (type: GraphQLObjectType) => new GraphQLObjectType({
   },
 })
 
-export const paginationType = (name: string, type: GraphQLObjectType) => new GraphQLObjectType({
-  name,
+export const paginationType = (type: GraphQLObjectType) => new GraphQLObjectType({
+  name: `${type.name}Paginated`,
   fields: {
     edges: {
       type: new GraphQLList(edgeType(type)),

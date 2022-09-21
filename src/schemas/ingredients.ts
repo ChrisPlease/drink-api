@@ -5,6 +5,7 @@ import {
   GraphQLInputObjectType,
   GraphQLNonNull,
 } from 'graphql'
+import { drinkResolver } from '../resolvers/drinks.resolver'
 import { drinkType } from './drinks'
 
 export const ingredientType = new GraphQLObjectType({
@@ -12,7 +13,10 @@ export const ingredientType = new GraphQLObjectType({
   fields: () => ({
     id: { type: GraphQLID },
     parts: { type: GraphQLInt },
-    drink: { type: drinkType },
+    drink: {
+      type: drinkType,
+      resolve: drinkResolver,
+    },
   }),
 })
 
