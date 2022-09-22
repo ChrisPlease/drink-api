@@ -8,8 +8,7 @@ import {
   GraphQLInputObjectType,
   GraphQLInt,
 } from 'graphql'
-import { Op } from 'sequelize'
-import { Drink } from '../models'
+import { ingredientsResolver } from '../resolvers/ingredients.resolver'
 import { ingredientType, ingredientInput } from './ingredients'
 
 export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
@@ -23,16 +22,7 @@ export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
     sugar: { type: GraphQLFloat },
     ingredients: {
       type: new GraphQLList(ingredientType),
-      resolve: async ({ ingredients: drinkIngredients }) => {
-        if (drinkIngredients.length) {
-          const drinkIds = drinkIngredients.map(({ drinkId }: { drinkId: unknown }) => drinkId)
-          const ingredients = await Drink.findAll({ where: { id: { [Op.in]: drinkIds } } })
-            .then(drinks => drinks.map(drink => drink.toJSON()))
-            .then(drinks => drinks.map(drink => ({ parts: 4, drink })))
-
-          return ingredients
-        }
-      },
+      resolve: ingredientsResolver,
     },
   }),
 })
