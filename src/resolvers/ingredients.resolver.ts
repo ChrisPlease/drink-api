@@ -37,7 +37,7 @@ export const ingredientsResolver: GraphQLFieldResolver<any, any> = async (
     }
   }
 
-  if (prev?.ingredients?.length > 0) {
+  if (prev?.ingredients?.length) {
     return await prev.getIngredients({ joinTableAttributes: [] })
   } else {
     return []
