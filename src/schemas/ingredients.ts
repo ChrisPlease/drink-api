@@ -24,6 +24,8 @@ export const ingredientInput = new GraphQLInputObjectType({
   name: 'IngredientInput',
   fields: {
     parts: { type: new GraphQLNonNull(GraphQLInt) },
-    drinkId: { type: new GraphQLNonNull(GraphQLInt) },
+    drinkId: {
+      type: new GraphQLNonNull(GraphQLInt),
+    },
   },
 })

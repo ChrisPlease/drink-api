@@ -1,6 +1,6 @@
 import { GraphQLFieldResolver } from 'graphql'
 import { Drink, Ingredient } from '../models'
-import { Op } from 'sequelize'
+import { DrinkModel } from '../models/Drink.model'
 
 export const ingredientResolver: GraphQLFieldResolver<any, any> = async (
   _,
@@ -17,30 +17,30 @@ export const ingredientResolver: GraphQLFieldResolver<any, any> = async (
 }
 
 export const ingredientsResolver: GraphQLFieldResolver<any, any> = async (
-  _,
+  prev: DrinkModel,
   {
-    first,
-    after,
+    ...pagination
   },
 ) => {
-  console.log('resolving ingredients')
-  const { rows: ingredients, count } = await Ingredient.findAndCountAll({
-    where: {
-      ...(after ? { id: { [Op.gt]: +after } } : {}),
-    },
-    distinct: true,
-    limit: first,
-    order: [['id', 'ASC']],
-    include: [{ model: Drink, as: 'drink' }],
-  }).then(({ rows, count }) => ({ rows: rows.map(i => ({ node: i.toJSON(), cursor: i.id })), count }))
+  if (!prev) {
+    const { rows: ingredients, count } = await Ingredient.findAndCountAll({
+      distinct: true,
+      order: [['id', 'ASC']],
+    }).then(({ rows, count }) => ({ rows: rows.map(i => i.toJSON()), count }))
 
-  const lastCursor = ingredients[ingredients.length - 1]?.cursor
-
-  return {
-    edges: ingredients,
-    pageInfo: {
-      records: count,
-      lastCursor,
-    },
+    return {
+      nodes: ingredients,
+      pageInfo: {
+        records: count,
+        ...pagination,
+      },
+    }
   }
+
+  if (prev?.ingredients?.length > 0) {
+    return await prev.getIngredients({ joinTableAttributes: [] })
+  } else {
+    return []
+  }
+
 }

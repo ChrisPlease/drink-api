@@ -7,16 +7,9 @@ export const drinkResolver: GraphQLFieldResolver<any, any, { id: number }> = asy
   { id },
 ) => {
   return await Drink.findByPk(prev.drinkId || id, {
-    include: [{
-      model: Ingredient,
-      as: 'ingredients',
-      through: {
-        attributes: [],
-      },
-      include: [{
-        model: Drink,
-      }],
-    }],
+    include: [
+      { model: Ingredient, as: 'ingredients', through: { attributes: [] } },
+    ],
   })
 }
 
@@ -38,7 +31,9 @@ export const drinksResolver: GraphQLFieldResolver<any, any, any, any> = async (
     },
     distinct: true,
     order: [['id', 'asc']],
-    include: [{ model: Ingredient, as: 'ingredients', through: { attributes: [] } }],
+    include: [
+      { model: Ingredient, as: 'ingredients', through: { attributes: [] } },
+    ],
   })
 
   return {
