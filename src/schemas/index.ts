@@ -2,16 +2,13 @@ import {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLID,
-  GraphQLInt,
-  GraphQLString,
+  GraphQLList,
+  GraphQLNonNull,
 } from 'graphql'
-import { Drink, Ingredient } from '../models'
-import { paginationType } from './pagination'
-import { drinkType, drinkInput } from './drinks'
+// import { Drink, Ingredient } from '../models'
+import { drinkType/* , drinkInput */ } from './drinks'
 import { ingredientType } from './ingredients'
-import { DrinkModel } from '../models/Drink.model'
-import { drinkResolver, drinksResolver } from '../resolvers/drinks.resolver'
-import { ingredientResolver, ingredientsResolver } from '../resolvers/ingredients.resolver'
+// import { DrinkModel } from '../models/Drink.model'
 
 const queryType = new GraphQLObjectType({
   name: 'Query',
@@ -19,38 +16,25 @@ const queryType = new GraphQLObjectType({
     drink: {
       type: drinkType,
       args: {
-        id: { type: GraphQLID },
+        id: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: drinkResolver,
     },
     drinks: {
-      type: paginationType(drinkType),
-      args: {
-        first: { type: GraphQLInt },
-        after: { type: GraphQLString },
-        search: { type: GraphQLString },
-      },
-      resolve: drinksResolver,
+      type: new GraphQLList(drinkType),
     },
     ingredient: {
       type: ingredientType,
       args: {
-        id: { type: GraphQLID },
+        id: { type: new GraphQLNonNull(GraphQLID) },
       },
-      resolve: ingredientResolver,
     },
     ingredients: {
-      type: paginationType(ingredientType),
-      args: {
-        first: { type: GraphQLInt },
-        after: { type: GraphQLString },
-      },
-      resolve: ingredientsResolver,
+      type: new GraphQLList(ingredientType),
     },
   },
 })
 
-
+/*
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
@@ -108,5 +92,5 @@ const mutationType = new GraphQLObjectType({
     },
   },
 })
-
-export const schema = new GraphQLSchema({ query: queryType, mutation: mutationType })
+ */
+export const schema = new GraphQLSchema({ query: queryType/* , mutation: mutationType */ })

@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import express from 'express'
+import { ApolloServer } from 'apollo-server-express'
 import session, { Store } from 'express-session'
 import bodyParser from 'body-parser'
 import { authRouter, drinkRouter, entryRouter, userRouter } from './routes'
@@ -9,12 +10,14 @@ import SequelizeSessionInit from 'connect-session-sequelize'
 import passport from 'passport'
 import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
-import { graphqlHTTP } from 'express-graphql'
 import { schema } from './schemas'
 import './config/passport'
+import { GraphQLSchema } from 'graphql'
+import { drinkResolver, drinksResolver } from './resolvers/drinks.resolver'
+import { ingredientResolver, ingredientsResolver } from './resolvers/ingredients.resolver'
+import { drinksLoader } from './loaders/drinksLoader'
 
 const SequelizeStore = SequelizeSessionInit(Store)
-
 const app: express.Application = express()
 
 app.use(bodyParser.json())
@@ -34,19 +37,40 @@ app.use(
 )
 app.use(passport.initialize())
 app.use(passport.session())
-
 app.use('/auth', authRouter)
 
-app.use(
-  '/graphql',
-  authHandler,
-  graphqlHTTP(() => {
-    return {
-      graphiql: true,
-      schema,
-    }
-  }),
-)
+async function initServer(typeDefs: GraphQLSchema) {
+  const server = new ApolloServer({
+    typeDefs,
+    context: ({ req, res }) => ({
+      req,
+      res,
+      loaders: {
+        drinksLoader,
+      },
+    }),
+    resolvers: {
+      Query: {
+        drink: drinkResolver,
+        drinks: drinksResolver,
+        ingredient: ingredientResolver,
+        ingredients: ingredientsResolver,
+      },
+      Drink: {
+        ingredients: ingredientsResolver,
+      },
+      Ingredient: {
+        drink: drinkResolver,
+      },
+    },
+  })
+
+  await server.start()
+  console.log('Apollo server started')
+  server.applyMiddleware({ app, path: '/graphql' })
+}
+
+initServer(schema)
 
 app.use('/drinks', authHandler, drinkRouter)
 app.use('/entries', authHandler, entryRouter)
@@ -187,6 +211,7 @@ sequelize.sync(/* { alter: true } */)
   .catch(err => console.log(err))
 
 app.listen(PORT, () => {
+
   console.log(`Typescript with Express http://localhost:${PORT}`)
 })
 

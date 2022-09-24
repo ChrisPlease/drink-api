@@ -8,7 +8,6 @@ import {
   GraphQLInputObjectType,
   GraphQLInt,
 } from 'graphql'
-import { ingredientsResolver } from '../resolvers/ingredients.resolver'
 import { ingredientType, ingredientInput } from './ingredients'
 
 export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
@@ -20,10 +19,7 @@ export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
     coefficient: { type: GraphQLFloat },
     caffeine: { type: GraphQLFloat },
     sugar: { type: GraphQLFloat },
-    ingredients: {
-      type: new GraphQLList(ingredientType),
-      resolve: ingredientsResolver,
-    },
+    ingredients: { type: new GraphQLList(ingredientType) },
   }),
 })
 

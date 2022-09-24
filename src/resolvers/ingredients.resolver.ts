@@ -6,6 +6,7 @@ export const ingredientResolver: GraphQLFieldResolver<any, any> = async (
   _,
   { id },
 ) => {
+  console.log('resolving a single ingredient')
   const ingredient = await Ingredient.findByPk(id, {
     include: [{
       model: Drink,
@@ -17,30 +18,15 @@ export const ingredientResolver: GraphQLFieldResolver<any, any> = async (
 }
 
 export const ingredientsResolver: GraphQLFieldResolver<any, any> = async (
-  prev: DrinkModel,
-  {
-    ...pagination
-  },
+  parent: DrinkModel,
 ) => {
-  if (!prev) {
-    const { rows: ingredients, count } = await Ingredient.findAndCountAll({
-      distinct: true,
+  if (!parent) {
+    const ingredients = await Ingredient.findAll({
       order: [['id', 'ASC']],
-    }).then(({ rows, count }) => ({ rows: rows.map(i => i.toJSON()), count }))
-
-    return {
-      nodes: ingredients,
-      pageInfo: {
-        records: count,
-        ...pagination,
-      },
-    }
-  }
-
-  if (prev?.ingredients?.length) {
-    return await prev.getIngredients({ joinTableAttributes: [] })
+    })
+    return ingredients
   } else {
-    return []
+    return await parent.getIngredients({ joinTableAttributes: [] })
   }
 
 }
