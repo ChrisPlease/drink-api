@@ -2,13 +2,13 @@ import {
   GraphQLSchema,
   GraphQLObjectType,
   GraphQLID,
+  GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
 } from 'graphql'
-// import { Drink, Ingredient } from '../models'
-import { drinkType/* , drinkInput */ } from './drinks'
+import { Drink } from '../models'
+import { drinkType, drinkInput } from './drinks'
 import { ingredientType } from './ingredients'
-// import { DrinkModel } from '../models/Drink.model'
 
 const queryType = new GraphQLObjectType({
   name: 'Query',
@@ -34,45 +34,13 @@ const queryType = new GraphQLObjectType({
   },
 })
 
-/*
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
-    createDrink: {
+    drinkCreate: {
       type: drinkType,
       args: {
         drink: { type: drinkInput },
-      },
-      async resolve(_, { drink: { ingredients: drinkIngredients, ...rest } }, ctx) {
-        const userId = ctx.user.id
-        let drink = await Drink.create({ ...rest, userId })
-        if (drinkIngredients) {
-          const ingredients = await Promise.all(
-            drinkIngredients
-              .map(
-                async ({
-                  parts,
-                  drinkId,
-                }: {
-                  parts: number,
-                  drinkId: string,
-                }) => await Ingredient.findCreateFind({ where: { parts, drinkId } }),
-              ),
-          ).then((ing) => ing.map(([i]) => i))
-
-          await drink.setIngredients(ingredients)
-
-          drink = await Drink.findByPk(drink.id, {
-            include: [{
-              model: Ingredient,
-              through: { attributes: [] },
-              include: [{ model: Drink }],
-            }],
-          }) as DrinkModel
-
-          await drink.save()
-          return drink
-        }
       },
     },
     deleteDrink: {
@@ -92,5 +60,5 @@ const mutationType = new GraphQLObjectType({
     },
   },
 })
- */
-export const schema = new GraphQLSchema({ query: queryType/* , mutation: mutationType */ })
+
+export const schema = new GraphQLSchema({ query: queryType, mutation: mutationType })
