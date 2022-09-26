@@ -13,9 +13,10 @@ import { errorHandler } from './middleware/errorHandler'
 import { schema } from './schemas'
 import './config/passport'
 import { GraphQLSchema } from 'graphql'
-import { drinkResolver, drinksResolver } from './resolvers/drinks.resolver'
+import { drinkCreateResolver, drinkResolver, drinksResolver } from './resolvers/drinks.resolver'
 import { ingredientResolver, ingredientsResolver } from './resolvers/ingredients.resolver'
 import { drinksLoader } from './loaders/drinksLoader'
+import { ingredientsLoader } from './loaders/ingredientsLoader'
 
 const SequelizeStore = SequelizeSessionInit(Store)
 const app: express.Application = express()
@@ -47,6 +48,7 @@ async function initServer(typeDefs: GraphQLSchema) {
       res,
       loaders: {
         drinksLoader,
+        ingredientsLoader,
       },
     }),
     resolvers: {
@@ -61,6 +63,9 @@ async function initServer(typeDefs: GraphQLSchema) {
       },
       Ingredient: {
         drink: drinkResolver,
+      },
+      Mutation: {
+        drinkCreate: drinkCreateResolver,
       },
     },
   })
