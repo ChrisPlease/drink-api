@@ -6,7 +6,9 @@ import {
   DataTypes,
   Sequelize,
   ForeignKey,
+  NonAttribute,
 } from 'sequelize'
+import { DrinkIngredientModel } from './DrinkIngredient.model'
 
 export class IngredientModel extends Model<
   InferAttributes<IngredientModel>,
@@ -14,6 +16,8 @@ export class IngredientModel extends Model<
 > {
   declare id: CreationOptional<number>
   declare parts: number
+
+  declare drinkIngredient: NonAttribute<DrinkIngredientModel>
 
   declare drinkId: ForeignKey<number>
 }

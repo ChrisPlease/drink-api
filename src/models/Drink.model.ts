@@ -5,7 +5,6 @@ import {
   CreationOptional,
   DataTypes,
   HasManyAddAssociationsMixin,
-  HasManyGetAssociationsMixin,
   NonAttribute,
   Sequelize,
   HasManySetAssociationsMixin,
@@ -13,6 +12,7 @@ import {
   ForeignKey,
   Association,
   BelongsToManyGetAssociationsMixin,
+  HasManyHasAssociationMixin,
 } from 'sequelize'
 import { IngredientModel } from './Ingredient.model'
 
@@ -31,6 +31,7 @@ export class DrinkModel extends Model<
   declare setIngredients: HasManySetAssociationsMixin<IngredientModel, 'drinkId'>
   declare addIngredient: HasManyAddAssociationMixin<IngredientModel, number>
   declare addIngredients: HasManyAddAssociationsMixin<IngredientModel, number>
+  declare hasIngredients: HasManyHasAssociationMixin<IngredientModel, number>
   declare getIngredients: BelongsToManyGetAssociationsMixin<IngredientModel>
 
   declare ingredients?: NonAttribute<IngredientModel[]>
