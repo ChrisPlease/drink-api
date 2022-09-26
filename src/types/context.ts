@@ -1,8 +1,10 @@
 import type { ExpressContext } from 'apollo-server-express'
 import DataLoader from 'dataloader'
 
+type Loaders = 'drinksLoader' | 'ingredientsLoader'
+
 export interface AppContext extends ExpressContext {
   loaders: {
-    [key: string]: InstanceType<typeof DataLoader>,
+    [key in Loaders]: InstanceType<typeof DataLoader>
   };
 }

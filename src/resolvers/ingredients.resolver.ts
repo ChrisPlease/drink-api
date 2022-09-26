@@ -8,9 +8,9 @@ export const ingredientResolver: GraphQLFieldResolver<any, AppContext, { id: str
   parent,
   { id },
 ) => {
-  return await Ingredient.findByPk(id, {
+  return await Ingredient.findByPk(parent?.id || id, {
     include: [{ model: DrinkIngredient, as: 'drinkIngredient', required: true }],
-  })
+  }) as IngredientModel
 }
 
 export const ingredientsResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
