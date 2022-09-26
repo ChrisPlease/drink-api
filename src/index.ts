@@ -3,7 +3,7 @@ import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import session, { Store } from 'express-session'
 import bodyParser from 'body-parser'
-import { authRouter, drinkRouter, entryRouter, userRouter } from './routes'
+import { authRouter } from './routes'
 import { PORT } from './config/constants'
 import { sequelize } from './models'
 import SequelizeSessionInit from 'connect-session-sequelize'
@@ -77,14 +77,11 @@ async function initServer(typeDefs: GraphQLSchema) {
 
   await server.start()
   console.log('Apollo server started')
+  app.use(authHandler, server.getMiddleware({ ...app, path: '/graphql' }))
   server.applyMiddleware({ app, path: '/graphql' })
 }
 
 initServer(schema)
-
-app.use('/drinks', authHandler, drinkRouter)
-app.use('/entries', authHandler, entryRouter)
-app.use('/users', authHandler, userRouter)
 
 app.get('/', (req, res) => {
   res.json({ info: 'Typescript With Express' })
