@@ -17,12 +17,14 @@ import { drinkCreateResolver, drinkResolver, drinksResolver } from './resolvers/
 import { ingredientResolver, ingredientsResolver } from './resolvers/ingredients.resolver'
 import { drinksLoader } from './loaders/drinksLoader'
 import { ingredientsLoader } from './loaders/ingredientsLoader'
+import { AppContext } from './types/context'
 
 const SequelizeStore = SequelizeSessionInit(Store)
 const app: express.Application = express()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+
 
 app.use(
   session({
@@ -43,7 +45,10 @@ app.use('/auth', authRouter)
 async function initServer(typeDefs: GraphQLSchema) {
   const server = new ApolloServer({
     typeDefs,
-    context: ({ req, res }) => ({
+    context: (
+      { req,
+        res,
+      }): AppContext => ({
       req,
       res,
       loaders: {
