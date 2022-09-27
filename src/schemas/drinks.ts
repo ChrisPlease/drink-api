@@ -26,6 +26,7 @@ export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
 export const drinkInput = new GraphQLInputObjectType({
   name: 'DrinkInput',
   fields: {
+    id: { type: GraphQLString },
     name: { type: new GraphQLNonNull(GraphQLString) },
     icon: { type: new GraphQLNonNull(GraphQLString) },
     caffeine: { type: GraphQLInt },

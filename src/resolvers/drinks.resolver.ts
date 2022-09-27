@@ -44,6 +44,7 @@ export const drinksResolver: GraphQLFieldResolver<any, any, any, any> = async (
 }
 
 interface DrinkInput {
+  id?: number;
   name: string;
   icon: string;
   caffeine?: number;
@@ -62,7 +63,6 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, any, { drink: DrinkI
   },
   {
     req,
-    loaders: { drinksLoader },
   },
 ) => {
   const userId = req.user.id
@@ -88,8 +88,50 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, any, { drink: DrinkI
     }) as DrinkModel
 
     await drink.save()
-    drinksLoader.prime(drink.id, drink)
-
-    return drink
   }
+  return drink
+}
+
+export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: DrinkInput }, any> = async (
+  parent,
+  { drink: drinkInput },
+  {
+    req: { user },
+    loaders: { drinksLoader },
+  },
+) => {
+  if (!drinkInput.id) {
+    throw new Error('ID is required when editing a drink')
+  }
+
+  let drink: DrinkModel
+  const userId = user?.id
+  const { id, ingredients, ...rest } = drinkInput
+
+  try {
+    drink = await drinksLoader.load(drinkInput.id) as DrinkModel
+  } catch {
+    drink = await Drink.findByPk(drinkInput.id, {
+      attributes: { include: ['userId'] },
+      include: [{ model: Ingredient, as: 'ingredients' }],
+    }) as DrinkModel
+  }
+
+  if (drink.totalParts > 1 && !ingredients) {
+    throw new Error('This is a mixed drink, must include ingredients')
+  }
+
+  const drinkUser = await drink.getUser()
+  if (userId !== drinkUser.id) {
+    throw new Error('Unathorized')
+  }
+
+  await drink.update(rest, { where: { id } })
+
+  if (ingredients) {
+    console.log('has ingredients')
+  }
+
+  return drink
+
 }

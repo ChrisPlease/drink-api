@@ -8,6 +8,7 @@ import {
 } from 'graphql'
 import { Drink } from '../models'
 import { drinkType, drinkInput } from './drinks'
+import { entryType } from './entries'
 import { ingredientType } from './ingredients'
 
 const queryType = new GraphQLObjectType({
@@ -31,6 +32,9 @@ const queryType = new GraphQLObjectType({
     ingredients: {
       type: new GraphQLList(ingredientType),
     },
+    entries: {
+      type: new GraphQLList(entryType),
+    },
   },
 })
 
@@ -38,6 +42,12 @@ const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
     drinkCreate: {
+      type: drinkType,
+      args: {
+        drink: { type: drinkInput },
+      },
+    },
+    drinkEdit: {
       type: drinkType,
       args: {
         drink: { type: drinkInput },

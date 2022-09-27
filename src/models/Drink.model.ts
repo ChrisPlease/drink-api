@@ -13,8 +13,10 @@ import {
   Association,
   BelongsToManyGetAssociationsMixin,
   HasManyHasAssociationMixin,
+  HasOneGetAssociationMixin,
 } from 'sequelize'
 import { IngredientModel } from './Ingredient.model'
+import { UserModel } from './User.model'
 
 export class DrinkModel extends Model<
   InferAttributes<DrinkModel>,
@@ -33,6 +35,8 @@ export class DrinkModel extends Model<
   declare addIngredients: HasManyAddAssociationsMixin<IngredientModel, number>
   declare hasIngredients: HasManyHasAssociationMixin<IngredientModel, number>
   declare getIngredients: BelongsToManyGetAssociationsMixin<IngredientModel>
+
+  declare getUser: HasOneGetAssociationMixin<UserModel>
 
   declare ingredients?: NonAttribute<IngredientModel[]>
 
@@ -100,6 +104,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       validate: {
         min: 0,
       },
+      defaultValue: 0,
     },
 
     totalParts: {
@@ -111,13 +116,6 @@ export const DrinkFactory = (sequelize: Sequelize) => {
   }, {
     modelName: 'drink',
     sequelize,
-    timestamps: false,
-
-    defaultScope: {
-      attributes: {
-        exclude: ['userId', 'totalParts'],
-      },
-    },
   })
 
   Drink.beforeSave(async (drink) => {
