@@ -10,6 +10,7 @@ import { Drink } from '../models'
 import { drinkType, drinkInput } from './drinks'
 import { entryType } from './entries'
 import { ingredientType } from './ingredients'
+import { userType } from './users'
 
 const queryType = new GraphQLObjectType({
   name: 'Query',
@@ -34,6 +35,18 @@ const queryType = new GraphQLObjectType({
     },
     entries: {
       type: new GraphQLList(entryType),
+    },
+    currentUser: {
+      type: userType,
+    },
+    user: {
+      type: userType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+      },
+    },
+    users: {
+      type: new GraphQLList(userType),
     },
   },
 })
