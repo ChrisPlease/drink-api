@@ -5,7 +5,7 @@ import session, { Store } from 'express-session'
 import bodyParser from 'body-parser'
 import { authRouter } from './routes'
 import { PORT } from './config/constants'
-import { Drink, sequelize, User } from './models'
+import { sequelize/* , Drink, User */ } from './models'
 import SequelizeSessionInit from 'connect-session-sequelize'
 import passport from 'passport'
 import { authHandler } from './middleware/authHandler'
@@ -99,7 +99,7 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler)
 
-sequelize.sync(/* { force: true } */)
+sequelize.sync(/* { alter: true } */)
   .then(async () => {
     /* await Drink.bulkCreate([
       {
