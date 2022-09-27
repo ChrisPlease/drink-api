@@ -5,7 +5,7 @@ import session, { Store } from 'express-session'
 import bodyParser from 'body-parser'
 import { authRouter } from './routes'
 import { PORT } from './config/constants'
-import { sequelize } from './models'
+import { Drink, sequelize, User } from './models'
 import SequelizeSessionInit from 'connect-session-sequelize'
 import passport from 'passport'
 import { authHandler } from './middleware/authHandler'
@@ -13,11 +13,17 @@ import { errorHandler } from './middleware/errorHandler'
 import { schema } from './schemas'
 import './config/passport'
 import { GraphQLSchema } from 'graphql'
-import { drinkCreateResolver, drinkResolver, drinksResolver } from './resolvers/drinks.resolver'
+import {
+  drinkCreateResolver,
+  drinkEditResolver,
+  drinkResolver,
+  drinksResolver,
+} from './resolvers/drinks.resolver'
 import { ingredientResolver, ingredientsResolver } from './resolvers/ingredients.resolver'
 import { drinksLoader } from './loaders/drinksLoader'
 import { ingredientsLoader } from './loaders/ingredientsLoader'
 import { AppContext } from './types/context'
+import { entriesResolver } from './resolvers/entries.resolver'
 
 const SequelizeStore = SequelizeSessionInit(Store)
 const app: express.Application = express()
@@ -62,23 +68,27 @@ async function initServer(typeDefs: GraphQLSchema) {
         drinks: drinksResolver,
         ingredient: ingredientResolver,
         ingredients: ingredientsResolver,
+        entries: entriesResolver,
       },
       Drink: {
         ingredients: ingredientsResolver,
       },
+      Mutation: {
+        drinkCreate: drinkCreateResolver,
+        drinkEdit: drinkEditResolver,
+      },
       Ingredient: {
         drink: drinkResolver,
       },
-      Mutation: {
-        drinkCreate: drinkCreateResolver,
+      Entry: {
+        drink: drinkResolver,
       },
     },
   })
 
   await server.start()
   console.log('Apollo server started')
-  app.use(authHandler, server.getMiddleware({ ...app, path: '/graphql' }))
-  server.applyMiddleware({ app, path: '/graphql' })
+  app.use(authHandler, server.getMiddleware({ path: '/graphql' }))
 }
 
 initServer(schema)
@@ -89,9 +99,9 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler)
 
-sequelize.sync(/* { alter: true } */)
+sequelize.sync(/* { force: true } */)
   .then(async () => {
-/*     await Drink.bulkCreate([
+    /* await Drink.bulkCreate([
       {
         name: 'Water',
         coefficient: 1,
@@ -212,7 +222,13 @@ sequelize.sync(/* { alter: true } */)
         coefficient: 0.85,
         caffeine: 0,
       },
-    ]) */
+    ])
+
+    await User.create({
+      username: 'ChrisPlz',
+      password: 'P@ssw0rd!',
+      email: 'chris@chrisplease.me',
+    }) */
     console.log('Sync complete')
   })
   .catch(err => console.log(err))
