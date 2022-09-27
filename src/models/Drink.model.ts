@@ -68,7 +68,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: 'userId',
     },
 
     icon: {
@@ -97,6 +97,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       get(): number {
         return this.getDataValue('caffeine')
       },
+      defaultValue: 0,
     },
 
     sugar: {
@@ -112,6 +113,11 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       get(): number {
         return this.ingredients?.reduce((acc, { parts }) => acc += parts, 0) || 1
       },
+    },
+
+    userId: {
+      type: DataTypes.INTEGER,
+      unique: 'userId',
     },
   }, {
     modelName: 'drink',
