@@ -3,6 +3,7 @@ import { Drink, Ingredient } from '../models'
 import { Op } from 'sequelize'
 import { DrinkModel } from '../models/Drink.model'
 import { AppContext } from '../types/context'
+import { UserModel } from '../models/User.model'
 
 export const drinkResolver: GraphQLFieldResolver<any, AppContext, { id: number }> = async (
   parent,
@@ -27,12 +28,17 @@ export const drinksResolver: GraphQLFieldResolver<any, any, any, any> = async (
   { search },
   { req },
 ) => {
+  const isUserDrinks = parent instanceof UserModel
+  console.log('fooooooooooooo')
+  if (parent instanceof UserModel) {
+    console.log('user drinks')
+  }
   const { rows: drinks } = await Drink.findAndCountAll({
     where: {
       ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
       [Op.or]: [
-        { userId: { [Op.is]: null } },
-        { userId: req.user.id },
+        { userId: isUserDrinks ? parent.id : req.user.id },
+        ...(!isUserDrinks ? [{ userId: { [Op.is]: null } }] : []),
       ],
     },
     distinct: true,

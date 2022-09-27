@@ -13,17 +13,10 @@ import { errorHandler } from './middleware/errorHandler'
 import { schema } from './schemas'
 import './config/passport'
 import { GraphQLSchema } from 'graphql'
-import {
-  drinkCreateResolver,
-  drinkEditResolver,
-  drinkResolver,
-  drinksResolver,
-} from './resolvers/drinks.resolver'
-import { ingredientResolver, ingredientsResolver } from './resolvers/ingredients.resolver'
+import { resolvers } from './resolvers'
 import { drinksLoader } from './loaders/drinksLoader'
 import { ingredientsLoader } from './loaders/ingredientsLoader'
 import { AppContext } from './types/context'
-import { entriesResolver } from './resolvers/entries.resolver'
 
 const SequelizeStore = SequelizeSessionInit(Store)
 const app: express.Application = express()
@@ -62,28 +55,7 @@ async function initServer(typeDefs: GraphQLSchema) {
         ingredientsLoader,
       },
     }),
-    resolvers: {
-      Query: {
-        drink: drinkResolver,
-        drinks: drinksResolver,
-        ingredient: ingredientResolver,
-        ingredients: ingredientsResolver,
-        entries: entriesResolver,
-      },
-      Drink: {
-        ingredients: ingredientsResolver,
-      },
-      Mutation: {
-        drinkCreate: drinkCreateResolver,
-        drinkEdit: drinkEditResolver,
-      },
-      Ingredient: {
-        drink: drinkResolver,
-      },
-      Entry: {
-        drink: drinkResolver,
-      },
-    },
+    resolvers,
   })
 
   await server.start()
@@ -99,7 +71,7 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler)
 
-sequelize.sync(/* { alter: true } */)
+sequelize.sync(/* { force: true } */)
   .then(async () => {
     /* await Drink.bulkCreate([
       {
@@ -124,24 +96,28 @@ sequelize.sync(/* { alter: true } */)
         name: 'Smoothie',
         icon: 'blender',
         coefficient: 0.33,
+        sugar: 23,
         caffeine: 0,
       },
       {
         name: 'Yogurt',
         icon: 'bowl-soft-serve',
         coefficient: 0.5,
+        sugar: 45,
         caffeine: 0,
       },
       {
         name: 'Soda',
         icon: 'cup-straw-swoosh',
         coefficient: 0.6,
+        sugar: 64,
         caffeine: 0,
       },
       {
         name: 'Juice',
         icon: 'glass',
         coefficient: 0.55,
+        sugar: 30,
         caffeine: 0,
       },
       {
@@ -189,7 +165,8 @@ sequelize.sync(/* { alter: true } */)
       {
         name: 'Milkshake',
         icon: 'blender',
-        coefficient: 0.72,
+        sugar: 40,
+        coefficient: 0.5,
         caffeine: 0,
       },
       {
@@ -201,33 +178,49 @@ sequelize.sync(/* { alter: true } */)
       {
         name: 'Energy Drink',
         icon: 'can-food',
+        sugar: 80,
         coefficient: 0.4,
         caffeine: 34,
       },
       {
         name: 'Cacao',
         icon: 'mug-saucer',
+        sugar: 60,
         coefficient: 0.65,
         caffeine: 3,
       },
       {
         name: 'Hot Chocolate',
         icon: 'mug-marshmallows',
+        sugar: 60,
         coefficient: 0.4,
         caffeine: 22,
       },
       {
         name: 'Coconut Water',
         icon: 'glass',
+        sugar: 15,
         coefficient: 0.85,
+        caffeine: 0,
+      },
+      {
+        name: 'Lemonade',
+        icon: 'glass',
+        sugar: 23,
+        coefficient: 0.8,
         caffeine: 0,
       },
     ])
 
     await User.create({
-      username: 'ChrisPlz',
+        username: 'ChrisPlz',
+        password: 'P@ssw0rd!',
+        email: 'chris@chrisplease.me',
+      })
+    await User.create({
+      username: 'testuser',
       password: 'P@ssw0rd!',
-      email: 'chris@chrisplease.me',
+      email: 'chris@chrisplease.com',
     }) */
     console.log('Sync complete')
   })
