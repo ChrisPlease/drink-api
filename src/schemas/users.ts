@@ -15,6 +15,7 @@ export const userType: GraphQLObjectType<any, any> = new GraphQLObjectType({
     username: { type: new GraphQLNonNull(GraphQLString) },
     email: { type: new GraphQLNonNull(GraphQLString) },
     createdAt: { type: GraphQLString },
+    updatedAt: { type: GraphQLString },
     drinks: { type: new GraphQLList(drinkType) },
     entries: { type: new GraphQLList(entryType) },
   }),

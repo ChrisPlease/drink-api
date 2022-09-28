@@ -16,6 +16,8 @@ export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(GraphQLID) },
     name: { type: new GraphQLNonNull(GraphQLString) },
     icon: { type: new GraphQLNonNull(GraphQLString) },
+    createdAt: { type: GraphQLString },
+    updatedAt: { type: GraphQLString },
     coefficient: { type: GraphQLFloat },
     caffeine: { type: GraphQLFloat },
     sugar: { type: GraphQLFloat },
