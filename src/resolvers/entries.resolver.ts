@@ -11,7 +11,7 @@ export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: number }
 
   entry = await Entry.findByPk(parent?.id || id) as EntryModel
 
-  console.log(entry)
+  return entry
 }
 
 export const entriesResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
@@ -23,8 +23,6 @@ export const entriesResolver: GraphQLFieldResolver<any, AppContext, any, any> = 
   let entries: EntryModel[] = []
 
   entries = await Entry.findAll({ where: { userId }, include: [{ model: DateLog }] })
-
-  console.log(entries[0].toJSON())
 
   return entries
 }
