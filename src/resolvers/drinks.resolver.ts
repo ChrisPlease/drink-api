@@ -1,4 +1,4 @@
-import { GraphQLFieldResolver } from 'graphql'
+import { GraphQLFieldResolver, GraphQLObjectType } from 'graphql'
 import { Drink, Ingredient } from '../models'
 import { Op } from 'sequelize'
 import { DrinkModel } from '../models/Drink.model'
@@ -23,21 +23,24 @@ export const drinkResolver: GraphQLFieldResolver<any, AppContext, { id: number }
   return drink
 }
 
-export const drinksResolver: GraphQLFieldResolver<any, any, any, any> = async (
+export const drinksResolver: GraphQLFieldResolver<
+  InstanceType<typeof GraphQLObjectType> | UserModel | undefined,
+  AppContext,
+  { search: string; first: number; after: string },
+  any
+> = async (
   parent,
   { search },
   { req },
 ) => {
+  console.log('here')
   const isUserDrinks = parent instanceof UserModel
-  console.log('fooooooooooooo')
-  if (parent instanceof UserModel) {
-    console.log('user drinks')
-  }
+
   const { rows: drinks } = await Drink.findAndCountAll({
     where: {
       ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
       [Op.or]: [
-        { userId: isUserDrinks ? parent.id : req.user.id },
+        { userId: isUserDrinks ? parent.id : req.user?.id },
         ...(!isUserDrinks ? [{ userId: { [Op.is]: null } }] : []),
       ],
     },
@@ -129,7 +132,7 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
 
   const drinkUser = await drink.getUser()
   if (userId !== drinkUser.id) {
-    throw new Error('Unathorized')
+    throw new Error('You do not have the permissions to edit this drink')
   }
 
   await drink.update(rest, { where: { id } })

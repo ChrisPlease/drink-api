@@ -5,6 +5,7 @@ import {
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
+  GraphQLString,
 } from 'graphql'
 import { Drink } from '../models'
 import { drinkType, drinkInput } from './drinks'
@@ -23,6 +24,11 @@ const queryType = new GraphQLObjectType({
     },
     drinks: {
       type: new GraphQLList(drinkType),
+      args: {
+        first: { type: GraphQLInt },
+        after: { type: GraphQLString },
+        search: { type: GraphQLString },
+      },
     },
     ingredient: {
       type: ingredientType,
