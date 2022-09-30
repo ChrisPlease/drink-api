@@ -1,11 +1,13 @@
 import {
+  BelongsToManyCreateAssociationMixin,
+  BelongsToManyGetAssociationsMixin,
   CreationOptional,
   DataTypes,
   ForeignKey,
-  HasManyCreateAssociationMixin,
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
   Sequelize,
 } from 'sequelize'
 import { DateLogModel } from './DateLog.model'
@@ -15,10 +17,11 @@ export class EntryModel extends Model<
   InferCreationAttributes<EntryModel>
 > {
   declare id: CreationOptional<number>
+  declare count: CreationOptional<number>
 
-  declare volume: number
-
-  declare createLog: HasManyCreateAssociationMixin<DateLogModel, 'entryId'>
+  declare logs: NonAttribute<DateLogModel[]>
+  declare createLog: BelongsToManyCreateAssociationMixin<DateLogModel>
+  declare getLogs: BelongsToManyGetAssociationsMixin<DateLogModel>
 
   declare drinkId: ForeignKey<number>
   declare userId: ForeignKey<number>
@@ -32,14 +35,13 @@ export const EntryFactory = (sequelize: Sequelize) => {
       autoIncrement: true,
     },
 
-    volume: {
+    count: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      defaultValue: 0,
     },
   }, {
     modelName: 'entry',
     sequelize,
-    timestamps: false,
     underscored: true,
   })
 

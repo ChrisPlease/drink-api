@@ -13,7 +13,7 @@ export class DateLogModel extends Model<
   InferCreationAttributes<DateLogModel>
 > {
   declare id: CreationOptional<number>
-
+  declare volume: number
   declare entryId: ForeignKey<number>
 
 }
@@ -24,6 +24,11 @@ export const DateLogFactory = (sequelize: Sequelize) => {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
+    },
+
+    volume: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
   }, {
     modelName: 'log',
