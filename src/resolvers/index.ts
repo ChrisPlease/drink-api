@@ -46,5 +46,6 @@ export const resolvers = {
   },
   User: {
     drinks: drinksResolver,
+    entries: entriesResolver,
   },
 }

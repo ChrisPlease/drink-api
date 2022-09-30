@@ -23,7 +23,7 @@ export const entriesResolver: GraphQLFieldResolver<any, AppContext, any, any> = 
   let entries: EntryModel[] = []
 
   entries = await Entry.findAll({
-    order: [['count', 'desc']],
+    order: [['count', 'desc'], ['updatedAt', 'desc']],
     where: {
       userId,
     },
