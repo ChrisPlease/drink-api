@@ -17,12 +17,48 @@ export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: number }
 export const entriesResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
   parent,
   args,
-  { req: { user } },
+  { req: { user }},
 ) => {
   const userId = user?.id
   let entries: EntryModel[] = []
 
-  entries = await Entry.findAll({ where: { userId }, include: [{ model: DateLog }] })
+  entries = await Entry.findAll({
+    order: [['count', 'desc']],
+    where: {
+      userId,
+    },
+    include: [{ model: DateLog, through: {}}],
+  })
 
   return entries
+}
+
+export const entryCreateResolver: GraphQLFieldResolver<
+  any,
+  AppContext,
+  {
+    entry: {
+      drinkId: number,
+      volume: number,
+    },
+  },
+  any
+> = async (
+  parent,
+  { entry: { drinkId, volume }},
+  { req: { user }},
+) => {
+  const userId = user?.id
+  let entry: EntryModel
+
+  ([entry] = await Entry.findCreateFind({ where: { drinkId, userId }}))
+
+  if (entry) {
+    entry.increment('count')
+    await entry.createLog({ volume, entryId: entry.id })
+    await entry.save()
+    entry = await Entry.findByPk(entry.id, { include: [{ model: DateLog, through: {}}] }) as EntryModel
+  }
+
+  return entry
 }

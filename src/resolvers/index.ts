@@ -4,13 +4,15 @@ import {
   drinkCreateResolver,
   drinkEditResolver,
 } from './drinks.resolver'
-import {
-  ingredientResolver,
-  ingredientsResolver,
-} from './ingredients.resolver'
+import {ingredientResolver,
+  ingredientsResolver} from './ingredients.resolver'
 import {
   entriesResolver,
+  entryCreateResolver,
 } from './entries.resolver'
+import {
+  logsResolver,
+} from './logs.resolver'
 import {
   userResolver,
   usersResolver,
@@ -33,12 +35,14 @@ export const resolvers = {
   Mutation: {
     drinkCreate: drinkCreateResolver,
     drinkEdit: drinkEditResolver,
+    entryCreate: entryCreateResolver,
   },
   Ingredient: {
     drink: drinkResolver,
   },
   Entry: {
     drink: drinkResolver,
+    logs: logsResolver,
   },
   User: {
     drinks: drinksResolver,

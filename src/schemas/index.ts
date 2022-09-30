@@ -7,11 +7,11 @@ import {
   GraphQLNonNull,
   GraphQLString,
 } from 'graphql'
-import { Drink } from '../models'
-import { drinkType, drinkInput } from './drinks'
-import { entryType } from './entries'
-import { ingredientType } from './ingredients'
-import { userType } from './users'
+import {Drink} from '../models'
+import {drinkType, drinkInput} from './drinks'
+import {entryInput, entryType} from './entries'
+import {ingredientType} from './ingredients'
+import {userType} from './users'
 
 const queryType = new GraphQLObjectType({
   name: 'Query',
@@ -19,21 +19,21 @@ const queryType = new GraphQLObjectType({
     drink: {
       type: drinkType,
       args: {
-        id: { type: new GraphQLNonNull(GraphQLID) },
+        id: {type: new GraphQLNonNull(GraphQLID)},
       },
     },
     drinks: {
       type: new GraphQLList(drinkType),
       args: {
-        first: { type: GraphQLInt },
-        after: { type: GraphQLString },
-        search: { type: GraphQLString },
+        first: {type: GraphQLInt},
+        after: {type: GraphQLString},
+        search: {type: GraphQLString},
       },
     },
     ingredient: {
       type: ingredientType,
       args: {
-        id: { type: new GraphQLNonNull(GraphQLID) },
+        id: {type: new GraphQLNonNull(GraphQLID)},
       },
     },
     ingredients: {
@@ -48,7 +48,7 @@ const queryType = new GraphQLObjectType({
     user: {
       type: userType,
       args: {
-        id: { type: new GraphQLNonNull(GraphQLID) },
+        id: {type: new GraphQLNonNull(GraphQLID)},
       },
     },
     users: {
@@ -63,21 +63,21 @@ const mutationType = new GraphQLObjectType({
     drinkCreate: {
       type: drinkType,
       args: {
-        drink: { type: drinkInput },
+        drink: {type: drinkInput},
       },
     },
     drinkEdit: {
       type: drinkType,
       args: {
-        drink: { type: drinkInput },
+        drink: {type: drinkInput},
       },
     },
     deleteDrink: {
       type: drinkType,
       args: {
-        drinkId: { type: GraphQLInt },
+        drinkId: {type: GraphQLInt},
       },
-      async resolve(_, { drinkId }, ctx) {
+      async resolve(_, {drinkId}, ctx) {
         const drink = await Drink.findByPk(drinkId)
 
         if (drink && +ctx.user.id === drink.userId) {
@@ -87,7 +87,14 @@ const mutationType = new GraphQLObjectType({
         console.log(drink)
       },
     },
+
+    entryCreate: {
+      type: entryType,
+      args: {
+        entry: {type: entryInput},
+      },
+    },
   },
 })
 
-export const schema = new GraphQLSchema({ query: queryType, mutation: mutationType })
+export const schema = new GraphQLSchema({query: queryType, mutation: mutationType})
