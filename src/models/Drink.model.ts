@@ -15,6 +15,7 @@ import {
   HasManyHasAssociationMixin,
   HasOneGetAssociationMixin,
 } from 'sequelize'
+import { roundNumber } from '../utils/roundNumber'
 import { IngredientModel } from './Ingredient.model'
 import { UserModel } from './User.model'
 
@@ -125,9 +126,12 @@ export const DrinkFactory = (sequelize: Sequelize) => {
   })
 
   Drink.beforeSave(async (drink) => {
-    let caffeine = drink.getDataValue('caffeine') ?? 0
-    let coefficient = drink.getDataValue('coefficient') ?? 0
-    let sugar = drink.getDataValue('sugar') ?? 0
+
+    const nutrition = {
+      caffeine: drink.getDataValue('caffeine') ?? 0,
+      coefficient: drink.getDataValue('coefficient') ?? 0,
+      sugar: drink.getDataValue('sugar') ?? 0,
+    }
 
     if (drink.ingredients && drink.ingredients?.length > 1) {
       const { ingredients } = drink
@@ -137,14 +141,13 @@ export const DrinkFactory = (sequelize: Sequelize) => {
           caffeine: drinkCaffeine,
           sugar: drinkSugar,
         } = await Drink.findByPk(ingredient.drinkId) as DrinkModel
-        caffeine += ((ingredient.parts/drink.totalParts)*drinkCaffeine)
-        coefficient += ((ingredient.parts/drink.totalParts)*drinkCoefficient)
-        sugar += ((ingredient.parts/drink.totalParts)*drinkSugar)
+        nutrition.caffeine += ((ingredient.parts/drink.totalParts)*drinkCaffeine)
+        nutrition.coefficient += ((ingredient.parts/drink.totalParts)*drinkCoefficient)
+        nutrition.sugar += ((ingredient.parts/drink.totalParts)*drinkSugar)
       }
 
-      drink.setDataValue('caffeine', caffeine)
-      drink.setDataValue('coefficient', coefficient)
-      drink.setDataValue('sugar', sugar)
+      Object.entries(nutrition)
+        .forEach(([key, value]: [key: any, value: any]) => drink.setDataValue(key, roundNumber(value)))
     }
   })
 

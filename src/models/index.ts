@@ -52,6 +52,8 @@ Entry.belongsTo(Drink, { foreignKey: { name: 'drinkId', field: 'drink_id' } })
 
 Entry.belongsToMany(DateLog, { through: EntryLog })
 DateLog.belongsToMany(Entry, { through: EntryLog })
+Entry.hasMany(EntryLog)
+DateLog.hasMany(EntryLog, { as: 'entryLog' })
 Entry.hasOne(DateLog, { foreignKey: { name: 'entryId', field: 'entry_id' } })
 DateLog.belongsTo(Entry, { foreignKey: { name: 'entryId', field: 'entry_id' } })
 

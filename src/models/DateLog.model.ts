@@ -5,8 +5,10 @@ import {
   InferAttributes,
   InferCreationAttributes,
   Model,
+  NonAttribute,
   Sequelize,
 } from 'sequelize'
+import { EntryLogModel } from './EntryLog.model'
 
 export class DateLogModel extends Model<
   InferAttributes<DateLogModel>,
@@ -15,7 +17,7 @@ export class DateLogModel extends Model<
   declare id: CreationOptional<number>
   declare volume: number
   declare entryId: ForeignKey<number>
-
+  declare entryLog: NonAttribute<EntryLogModel>
 }
 
 export const DateLogFactory = (sequelize: Sequelize) => {
