@@ -9,6 +9,7 @@ import {ingredientResolver,
 import {
   entriesResolver,
   entryCreateResolver,
+  entryResolver,
 } from './entries.resolver'
 import {
   logsResolver,
@@ -25,12 +26,14 @@ export const resolvers = {
     ingredient: ingredientResolver,
     ingredients: ingredientsResolver,
     entries: entriesResolver,
+    entry: entryResolver,
     currentUser: userResolver,
     user: userResolver,
     users: usersResolver,
   },
   Drink: {
     ingredients: ingredientsResolver,
+    entries: entriesResolver,
   },
   Mutation: {
     drinkCreate: drinkCreateResolver,
@@ -41,6 +44,7 @@ export const resolvers = {
     drink: drinkResolver,
   },
   Entry: {
+    user: userResolver,
     drink: drinkResolver,
     logs: logsResolver,
   },

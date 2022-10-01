@@ -1,4 +1,4 @@
-import { GraphQLFieldResolver, GraphQLObjectType } from 'graphql'
+import { GraphQLFieldResolver } from 'graphql'
 import { Drink, Ingredient } from '../models'
 import { Op } from 'sequelize'
 import { DrinkModel } from '../models/Drink.model'
@@ -24,7 +24,7 @@ export const drinkResolver: GraphQLFieldResolver<any, AppContext, { id: number }
 }
 
 export const drinksResolver: GraphQLFieldResolver<
-  InstanceType<typeof GraphQLObjectType> | UserModel | undefined,
+  UserModel | undefined,
   AppContext,
   { search: string; first: number; after: string },
   any
@@ -33,7 +33,6 @@ export const drinksResolver: GraphQLFieldResolver<
   { search },
   { req },
 ) => {
-  console.log('here')
   const isUserDrinks = parent instanceof UserModel
 
   const { rows: drinks } = await Drink.findAndCountAll({

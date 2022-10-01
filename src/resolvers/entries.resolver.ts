@@ -1,6 +1,8 @@
 import { GraphQLFieldResolver } from 'graphql'
 import { DateLog, Entry } from '../models'
+import { DrinkModel } from '../models/Drink.model'
 import { EntryModel } from '../models/Entry.model'
+import { UserModel } from '../models/User.model'
 import { AppContext } from '../types/context'
 
 export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: number }> = async (
@@ -15,19 +17,21 @@ export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: number }
 }
 
 export const entriesResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
-  parent,
+  parent: DrinkModel | UserModel | undefined,
   args,
   { req: { user }},
 ) => {
-  const userId = user?.id
+  const drinkId = parent instanceof DrinkModel && parent?.id
+  const userId = parent instanceof UserModel && parent?.id
+
   let entries: EntryModel[] = []
 
   entries = await Entry.findAll({
     order: [['count', 'desc'], ['updatedAt', 'desc']],
     where: {
-      userId,
+      ...(drinkId ? { drinkId } : {}),
+      ...(userId ? { userId } : { userId: user?.id }),
     },
-    include: [{ model: DateLog, through: {}}],
   })
 
   return entries
