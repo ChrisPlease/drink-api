@@ -39,6 +39,12 @@ const queryType = new GraphQLObjectType({
     ingredients: {
       type: new GraphQLList(ingredientType),
     },
+    entry: {
+      type: entryType,
+      args: {
+        id: { type: GraphQLID },
+      },
+    },
     entries: {
       type: new GraphQLList(entryType),
     },

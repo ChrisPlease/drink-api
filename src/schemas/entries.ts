@@ -1,4 +1,5 @@
 import {
+  GraphQLID,
   GraphQLInputObjectType,
   GraphQLInt,
   GraphQLList,
@@ -8,11 +9,14 @@ import {
 } from 'graphql'
 import { drinkType } from './drinks'
 import { logType } from './logs.schema'
+import { userType } from './users'
 
 export const entryType: GraphQLObjectType<any, any> = new GraphQLObjectType({
   name: 'Entry',
   fields: () => ({
+    id: { type: GraphQLID },
     volume: { type: new GraphQLNonNull(GraphQLInt) },
+    user: { type: userType },
     drink: { type: drinkType },
     count: { type: new GraphQLNonNull(GraphQLInt) },
     updatedAt: { type: new GraphQLNonNull(GraphQLString) },

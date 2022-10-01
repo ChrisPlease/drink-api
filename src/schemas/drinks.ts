@@ -8,6 +8,7 @@ import {
   GraphQLInputObjectType,
   GraphQLInt,
 } from 'graphql'
+import { entryType } from './entries'
 import { ingredientType, ingredientInput } from './ingredients'
 
 export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
@@ -22,6 +23,7 @@ export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
     caffeine: { type: GraphQLFloat },
     sugar: { type: GraphQLFloat },
     ingredients: { type: new GraphQLList(ingredientType) },
+    entries: { type: new GraphQLList(entryType) },
   }),
 })
 

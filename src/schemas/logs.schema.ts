@@ -1,4 +1,5 @@
 import {
+  GraphQLFloat,
   GraphQLInt,
   GraphQLNonNull,
   GraphQLObjectType,
@@ -10,5 +11,8 @@ export const logType: GraphQLObjectType<any, any> = new GraphQLObjectType({
   fields: () => ({
     entryTimestamp: { type: new GraphQLNonNull(GraphQLString) },
     volume: { type: new GraphQLNonNull(GraphQLInt) },
+    waterContent: { type: GraphQLFloat },
+    caffeine: { type: GraphQLFloat },
+    sugar: { type: GraphQLFloat },
   }),
 })
