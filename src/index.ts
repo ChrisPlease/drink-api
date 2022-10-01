@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import session, { Store } from 'express-session'
+import cors from 'cors'
 import bodyParser from 'body-parser'
 import { authRouter } from './routes'
 import { PORT } from './config/constants'
@@ -16,6 +17,7 @@ import { GraphQLSchema } from 'graphql'
 import { resolvers } from './resolvers'
 import { drinksLoader } from './loaders/drinksLoader'
 import { ingredientsLoader } from './loaders/ingredientsLoader'
+import { logsLoader } from './loaders/logsLoader'
 import { AppContext } from './types/context'
 
 const SequelizeStore = SequelizeSessionInit(Store)
@@ -41,6 +43,8 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use('/auth', authRouter)
 
+app.use(cors({ origin: 'http://127.0.0.1:5173' }))
+
 async function initServer(typeDefs: GraphQLSchema) {
   const server = new ApolloServer({
     typeDefs,
@@ -53,6 +57,7 @@ async function initServer(typeDefs: GraphQLSchema) {
       loaders: {
         drinksLoader,
         ingredientsLoader,
+        logsLoader,
       },
     }),
     resolvers,
@@ -60,7 +65,10 @@ async function initServer(typeDefs: GraphQLSchema) {
 
   await server.start()
   console.log('Apollo server started')
-  app.use(authHandler, server.getMiddleware({ path: '/graphql' }))
+  app.use(
+    authHandler,
+    server.getMiddleware({ path: '/graphql' }),
+  )
 }
 
 initServer(schema)
