@@ -26,7 +26,7 @@ export const EntryLogFactory = (sequelize: Sequelize) => {
     },
   }, {
     modelName: 'EntryLog',
-    tableName: 'entry_log',
+    tableName: 'entry_logs',
     sequelize,
     timestamps: false,
     underscored: true,

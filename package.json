@@ -2,11 +2,12 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "start:dev": "nodemon dist/index.js",
     "build:dev": "tsc --watch --preserveWatchOutput",
-    "start": "concurrently \"npm:start:dev\" \"npm:build:dev\""
+    "start": "concurrently \"npm:start:dev\" \"npm:build:dev\"",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
