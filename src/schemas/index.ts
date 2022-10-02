@@ -89,8 +89,6 @@ const mutationType = new GraphQLObjectType({
         if (drink && +ctx.user.id === drink.userId) {
           await drink.destroy()
         }
-
-        console.log(drink)
       },
     },
 

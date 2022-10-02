@@ -5,7 +5,7 @@ import {
   GraphQLInputObjectType,
   GraphQLNonNull,
 } from 'graphql'
-import { drinkType } from './drinks'
+import { drinkType } from './drinks.schema'
 
 export const ingredientType = new GraphQLObjectType({
   name: 'Ingredient',
