@@ -7,9 +7,9 @@ import {
   GraphQLObjectType,
   GraphQLString,
 } from 'graphql'
-import { drinkType } from './drinks'
+import { drinkType } from './drinks.schema'
 import { logType } from './logs.schema'
-import { userType } from './users'
+import { userType } from './users.schema'
 
 export const entryType: GraphQLObjectType<any, any> = new GraphQLObjectType({
   name: 'Entry',

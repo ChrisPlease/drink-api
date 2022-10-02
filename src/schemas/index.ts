@@ -7,11 +7,11 @@ import {
   GraphQLNonNull,
   GraphQLString,
 } from 'graphql'
-import {Drink} from '../models'
-import {drinkType, drinkInput} from './drinks'
-import {entryInput, entryType} from './entries'
-import {ingredientType} from './ingredients'
-import {userType} from './users'
+import { Drink } from '../models'
+import { drinkType, drinkInput } from './drinks.schema'
+import { entryInput, entryType } from './entries.schema'
+import { ingredientType } from './ingredients.schema'
+import { userType } from './users.schema'
 
 const queryType = new GraphQLObjectType({
   name: 'Query',

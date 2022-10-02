@@ -8,8 +8,8 @@ import {
   GraphQLInputObjectType,
   GraphQLInt,
 } from 'graphql'
-import { entryType } from './entries'
-import { ingredientType, ingredientInput } from './ingredients'
+import { entryType } from './entries.schema'
+import { ingredientType, ingredientInput } from './ingredients.schema'
 
 export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
   name: 'Drink',
