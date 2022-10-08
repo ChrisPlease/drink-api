@@ -24,7 +24,7 @@ export class EntryModel extends Model<
   declare getLogs: BelongsToManyGetAssociationsMixin<DateLogModel>
 
   declare drinkId: ForeignKey<number>
-  declare userId: ForeignKey<number>
+  declare userId: ForeignKey<string>
 }
 
 export const EntryFactory = (sequelize: Sequelize) => {
