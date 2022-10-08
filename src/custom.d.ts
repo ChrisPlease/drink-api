@@ -1,5 +1,5 @@
+import { Request as ExpressJwtRequest } from 'express-jwt'
+
 declare namespace Express {
-  export interface User {
-    id: number;
-  }
+  export type Request = ExpressJwtRequest
 }

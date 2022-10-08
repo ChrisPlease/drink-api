@@ -43,14 +43,10 @@ export class DrinkModel extends Model<
 
   declare totalParts: CreationOptional<number>
 
-  declare userId: ForeignKey<number | null>
+  declare userId: ForeignKey<string | null>
 
   get isMixedDrink(): NonAttribute<boolean> {
     return this.totalParts > 1
-  }
-
-  isUserDrink(drinkId: number): NonAttribute<boolean> {
-    return drinkId === this.id
   }
 
   declare static associations: {
@@ -117,11 +113,12 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     },
 
     userId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       unique: 'userId',
     },
   }, {
     modelName: 'drink',
+    underscored: true,
     sequelize,
   })
 
