@@ -1,22 +1,31 @@
 import 'dotenv/config'
 import express from 'express'
+import { ApolloServer } from 'apollo-server-express'
 import session, { Store } from 'express-session'
+import cors from 'cors'
 import bodyParser from 'body-parser'
-import { authRouter, drinkRouter, entryRouter, userRouter } from './routes'
+import { authRouter } from './routes'
 import { PORT } from './config/constants'
-import { Drink, sequelize } from './models'
+import { sequelize/* , Drink, User */ } from './models'
 import SequelizeSessionInit from 'connect-session-sequelize'
 import passport from 'passport'
 import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
+import { schema } from './schemas'
 import './config/passport'
+import { GraphQLSchema } from 'graphql'
+import { resolvers } from './resolvers'
+import { drinksLoader } from './loaders/drinksLoader'
+import { ingredientsLoader } from './loaders/ingredientsLoader'
+import { logsLoader } from './loaders/logsLoader'
+import { AppContext } from './types/context'
 
 const SequelizeStore = SequelizeSessionInit(Store)
-
 const app: express.Application = express()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+
 
 app.use(
   session({
@@ -32,12 +41,37 @@ app.use(
 )
 app.use(passport.initialize())
 app.use(passport.session())
-
 app.use('/auth', authRouter)
 
-app.use('/drinks', authHandler, drinkRouter)
-app.use('/entries', authHandler, entryRouter)
-app.use('/users', authHandler, userRouter)
+app.use(cors({ origin: 'http://127.0.0.1:5173' }))
+
+async function initServer(typeDefs: GraphQLSchema) {
+  const server = new ApolloServer({
+    typeDefs,
+    context: (
+      { req,
+        res,
+      }): AppContext => ({
+      req,
+      res,
+      loaders: {
+        drinksLoader,
+        ingredientsLoader,
+        logsLoader,
+      },
+    }),
+    resolvers,
+  })
+
+  await server.start()
+  console.log('Apollo server started')
+  app.use(
+    authHandler,
+    server.getMiddleware({ path: '/graphql' }),
+  )
+}
+
+initServer(schema)
 
 app.get('/', (req, res) => {
   res.json({ info: 'Typescript With Express' })
@@ -45,9 +79,9 @@ app.get('/', (req, res) => {
 
 app.use(errorHandler)
 
-sequelize.sync(/* { alter: true } */)
+sequelize.sync(/* { force: true } */)
   .then(async () => {
-/*     await Drink.bulkCreate([
+    /* await Drink.bulkCreate([
       {
         name: 'Water',
         coefficient: 1,
@@ -70,24 +104,28 @@ sequelize.sync(/* { alter: true } */)
         name: 'Smoothie',
         icon: 'blender',
         coefficient: 0.33,
+        sugar: 23,
         caffeine: 0,
       },
       {
         name: 'Yogurt',
         icon: 'bowl-soft-serve',
         coefficient: 0.5,
+        sugar: 45,
         caffeine: 0,
       },
       {
         name: 'Soda',
         icon: 'cup-straw-swoosh',
         coefficient: 0.6,
+        sugar: 64,
         caffeine: 0,
       },
       {
         name: 'Juice',
         icon: 'glass',
         coefficient: 0.55,
+        sugar: 30,
         caffeine: 0,
       },
       {
@@ -135,7 +173,8 @@ sequelize.sync(/* { alter: true } */)
       {
         name: 'Milkshake',
         icon: 'blender',
-        coefficient: 0.72,
+        sugar: 40,
+        coefficient: 0.5,
         caffeine: 0,
       },
       {
@@ -147,33 +186,56 @@ sequelize.sync(/* { alter: true } */)
       {
         name: 'Energy Drink',
         icon: 'can-food',
+        sugar: 80,
         coefficient: 0.4,
         caffeine: 34,
       },
       {
         name: 'Cacao',
         icon: 'mug-saucer',
+        sugar: 60,
         coefficient: 0.65,
         caffeine: 3,
       },
       {
         name: 'Hot Chocolate',
         icon: 'mug-marshmallows',
+        sugar: 60,
         coefficient: 0.4,
         caffeine: 22,
       },
       {
         name: 'Coconut Water',
         icon: 'glass',
+        sugar: 15,
         coefficient: 0.85,
         caffeine: 0,
       },
-    ]) */
+      {
+        name: 'Lemonade',
+        icon: 'glass',
+        sugar: 23,
+        coefficient: 0.8,
+        caffeine: 0,
+      },
+    ])
+
+    await User.create({
+        username: 'ChrisPlz',
+        password: 'P@ssw0rd!',
+        email: 'chris@chrisplease.me',
+      })
+    await User.create({
+      username: 'testuser',
+      password: 'P@ssw0rd!',
+      email: 'chris@chrisplease.com',
+    }) */
     console.log('Sync complete')
   })
   .catch(err => console.log(err))
 
 app.listen(PORT, () => {
+
   console.log(`Typescript with Express http://localhost:${PORT}`)
 })
 

@@ -5,15 +5,19 @@ import {
   CreationOptional,
   DataTypes,
   HasManyAddAssociationsMixin,
-  HasManyGetAssociationsMixin,
   NonAttribute,
   Sequelize,
   HasManySetAssociationsMixin,
   HasManyAddAssociationMixin,
   ForeignKey,
   Association,
+  BelongsToManyGetAssociationsMixin,
+  HasManyHasAssociationMixin,
+  HasOneGetAssociationMixin,
 } from 'sequelize'
+import { roundNumber } from '../utils/roundNumber'
 import { IngredientModel } from './Ingredient.model'
+import { UserModel } from './User.model'
 
 export class DrinkModel extends Model<
   InferAttributes<DrinkModel>,
@@ -30,7 +34,10 @@ export class DrinkModel extends Model<
   declare setIngredients: HasManySetAssociationsMixin<IngredientModel, 'drinkId'>
   declare addIngredient: HasManyAddAssociationMixin<IngredientModel, number>
   declare addIngredients: HasManyAddAssociationsMixin<IngredientModel, number>
-  declare getIngredients: HasManyGetAssociationsMixin<IngredientModel>
+  declare hasIngredients: HasManyHasAssociationMixin<IngredientModel, number>
+  declare getIngredients: BelongsToManyGetAssociationsMixin<IngredientModel>
+
+  declare getUser: HasOneGetAssociationMixin<UserModel>
 
   declare ingredients?: NonAttribute<IngredientModel[]>
 
@@ -62,7 +69,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: 'userId',
     },
 
     icon: {
@@ -91,6 +98,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       get(): number {
         return this.getDataValue('caffeine')
       },
+      defaultValue: 0,
     },
 
     sugar: {
@@ -98,6 +106,7 @@ export const DrinkFactory = (sequelize: Sequelize) => {
       validate: {
         min: 0,
       },
+      defaultValue: 0,
     },
 
     totalParts: {
@@ -106,22 +115,23 @@ export const DrinkFactory = (sequelize: Sequelize) => {
         return this.ingredients?.reduce((acc, { parts }) => acc += parts, 0) || 1
       },
     },
+
+    userId: {
+      type: DataTypes.INTEGER,
+      unique: 'userId',
+    },
   }, {
     modelName: 'drink',
     sequelize,
-    timestamps: false,
-
-    defaultScope: {
-      attributes: {
-        exclude: ['userId', 'totalParts'],
-      },
-    },
   })
 
   Drink.beforeSave(async (drink) => {
-    let caffeine = drink.getDataValue('caffeine') ?? 0
-    let coefficient = drink.getDataValue('coefficient') ?? 0
-    let sugar = drink.getDataValue('sugar') ?? 0
+
+    const nutrition = {
+      caffeine: drink.getDataValue('caffeine') ?? 0,
+      coefficient: drink.getDataValue('coefficient') ?? 0,
+      sugar: drink.getDataValue('sugar') ?? 0,
+    }
 
     if (drink.ingredients && drink.ingredients?.length > 1) {
       const { ingredients } = drink
@@ -131,14 +141,13 @@ export const DrinkFactory = (sequelize: Sequelize) => {
           caffeine: drinkCaffeine,
           sugar: drinkSugar,
         } = await Drink.findByPk(ingredient.drinkId) as DrinkModel
-        caffeine += ((ingredient.parts/drink.totalParts)*drinkCaffeine)
-        coefficient += ((ingredient.parts/drink.totalParts)*drinkCoefficient)
-        sugar += ((ingredient.parts/drink.totalParts)*drinkSugar)
+        nutrition.caffeine += ((ingredient.parts/drink.totalParts)*drinkCaffeine)
+        nutrition.coefficient += ((ingredient.parts/drink.totalParts)*drinkCoefficient)
+        nutrition.sugar += ((ingredient.parts/drink.totalParts)*drinkSugar)
       }
 
-      drink.setDataValue('caffeine', caffeine)
-      drink.setDataValue('coefficient', coefficient)
-      drink.setDataValue('sugar', sugar)
+      Object.entries(nutrition)
+        .forEach(([key, value]: [key: any, value: any]) => drink.setDataValue(key, roundNumber(value)))
     }
   })
 
