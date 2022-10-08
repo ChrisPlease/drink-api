@@ -31,15 +31,17 @@ export const drinksResolver: GraphQLFieldResolver<
 > = async (
   parent,
   { search },
-  { req },
+  { req: { auth } },
 ) => {
   const isUserDrinks = parent instanceof UserModel
+
+  console.log(auth)
 
   const { rows: drinks } = await Drink.findAndCountAll({
     where: {
       ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
       [Op.or]: [
-        { userId: isUserDrinks ? parent.id : req.user?.id },
+        { userId: isUserDrinks ? parent.id : auth?.sub },
         ...(!isUserDrinks ? [{ userId: { [Op.is]: null } }] : []),
       ],
     },
@@ -64,16 +66,16 @@ interface DrinkInput {
   }[];
 }
 
-export const drinkCreateResolver: GraphQLFieldResolver<any, any, { drink: DrinkInput }, any> = async (
+export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink: DrinkInput }, any> = async (
   parent,
   {
     drink: { ingredients: drinkIngredients, ...rest },
   },
   {
-    req,
+    req: { auth },
   },
 ) => {
-  const userId = req.user.id
+  const userId = auth?.sub
   let drink = await Drink.create({ ...rest, userId })
   if (drinkIngredients) {
     const ingredients = await Promise.all(
@@ -104,7 +106,7 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
   parent,
   { drink: drinkInput },
   {
-    req: { user },
+    req: { auth },
     loaders: { drinksLoader },
   },
 ) => {
@@ -113,7 +115,7 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
   }
 
   let drink: DrinkModel
-  const userId = user?.id
+  const userId = auth?.sub
   const { id, ingredients, ...rest } = drinkInput
 
   try {

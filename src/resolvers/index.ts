@@ -17,6 +17,7 @@ import {
 import {
   userResolver,
   usersResolver,
+  userCreateResolver,
 } from './users.resolver'
 
 export const resolvers = {
@@ -39,6 +40,7 @@ export const resolvers = {
     drinkCreate: drinkCreateResolver,
     drinkEdit: drinkEditResolver,
     entryCreate: entryCreateResolver,
+    userCreate: userCreateResolver,
   },
   Ingredient: {
     drink: drinkResolver,
