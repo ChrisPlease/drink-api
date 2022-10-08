@@ -1,46 +1,27 @@
 import 'dotenv/config'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
-import session, { Store } from 'express-session'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import { authRouter } from './routes'
 import { PORT } from './config/constants'
 import { sequelize/* , Drink, User */ } from './models'
-import SequelizeSessionInit from 'connect-session-sequelize'
-import passport from 'passport'
 import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
 import { schema } from './schemas'
-import './config/passport'
 import { GraphQLSchema } from 'graphql'
 import { resolvers } from './resolvers'
 import { drinksLoader } from './loaders/drinksLoader'
 import { ingredientsLoader } from './loaders/ingredientsLoader'
 import { logsLoader } from './loaders/logsLoader'
 import { AppContext } from './types/context'
+import { checkJwt } from './config/auth'
 
-const SequelizeStore = SequelizeSessionInit(Store)
 const app: express.Application = express()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET as string,
-    store: new SequelizeStore({
-      db: sequelize,
-      tableName: 'sessions',
-    }),
-    resave: false,
-    proxy: true,
-    saveUninitialized: false,
-  }),
-)
-app.use(passport.initialize())
-app.use(passport.session())
 app.use('/auth', authRouter)
 
 app.use(cors({ origin: 'http://127.0.0.1:5173' }))
@@ -66,6 +47,7 @@ async function initServer(typeDefs: GraphQLSchema) {
   await server.start()
   console.log('Apollo server started')
   app.use(
+    checkJwt,
     authHandler,
     server.getMiddleware({ path: '/graphql' }),
   )
@@ -219,17 +201,7 @@ sequelize.sync(/* { force: true } */)
         caffeine: 0,
       },
     ])
-
-    await User.create({
-        username: 'ChrisPlz',
-        password: 'P@ssw0rd!',
-        email: 'chris@chrisplease.me',
-      })
-    await User.create({
-      username: 'testuser',
-      password: 'P@ssw0rd!',
-      email: 'chris@chrisplease.com',
-    }) */
+ */
     console.log('Sync complete')
   })
   .catch(err => console.log(err))

@@ -1,5 +1,4 @@
 import { Router } from 'express'
-import passport from 'passport'
 import { authController } from '../controllers'
 
 export const router = Router({
@@ -13,7 +12,6 @@ router.post(
 
 router.post(
   '/login',
-  passport.authenticate('local', { failWithError: true }),
   (req, res) =>  authController.login(req, res),
 )
 

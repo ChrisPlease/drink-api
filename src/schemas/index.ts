@@ -7,11 +7,10 @@ import {
   GraphQLNonNull,
   GraphQLString,
 } from 'graphql'
-import { Drink } from '../models'
 import { drinkType, drinkInput } from './drinks.schema'
 import { entryInput, entryType } from './entries.schema'
 import { ingredientType } from './ingredients.schema'
-import { userType } from './users.schema'
+import { userInput, userType } from './users.schema'
 
 const queryType = new GraphQLObjectType({
   name: 'Query',
@@ -66,6 +65,12 @@ const queryType = new GraphQLObjectType({
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
+    userCreate: {
+      type: userType,
+      args: {
+        user: { type: userInput },
+      },
+    },
     drinkCreate: {
       type: drinkType,
       args: {
@@ -83,19 +88,12 @@ const mutationType = new GraphQLObjectType({
       args: {
         drinkId: {type: GraphQLInt},
       },
-      async resolve(_, {drinkId}, ctx) {
-        const drink = await Drink.findByPk(drinkId)
-
-        if (drink && +ctx.user.id === drink.userId) {
-          await drink.destroy()
-        }
-      },
     },
 
     entryCreate: {
       type: entryType,
       args: {
-        entry: {type: entryInput},
+        entry: { type: entryInput },
       },
     },
   },
