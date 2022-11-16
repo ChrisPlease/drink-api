@@ -2,3 +2,9 @@ node_modules
 dist
 .vscode
 .env
+
+# nginx certs
+certs
+
+# local db export
+db
