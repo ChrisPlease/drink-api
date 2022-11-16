@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    environment:
+      - VIRTUAL_PROTO=https
+    ports:
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs
+    depends_on:
+      - api
+  api:
+    container_name: api
+    restart: always
+    build: .
+    environment:
+      - VIRTUAL_HOST=${HOST}
+      - VIRTUAL_PORT=${PORT}
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+  db:
+    container_name: postgres
+    image: postgres
+    ports:
+      - '5433:${PGPORT}'
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${PGPASSWORD}
+      - POSTGRES_DB=${PGDATABASE}
+      - POSTGRES_USER=${PGUSER}
+volumes:
+  data: {}
