@@ -4,8 +4,10 @@ import {
   drinkCreateResolver,
   drinkEditResolver,
 } from './drinks.resolver'
-import {ingredientResolver,
-  ingredientsResolver} from './ingredients.resolver'
+import {
+  ingredientResolver,
+  ingredientsResolver,
+} from './ingredients.resolver'
 import {
   drinkEntriesResolver,
   entriesResolver,
@@ -13,7 +15,8 @@ import {
   entryResolver,
 } from './entries.resolver'
 import {
-  logsResolver, logVolumeHistoryResolver,
+  logsResolver,
+  logVolumeHistoryResolver,
 } from './logs.resolver'
 import {
   userResolver,

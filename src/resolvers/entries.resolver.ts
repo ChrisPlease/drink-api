@@ -29,7 +29,7 @@ export const drinkEntriesResolver: GraphQLFieldResolver<any, AppContext, { drink
   return entry
 }
 
-export const entriesResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
+export const entriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: number }, any> = async (
   parent: DrinkModel | UserModel | undefined,
   { drinkId: id },
   { req: { auth } },

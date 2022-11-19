@@ -24,7 +24,6 @@ export const logsResolver: GraphQLFieldResolver<any, AppContext, any, any> = asy
 
 export const logVolumeHistoryResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
   parent: EntryModel | undefined,
-  args,
 ) => {
   const entryId = parent?.id
   const logHistory = await DateLog.findAll({
