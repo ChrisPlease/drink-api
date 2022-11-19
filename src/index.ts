@@ -24,7 +24,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use('/auth', authRouter)
 
-app.use(cors({ origin: 'http://127.0.0.1:5173' }))
+app.use(cors({
+  origin: `${process.env.UI_PROTOCOL}${process.env.UI_HOST}.${process.env.UI_TLD}:${process.env.UI_PORT}`,
+}))
 
 async function initServer(typeDefs: GraphQLSchema) {
   const server = new ApolloServer({
@@ -202,6 +204,7 @@ sequelize.sync(/* { force: true } */)
       },
     ])
  */
+    console.log( `${process.env.UI_PROTOCOL}${process.env.UI_HOST}.${process.env.UI_TLD}:${process.env.UI_PORT}`)
     console.log('Sync complete')
   })
   .catch(err => console.log(err))
