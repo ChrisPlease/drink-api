@@ -16,9 +16,22 @@ export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: number }
   return entry
 }
 
+export const drinkEntriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: number }> = async (
+  parent,
+  { drinkId },
+  { req: { auth } },
+) => {
+  const userId = auth?.sub
+  let entry: EntryModel = {} as EntryModel
+
+  ([entry] = await Entry.findCreateFind({ where: { drinkId, userId }}))
+
+  return entry
+}
+
 export const entriesResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
   parent: DrinkModel | UserModel | undefined,
-  args,
+  { drinkId: id },
   { req: { auth } },
 ) => {
   const drinkId = parent instanceof DrinkModel && parent?.id
@@ -29,12 +42,12 @@ export const entriesResolver: GraphQLFieldResolver<any, AppContext, any, any> = 
   entries = await Entry.findAll({
     order: [['updatedAt', 'desc'], ['count', 'desc']],
     where: {
-      ...(drinkId ? { drinkId } : {}),
+      ...((drinkId || id) ? { drinkId: drinkId || id } : {}),
       ...(userId ? { userId } : { userId: auth?.sub }),
     },
   })
 
-  return entries
+  return entries || []
 }
 
 export const entryCreateResolver: GraphQLFieldResolver<
@@ -49,7 +62,7 @@ export const entryCreateResolver: GraphQLFieldResolver<
   any
 > = async (
   parent,
-  { entry: { drinkId, volume }},
+  { entry: { drinkId, volume } },
   { req: { auth } },
 ) => {
   const userId = auth?.sub

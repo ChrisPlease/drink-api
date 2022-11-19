@@ -6,6 +6,10 @@ COPY ["package.json", "package-lock.json", "tsconfig.json", ".env", "./"]
 
 COPY ./src ./src
 
-RUN npm install
+ENV PORT ${PORT}
+EXPOSE ${PORT}
+
+RUN npm ci
+RUN rm -rf .env
 
 CMD npm start

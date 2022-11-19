@@ -24,7 +24,12 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 app.use('/auth', authRouter)
 
-app.use(cors({ origin: 'http://127.0.0.1:5173' }))
+app.use(cors({
+  origin: 'https://waterlog.test:8433',
+}))
+// app.use(cors({
+//   origin: `${process.env.UI_PROTOCOL}${process.env.UI_HOST}:${process.env.UI_PORT}`,
+// }))
 
 async function initServer(typeDefs: GraphQLSchema) {
   const server = new ApolloServer({

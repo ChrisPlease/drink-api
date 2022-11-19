@@ -35,8 +35,6 @@ export const drinksResolver: GraphQLFieldResolver<
 ) => {
   const isUserDrinks = parent instanceof UserModel
 
-  console.log(auth)
-
   const { rows: drinks } = await Drink.findAndCountAll({
     where: {
       ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
@@ -137,10 +135,6 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
   }
 
   await drink.update(rest, { where: { id } })
-
-  if (ingredients) {
-    console.log('has ingredients')
-  }
 
   return drink
 

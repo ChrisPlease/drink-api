@@ -1,4 +1,5 @@
 import {
+  GraphQLBoolean,
   GraphQLID,
   GraphQLInputObjectType,
   GraphQLInt,
@@ -8,7 +9,7 @@ import {
   GraphQLString,
 } from 'graphql'
 import { drinkType } from './drinks.schema'
-import { logType } from './logs.schema'
+import { logType, logVolumeHistoryType } from './logs.schema'
 import { userType } from './users.schema'
 
 export const entryType: GraphQLObjectType<any, any> = new GraphQLObjectType({
@@ -20,7 +21,16 @@ export const entryType: GraphQLObjectType<any, any> = new GraphQLObjectType({
     drink: { type: drinkType },
     count: { type: new GraphQLNonNull(GraphQLInt) },
     updatedAt: { type: new GraphQLNonNull(GraphQLString) },
-    logs: { type: new GraphQLList(logType) },
+    totalVolume: { type: GraphQLInt },
+    logs: {
+      type: new GraphQLList(logType),
+      args: {
+        unique: { type: GraphQLBoolean },
+      },
+    },
+    logHistory: {
+      type: new GraphQLList(logVolumeHistoryType),
+    },
   }),
 })
 
