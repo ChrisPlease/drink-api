@@ -16,3 +16,12 @@ export const logType: GraphQLObjectType<any, any> = new GraphQLObjectType({
     sugar: { type: GraphQLFloat },
   }),
 })
+
+export const logVolumeHistoryType: GraphQLObjectType<any, any> = new GraphQLObjectType({
+  name: 'LogVolumeHistory',
+  fields: () => ({
+    timestamp: { type: new GraphQLNonNull(GraphQLString) },
+    count: { type: GraphQLInt },
+    volume: { type: new GraphQLNonNull(GraphQLInt) },
+  }),
+})
