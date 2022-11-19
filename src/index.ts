@@ -25,11 +25,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/auth', authRouter)
 
 app.use(cors({
-  origin: 'https://waterlog.test:8433',
+  origin: `${process.env.UI_PROTOCOL}${process.env.UI_HOST}.${process.env.UI_TLD}:${process.env.UI_PORT}`,
 }))
-// app.use(cors({
-//   origin: `${process.env.UI_PROTOCOL}${process.env.UI_HOST}:${process.env.UI_PORT}`,
-// }))
 
 async function initServer(typeDefs: GraphQLSchema) {
   const server = new ApolloServer({
@@ -207,6 +204,7 @@ sequelize.sync(/* { force: true } */)
       },
     ])
  */
+    console.log( `${process.env.UI_PROTOCOL}${process.env.UI_HOST}.${process.env.UI_TLD}:${process.env.UI_PORT}`)
     console.log('Sync complete')
   })
   .catch(err => console.log(err))
