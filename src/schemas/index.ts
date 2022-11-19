@@ -6,10 +6,12 @@ import {
   GraphQLList,
   GraphQLNonNull,
   GraphQLString,
+  GraphQLBoolean,
 } from 'graphql'
 import { drinkType, drinkInput } from './drinks.schema'
 import { entryInput, entryType } from './entries.schema'
 import { ingredientType } from './ingredients.schema'
+import { logType, logVolumeHistoryType } from './logs.schema'
 import { userInput, userType } from './users.schema'
 
 const queryType = new GraphQLObjectType({
@@ -38,14 +40,31 @@ const queryType = new GraphQLObjectType({
     ingredients: {
       type: new GraphQLList(ingredientType),
     },
+    drinkEntries: {
+      type: entryType,
+      args: {
+        drinkId: { type: GraphQLID },
+        unique: { type: GraphQLBoolean },
+      },
+    },
     entry: {
       type: entryType,
       args: {
         id: { type: GraphQLID },
+        unique: { type: GraphQLBoolean },
       },
     },
     entries: {
       type: new GraphQLList(entryType),
+    },
+    logs: {
+      type: new GraphQLList(logType),
+      args: {
+        unique: { type: GraphQLBoolean },
+      },
+    },
+    logHistory: {
+      type: new GraphQLList(logVolumeHistoryType),
     },
     currentUser: {
       type: userType,
