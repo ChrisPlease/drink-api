@@ -73,8 +73,9 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
     req: { auth },
   },
 ) => {
-  const userId = auth?.sub
-  let drink = await Drink.create({ ...rest, userId })
+  const userId = <string>auth?.sub
+  const foo = { ...rest, userId }
+  let drink = await Drink.create(foo)
   if (drinkIngredients) {
     const ingredients = await Promise.all(
       drinkIngredients

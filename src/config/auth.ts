@@ -1,5 +1,5 @@
-import { expressjwt } from 'express-jwt'
-import { expressJwtSecret, GetVerificationKey } from 'jwks-rsa'
+import { expressjwt, GetVerificationKey } from 'express-jwt'
+import { expressJwtSecret } from 'jwks-rsa'
 
 export const checkJwt = expressjwt({
   secret: <GetVerificationKey>expressJwtSecret({

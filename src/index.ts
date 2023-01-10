@@ -3,8 +3,6 @@ import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import { authRouter } from './routes'
-import { PORT } from './config/constants'
 import { sequelize/* , Drink, User */ } from './models'
 import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
@@ -22,11 +20,7 @@ const app: express.Application = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use('/auth', authRouter)
-
-app.use(cors({
-  origin: `${process.env.UI_PROTOCOL}${process.env.UI_HOST}.${process.env.UI_TLD}:${process.env.UI_PORT}`,
-}))
+app.use(cors({ origin: 'http://127.0.0.1:5173' }))
 
 async function initServer(typeDefs: GraphQLSchema) {
   const server = new ApolloServer({
@@ -52,6 +46,7 @@ async function initServer(typeDefs: GraphQLSchema) {
     checkJwt,
     authHandler,
     server.getMiddleware({ path: '/graphql' }),
+    errorHandler,
   )
 }
 
@@ -60,8 +55,6 @@ initServer(schema)
 app.get('/', (req, res) => {
   res.json({ info: 'Typescript With Express' })
 })
-
-app.use(errorHandler)
 
 sequelize.sync(/* { force: true } */)
   .then(async () => {
@@ -209,8 +202,7 @@ sequelize.sync(/* { force: true } */)
   })
   .catch(err => console.log(err))
 
-app.listen(PORT, () => {
-
-  console.log(`Typescript with Express http://localhost:${PORT}`)
+app.listen(process.env.PORT || 4040, () => {
+  console.log(`Typescript with Express http://localhost:${process.env.PORT || 4040}`)
 })
 
