@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "start:dev": "nodemon dist/index.js",
+    "start:dev": "nodemon --inspect=0.0.0.0 dist/index.js",
     "build:dev": "tsc --watch --preserveWatchOutput",
     "start": "concurrently \"npm:start:dev\" \"npm:build:dev\"",
     "build": "tsc"

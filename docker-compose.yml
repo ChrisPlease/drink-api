@@ -21,6 +21,7 @@ services:
       - VIRTUAL_PORT=${PORT}
     ports:
       - ${PORT}:${PORT}
+      - 9229:9229
     depends_on:
       - db
     volumes:
@@ -28,6 +29,7 @@ services:
   db:
     container_name: postgres
     image: postgres
+    restart: always
     ports:
       - '5433:${PGPORT}'
     volumes:
