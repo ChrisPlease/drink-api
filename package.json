@@ -6,8 +6,8 @@
   "scripts": {
     "start:dev": "nodemon --inspect=0.0.0.0 dist/index.js",
     "build:dev": "tsc --watch --preserveWatchOutput",
-    "start": "concurrently \"npm:start:dev\" \"npm:build:dev\"",
-    "build": "tsc"
+    "start": "NODE_ENV=develop concurrently \"npm:start:dev\" \"npm:build:dev\"",
+    "build": "NODE_ENV=production tsc"
   },
   "keywords": [],
   "author": "",
