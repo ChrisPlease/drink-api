@@ -15,7 +15,11 @@ services:
   api:
     container_name: api
     restart: always
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    env_file:
+      - .env.production
     environment:
       - VIRTUAL_HOST=${HOST}
       - VIRTUAL_PORT=${PORT}
@@ -32,7 +36,7 @@ services:
     image: postgres
     restart: always
     ports:
-      - '5433:${PGPORT}'
+      - '${PGPORT}:${PGPORT}'
     volumes:
       - data:/var/lib/postgresql/data
     environment:

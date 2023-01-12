@@ -13,7 +13,7 @@ export const sequelize = new Sequelize(
   dbConfig.user,
   dbConfig.password,
   {
-    logging: true,
+    logging: false,
     quoteIdentifiers: false,
     host: dbConfig.host,
     dialect: 'postgres',
