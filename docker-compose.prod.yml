@@ -25,7 +25,6 @@ services:
       - VIRTUAL_PORT=${PORT}
     ports:
       - ${PORT}:${PORT}
-      - 9229:9229
     depends_on:
       - db
     volumes:

@@ -203,6 +203,6 @@ sequelize.sync(/* { force: true } */)
   .catch(err => console.log(err))
 
 app.listen(process.env.PORT || 4040, () => {
-  console.log(`Typescript with Express http://localhost:${process.env.PORT || 4040}`)
+  console.log(`Typescript with Express http://${process.env.HOST}:${process.env.PORT || 4040}`)
 })
 
