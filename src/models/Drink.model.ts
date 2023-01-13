@@ -123,28 +123,30 @@ export const DrinkFactory = (sequelize: Sequelize) => {
   })
 
   Drink.beforeSave(async (drink) => {
+    const { ingredients } = drink
 
-    const nutrition = {
-      caffeine: drink.getDataValue('caffeine') ?? 0,
-      coefficient: drink.getDataValue('coefficient') ?? 0,
-      sugar: drink.getDataValue('sugar') ?? 0,
-    }
-
-    if (drink.ingredients && drink.ingredients?.length > 1) {
-      const { ingredients } = drink
+    if (ingredients && ingredients?.length > 1) {
+      const nutrition = {
+        caffeine: 0,
+        coefficient: 0,
+        sugar: 0,
+      }
       for (const ingredient of ingredients) {
         const {
           coefficient: drinkCoefficient,
           caffeine: drinkCaffeine,
           sugar: drinkSugar,
         } = await Drink.findByPk(ingredient.drinkId) as DrinkModel
+
         nutrition.caffeine += ((ingredient.parts/drink.totalParts)*drinkCaffeine)
         nutrition.coefficient += ((ingredient.parts/drink.totalParts)*drinkCoefficient)
         nutrition.sugar += ((ingredient.parts/drink.totalParts)*drinkSugar)
       }
 
       Object.entries(nutrition)
-        .forEach(([key, value]: [key: any, value: any]) => drink.setDataValue(key, roundNumber(value)))
+        .forEach(
+          ([key, value]: [key: any, value: any]) => drink.setDataValue(key, roundNumber(value)),
+        )
     }
   })
 

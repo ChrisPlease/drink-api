@@ -13,7 +13,7 @@ export const sequelize = new Sequelize(
   dbConfig.user,
   dbConfig.password,
   {
-    logging: false,
+    logging: process.env.NODE_ENV === 'develop' && console.log,
     quoteIdentifiers: false,
     host: dbConfig.host,
     dialect: 'postgres',
