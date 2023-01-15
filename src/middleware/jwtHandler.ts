@@ -1,8 +1,7 @@
-import { RequestHandler } from 'express'
 import { expressjwt, GetVerificationKey } from 'express-jwt'
 import { expressJwtSecret } from 'jwks-rsa'
 
-const checkJwt = expressjwt({
+export const jwtHandler = expressjwt({
   secret: <GetVerificationKey>expressJwtSecret({
     cache: true,
     rateLimit: true,
@@ -13,7 +12,3 @@ const checkJwt = expressjwt({
   issuer: `${process.env.AUTH0_DOMAIN}/`,
   algorithms: ['RS256'],
 })
-
-export const jwtHandler: RequestHandler = (req, res, next) => {
-  checkJwt(req, res, next)
-}
