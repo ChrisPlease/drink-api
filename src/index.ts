@@ -1,10 +1,10 @@
 import 'dotenv/config'
 import express from 'express'
-import { ApolloServer } from 'apollo-server-express'
+import { ApolloServer } from '@apollo/server'
+import { expressMiddleware } from '@apollo/server/express4'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import { sequelize/* , Drink, User */ } from './models'
-import { authHandler } from './middleware/authHandler'
 import { errorHandler } from './middleware/errorHandler'
 import { schema } from './schemas'
 import { GraphQLSchema } from 'graphql'
@@ -23,31 +23,30 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors({ origin: 'http://127.0.0.1:5173' }))
 
 async function initServer(typeDefs: GraphQLSchema) {
-  const server = new ApolloServer({
+  const server = new ApolloServer<AppContext>({
     typeDefs,
-    context: (
-      { req,
-        res,
-      }): AppContext => ({
-      req,
-      res,
-      loaders: {
-        drinksLoader,
-        ingredientsLoader,
-        logsLoader,
-      },
-    }),
     resolvers,
   })
 
   await server.start()
   console.log('Apollo server started')
+
+  app.use(checkJwt)
   app.use(
-    checkJwt,
-    authHandler,
-    server.getMiddleware({ path: '/graphql' }),
-    errorHandler,
+    '/graphql',
+    expressMiddleware(server, {
+      context: async ({ req, res }) => ({
+        req,
+        res,
+        loaders: {
+          drinksLoader,
+          ingredientsLoader,
+          logsLoader,
+        },
+      }),
+    }),
   )
+  app.use(errorHandler)
 }
 
 initServer(schema)
