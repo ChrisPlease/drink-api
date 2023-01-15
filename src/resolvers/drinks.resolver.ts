@@ -74,6 +74,7 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
   },
 ) => {
   const userId = <string>auth?.sub
+  console.log(auth)
   const foo = { ...rest, userId }
   let drink = await Drink.create(foo)
   if (drinkIngredients) {
