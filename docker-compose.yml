@@ -26,7 +26,6 @@ services:
       - db
     volumes:
       - .:/usr/src/app
-    command: npm start
   db:
     container_name: postgres
     image: postgres

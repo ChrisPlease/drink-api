@@ -6,4 +6,5 @@ COPY ["package.json", "package-lock.json", "tsconfig.json", ".env", "./"]
 
 COPY ./src ./src
 
-RUN npm install
+RUN npm ci
+CMD npm start
