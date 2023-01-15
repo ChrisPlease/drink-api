@@ -13,7 +13,7 @@ services:
     depends_on:
       - api
   api:
-    container_name: api
+    container_name: waterlog
     restart: always
     build:
       context: .
@@ -27,9 +27,6 @@ services:
       - ${PORT}:${PORT}
     depends_on:
       - db
-    volumes:
-      - .:/usr/src/app
-    command: node dist/index.js
   db:
     container_name: postgres
     image: postgres

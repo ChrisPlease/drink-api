@@ -1,11 +1,21 @@
+FROM node:16.18.0-alpine3.16 AS builder
+
+WORKDIR /
+
+COPY ["package.json", "package-lock.json", "tsconfig.json", "./"]
+COPY [".env.production", ".env"]
+
+COPY ./src ./src
+
+RUN npm install
+RUN npm run build
+
 FROM node:16.18.0-alpine3.16
 
 WORKDIR /usr/src/app
 
-COPY ["package.json", "package-lock.json", "tsconfig.json", ".env.production", "./"]
+COPY --from=builder ["/package.json", "/package-lock.json", "./"]
+COPY --from=builder ./dist ./dist
 
-COPY ./src ./src
-
-RUN echo ${HOST}
-RUN npm install --production
-RUN npm run build
+RUN npm install --omit=dev
+CMD node dist/index.js
