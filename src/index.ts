@@ -17,6 +17,9 @@ import { jwtHandler } from './middleware/jwtHandler'
 
 const app: express.Application = express()
 
+
+const isDev: boolean = process.env.NODE_ENV === 'develop'
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -52,16 +55,20 @@ async function initServer(typeDefs: GraphQLSchema) {
 initServer(schema)
 
 app.get('/', (req, res) => {
-  res.json({ info: 'Typescript With Express' })
+  res.json({ message: 'Welcome to the WaterLog API' })
 })
 
-sequelize.sync()
+sequelize.sync({ force: isDev })
   .then(async () => {
     console.log('Sync complete')
   })
   .catch(err => console.log(err))
 
 app.listen(process.env.PORT || 4040, () => {
-  console.log(`Typescript with Express http://${process.env.HOST}:${process.env.PORT || 4040}`)
+  console.log(
+    `Typescript with Express http://${
+      process.env.HOST
+    }${ isDev ? `:${process.env.PORT}` : '' }`,
+  )
 })
 
