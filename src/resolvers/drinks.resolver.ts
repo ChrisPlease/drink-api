@@ -1,58 +1,66 @@
 import { GraphQLFieldResolver } from 'graphql'
-import { Drink, Ingredient } from '../models'
-import { Op } from 'sequelize'
-import { DrinkModel } from '../models/Drink.model'
+import { dataSource } from '../database/data-source'
 import { AppContext } from '../types/context'
-import { UserModel } from '../models/User.model'
+import { Drink } from '../database/entities/Drink.entity'
+import { Ingredient } from '../database/entities/Ingredient.entity'
+import { User } from '../database/entities/User.entity'
 
-export const drinkResolver: GraphQLFieldResolver<any, AppContext, { id: number }> = async (
+const drinkRepository = dataSource.getRepository(Drink)
+
+export const drinkResolver: GraphQLFieldResolver<Ingredient | undefined, AppContext, { id: string }> = async (
   parent,
   { id },
-  { loaders },
+  { loaders: { drinksLoader } },
 ) => {
-  let drink: DrinkModel = {} as DrinkModel
-  try {
-    drink = await loaders.drinksLoader.load(parent?.drinkId || id) as DrinkModel
-  } catch (err) {
-    drink = await Drink.findByPk(parent?.id || id, {
-      include: [{
-        model: Ingredient, as: 'ingredients',
-      }],
-    }) as DrinkModel
-  }
-  return drink
+  console.log('getting a single drink', parent?.drinkId || id)
+  return await drinkRepository.findOne({
+    where: {
+      id: parent?.drinkId || id,
+    },
+    relations: ['ingredients'],
+  })
 }
 
 export const drinksResolver: GraphQLFieldResolver<
-  UserModel | undefined,
+  User | undefined,
   AppContext,
   { search: string; first: number; after: string },
   any
 > = async (
   parent,
   { search },
-  { req: { auth } },
-) => {
-  const isUserDrinks = parent instanceof UserModel
-
-  const { rows: drinks } = await Drink.findAndCountAll({
-    where: {
-      ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
-      [Op.or]: [
-        { userId: isUserDrinks ? parent.id : auth?.sub },
-        ...(!isUserDrinks ? [{ userId: { [Op.is]: null } }] : []),
-      ],
+  {
+    req: {
+      auth,
     },
-    distinct: true,
-    order: [['id', 'asc']],
-    include: [{ model: Ingredient, as: 'ingredients' }],
-  })
+  },
+) => {
+  console.log(auth?.sub)
+  const isUserDrinks = parent instanceof User
+  const foo = await dataSource.getRepository(Drink).findAndCount()
 
-  return drinks
+  console.log(foo[0])
+
+  // console.log(foo)
+
+  // const { rows: drinks } = await Drink.findAndCountAll({
+  //   where: {
+  //     ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
+  //     [Op.or]: [
+  //       { userId: isUserDrinks ? parent.id : auth?.sub },
+  //       ...(!isUserDrinks ? [{ userId: { [Op.is]: null } }] : []),
+  //     ],
+  //   },
+  //   distinct: true,
+  //   order: [['id', 'asc']],
+  //   include: [{ model: Ingredient, as: 'ingredients' }],
+  // })
+
+  return foo[0]
 }
 
 interface DrinkInput {
-  id?: number;
+  id?: string;
   name: string;
   icon: string;
   caffeine?: number;
@@ -60,7 +68,7 @@ interface DrinkInput {
   coefficient?: number;
   ingredients?: {
     parts: number,
-    drinkId: number,
+    drinkId: string,
   }[];
 }
 
@@ -74,32 +82,28 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
   },
 ) => {
   const userId = <string>auth?.sub
-  console.log(auth)
-  const foo = { ...rest, userId }
-  let drink = await Drink.create(foo)
+  const drinkRepository = dataSource.getRepository(Drink)
+
+  const drink = drinkRepository.create({
+    ...rest,
+    user: { id: userId },
+  })
+
   if (drinkIngredients) {
-    const ingredients = await Promise.all(
-      drinkIngredients
-        .map(
-          async ({
-            parts,
-            drinkId,
-          }: {
-            parts: number,
-            drinkId: number,
-          }) => await Ingredient.findCreateFind({ where: { parts, drinkId } }),
-        ),
-    ).then((ing) => ing.map(([i]) => i))
+    const ingredientRepository = dataSource.getRepository(Ingredient)
 
-    await drink.setIngredients(ingredients)
+    const ingredients = await Promise.all(drinkIngredients.map(async (ing) => {
+      const ingredient = await ingredientRepository.exist({ where: { ...ing } })
+      ? <Ingredient>await ingredientRepository.findOne({ where: { ...ing } })
+      : ingredientRepository.create(ing)
 
-    drink = await Drink.findByPk(drink.id, {
-      include: [{ model: Ingredient, as: 'ingredients' }],
-    }) as DrinkModel
+      return await ingredientRepository.save(ingredient)
+    }))
 
-    await drink.save()
+    drink.ingredients = ingredients
   }
-  return drink
+
+  return await drink.save()
 }
 
 export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: DrinkInput }, any> = async (
@@ -107,36 +111,40 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
   { drink: drinkInput },
   {
     req: { auth },
-    loaders: { drinksLoader },
+    // loaders: { drinksLoader },
   },
 ) => {
-  if (!drinkInput.id) {
-    throw new Error('ID is required when editing a drink')
-  }
+  // if (!drinkInput.id) {
+  //   throw new Error('ID is required when editing a drink')
+  // }
 
-  let drink: DrinkModel
-  const userId = auth?.sub
-  const { id, ingredients: drinkIngredients, ...rest } = drinkInput
+  // let drink: DrinkModel
+  // const userId = auth?.sub
+  // const { id, ingredients: drinkIngredients, ...rest } = drinkInput
 
-  try {
-    drink = await drinksLoader.load(drinkInput.id) as DrinkModel
-  } catch {
-    drink = await Drink.findByPk(drinkInput.id, {
-      attributes: { include: ['userId'] },
-      include: [{ model: Ingredient, as: 'ingredients' }],
-    }) as DrinkModel
-  }
+  // try {
+  //   drink = await drinksLoader.load(drinkInput.id) as DrinkModel
+  // } catch {
+  //   drink = await Drink.findByPk(drinkInput.id, {
+  //     attributes: { include: ['userId'] },
+  //     include: [{ model: Ingredient, as: 'ingredients' }],
+  //   }) as DrinkModel
+  // }
 
-  if (drink.totalParts > 1 && !drinkIngredients) {
-    throw new Error('This is a mixed drink, must include ingredients')
-  }
+  // if (drink.totalParts > 1 && !drinkIngredients) {
+  //   throw new Error('This is a mixed drink, must include ingredients')
+  // }
 
-  const drinkUser = await drink.getUser()
-  if (userId !== drinkUser.id) {
-    throw new Error('You do not have the permissions to edit this drink')
-  }
+  // const drinkUser = await drink.getUser()
+  // if (userId !== drinkUser.id) {
+  //   throw new Error('You do not have the permissions to edit this drink')
+  // }
 
-  await drink.update({ ...rest }, { where: { id } })
+  // await drink.update({ ...rest }, { where: { id } })
 
-  return drink
+  // if (drinkIngredients) {
+  //   console.log('has ingredients')
+  // }
+
+  // return drink
 }

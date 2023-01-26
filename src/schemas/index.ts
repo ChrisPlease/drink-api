@@ -26,27 +26,27 @@ const queryType = new GraphQLObjectType({
     drinks: {
       type: new GraphQLList(drinkType),
       args: {
-        first: {type: GraphQLInt},
-        after: {type: GraphQLString},
-        search: {type: GraphQLString},
+        first: { type: GraphQLInt },
+        after: { type: GraphQLString },
+        search: { type: GraphQLString },
       },
     },
     ingredient: {
       type: ingredientType,
       args: {
-        id: {type: new GraphQLNonNull(GraphQLID)},
+        id: { type: new GraphQLNonNull(GraphQLID) },
       },
     },
     ingredients: {
       type: new GraphQLList(ingredientType),
     },
-    drinkEntries: {
-      type: entryType,
-      args: {
-        drinkId: { type: GraphQLID },
-        unique: { type: GraphQLBoolean },
-      },
-    },
+    // drinkEntries: {
+    //   type: entryType,
+    //   args: {
+    //     drinkId: { type: GraphQLID },
+    //     unique: { type: GraphQLBoolean },
+    //   },
+    // },
     entry: {
       type: entryType,
       args: {
@@ -56,6 +56,9 @@ const queryType = new GraphQLObjectType({
     },
     entries: {
       type: new GraphQLList(entryType),
+      args: {
+        drinkId: { type: GraphQLID },
+      },
     },
     logs: {
       type: new GraphQLList(logType),

@@ -16,6 +16,8 @@ services:
     container_name: api
     restart: always
     build: .
+    env_file:
+      - ./.env
     environment:
       - VIRTUAL_HOST=${HOST}
       - VIRTUAL_PORT=${PORT}

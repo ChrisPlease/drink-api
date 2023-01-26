@@ -4,21 +4,20 @@ import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import { sequelize } from './models'
+import { dataSource } from './database/data-source'
 import { errorHandler } from './middleware/errorHandler'
 import { schema } from './schemas'
 import { GraphQLSchema } from 'graphql'
 import { resolvers } from './resolvers'
 import { drinksLoader } from './loaders/drinksLoader'
 import { ingredientsLoader } from './loaders/ingredientsLoader'
-import { logsLoader } from './loaders/logsLoader'
+// import { logsLoader } from './loaders/logsLoader'
 import { AppContext } from './types/context'
 import { jwtHandler } from './middleware/jwtHandler'
 
+import 'reflect-metadata'
+
 const app: express.Application = express()
-
-
-const isDev: boolean = process.env.NODE_ENV === 'develop'
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -44,10 +43,11 @@ async function initServer(typeDefs: GraphQLSchema) {
         loaders: {
           drinksLoader,
           ingredientsLoader,
-          logsLoader,
+          // logsLoader,
         },
       }),
     }),
+    errorHandler,
   )
   app.use(errorHandler)
 }
@@ -58,17 +58,23 @@ app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the WaterLog API' })
 })
 
-sequelize.sync({ force: isDev })
-  .then(async () => {
-    console.log('Sync complete')
+dataSource.initialize()
+  .then(() => {
+    console.log('Data Source has been initialized successfully')
   })
-  .catch(err => console.log(err))
+  .catch((err) => {
+    console.error('Error during Data Source Init:', err)
+  })
+
+// sequelize.sync({ force: isDev })
+//   .then(async () => {
+//     console.log('Sync complete')
+//   })
+//   .catch(err => console.log(err))
 
 app.listen(process.env.PORT || 4040, () => {
   console.log(
-    `Typescript with Express http://${
-      process.env.HOST
-    }${ isDev ? `:${process.env.PORT}` : '' }`,
+    `Typescript with Express http://${process.env.HOST}:${process.env.PORT}`,
   )
 })
 
