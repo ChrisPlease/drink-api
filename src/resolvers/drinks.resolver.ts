@@ -4,6 +4,7 @@ import { AppContext } from '../types/context'
 import { Drink } from '../database/entities/Drink.entity'
 import { Ingredient } from '../database/entities/Ingredient.entity'
 import { User } from '../database/entities/User.entity'
+import { IsNull } from 'typeorm'
 
 const drinkRepository = dataSource.getRepository(Drink)
 
@@ -37,9 +38,14 @@ export const drinksResolver: GraphQLFieldResolver<
 ) => {
   console.log(auth?.sub)
   const isUserDrinks = parent instanceof User
-  const foo = await dataSource.getRepository(Drink).findAndCount()
+  const [drinks, count] = await dataSource.getRepository(Drink).findAndCount({
+    where: [
+      { userId: isUserDrinks ? parent.id : auth?.sub },
+      ...(!isUserDrinks ? [{ userId: IsNull() }] : []),
+    ],
+  })
 
-  console.log(foo[0])
+  console.log(drinks, count)
 
   // console.log(foo)
 
@@ -56,7 +62,7 @@ export const drinksResolver: GraphQLFieldResolver<
   //   include: [{ model: Ingredient, as: 'ingredients' }],
   // })
 
-  return foo[0]
+  return drinks
 }
 
 interface DrinkInput {
