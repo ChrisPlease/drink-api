@@ -49,7 +49,17 @@ export const entryCreateResolver: GraphQLFieldResolver<
 ) => {
   const userId = <string>auth?.sub
 
-  console.log('auth', userId)
+  const drinkRepository = dataSource.getRepository(Drink)
+
+  const drink = await drinkRepository.findOneBy({ id: drinkId, userId })
+
+  if (!drink) {
+    throw new Error('Drink does not belong to you')
+  }
+
+  console.log('-------------------------------')
+  console.log('DRINK: ', drink)
+  console.log('-------------------------------')
 
   const { id } = await entryRepository
     .createQueryBuilder('entry')

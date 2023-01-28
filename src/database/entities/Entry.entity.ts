@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -13,7 +14,7 @@ import { Drink } from './Drink.entity'
 import { User } from './User.entity'
 
 @Entity({ name: 'entries' })
-@Unique(['userId', 'drinkId'])
+@Unique(['drinkId', 'userId'])
 export class Entry {
 
   @PrimaryGeneratedColumn('uuid')
@@ -26,14 +27,14 @@ export class Entry {
     () => User,
     (user) => user.entries,
   )
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn()
   user: User
 
   @OneToOne(
     () => Drink,
     (drink) => drink.entry,
   )
-  @JoinColumn({ name: 'drink_id' })
+  @JoinColumn()
   drink: Drink
 
   @OneToMany(
@@ -48,3 +49,4 @@ export class Entry {
   @Column({ name: 'user_id' })
   userId: string
 }
+
