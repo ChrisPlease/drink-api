@@ -27,6 +27,6 @@ export class DateLog extends BaseEntity {
   @JoinColumn({ name: 'entry_id' })
   entry: Entry
 
-  @Column({ name: 'entry_id' })
+  @Column({ name: 'entry_id', type: 'uuid' })
   entryId: string
 }

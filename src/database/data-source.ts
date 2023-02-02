@@ -5,6 +5,7 @@ import { Drink } from './entities/Drink.entity'
 import { Entry } from './entities/Entry.entity'
 import { Ingredient } from './entities/Ingredient.entity'
 import { User } from './entities/User.entity'
+import { DrinkSubscriber } from './subscribers/DrinkSubscriber'
 
 export const dataSource = new DataSource({
   type: 'postgres',
@@ -14,9 +15,12 @@ export const dataSource = new DataSource({
   password: dbConfig.password,
   database: 'api',
   synchronize: false,
-  logging: ['query'],
+  logging: 'all',
   migrations: [
-    `${__dirname}/migrations/*`,
+    `${__dirname}/migrations/**/*.{js,ts}`,
+  ],
+  subscribers: [
+    `${__dirname}/subscribers/**/*.{js,ts}`,
   ],
   entities: [
     User,

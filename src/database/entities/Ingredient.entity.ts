@@ -16,20 +16,24 @@ export class Ingredient extends BaseEntity {
   @Column()
   parts: number
 
-  @ManyToMany(() => Drink, (drink) => drink.ingredients)
+  @ManyToMany(
+    () => Drink,
+    (drink) => drink.ingredients,
+  )
   @JoinTable({
     name: 'drink_ingredients',
     joinColumn: {
-      name: 'drink_id',
+      name: 'ingredient_id',
     },
     inverseJoinColumn: {
-      name: 'ingredient_id',
+      name: 'drink_id',
     },
   })
   drink: Drink
 
   @Column({
     name: 'drink_id',
+    type: 'uuid',
   })
   drinkId: string
 }

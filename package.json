@@ -10,6 +10,7 @@
     "start": "NODE_ENV=develop concurrently \"npm:start:dev\" \"npm:build:dev\"",
     "build": "NODE_ENV=production tsc",
     "typeorm": "typeorm-ts-node-esm",
+    "migration:run": "npm run typeorm migration:run -- -d ./src/database/data-source.ts",
     "seed": "ts-node ./node_modules/@jorgebodega/typeorm-seeding/dist/cli.js seed -d ./src/database/data-source.ts"
   },
   "keywords": [

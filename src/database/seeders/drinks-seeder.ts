@@ -28,13 +28,6 @@ export default class DrinksSeeder extends Seeder {
       },
       {
         name: 'Soda',
-        icon: 'can-food',
-        caffeine: 32,
-        coefficient: 0.68,
-        sugar: 12,
-      },
-      {
-        name: 'Soda',
         icon: 'cup-straw-swoosh',
         caffeine: 32,
         coefficient: 0.68,

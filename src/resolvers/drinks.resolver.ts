@@ -1,4 +1,5 @@
 import { GraphQLFieldResolver } from 'graphql'
+// import chalk from 'chalk'
 import { dataSource } from '../database/data-source'
 import { AppContext } from '../types/context'
 import { Drink } from '../database/entities/Drink.entity'
@@ -7,13 +8,13 @@ import { User } from '../database/entities/User.entity'
 import { IsNull } from 'typeorm'
 
 const drinkRepository = dataSource.getRepository(Drink)
+const ingredientRepository = dataSource.getRepository(Ingredient)
 
 export const drinkResolver: GraphQLFieldResolver<Ingredient | undefined, AppContext, { id: string }> = async (
   parent,
   { id },
   { loaders: { drinksLoader } },
 ) => {
-  console.log('getting a single drink', parent?.drinkId || id)
   return await drinkRepository.findOne({
     where: {
       id: parent?.drinkId || id,
@@ -35,8 +36,8 @@ export const drinksResolver: GraphQLFieldResolver<
       auth,
     },
   },
+
 ) => {
-  console.log(auth?.sub)
   const isUserDrinks = parent instanceof User
   const [drinks, count] = await dataSource.getRepository(Drink).findAndCount({
     where: [
@@ -45,28 +46,13 @@ export const drinksResolver: GraphQLFieldResolver<
     ],
   })
 
-  console.log(drinks, count)
-
-  // console.log(foo)
-
-  // const { rows: drinks } = await Drink.findAndCountAll({
-  //   where: {
-  //     ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
-  //     [Op.or]: [
-  //       { userId: isUserDrinks ? parent.id : auth?.sub },
-  //       ...(!isUserDrinks ? [{ userId: { [Op.is]: null } }] : []),
-  //     ],
-  //   },
-  //   distinct: true,
-  //   order: [['id', 'asc']],
-  //   include: [{ model: Ingredient, as: 'ingredients' }],
-  // })
+  console.log('COUNT:', count)
 
   return drinks
 }
 
 interface DrinkInput {
-  id?: string;
+  id: string;
   name: string;
   icon: string;
   caffeine?: number;
@@ -88,7 +74,6 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
   },
 ) => {
   const userId = <string>auth?.sub
-  const drinkRepository = dataSource.getRepository(Drink)
 
   const drink = drinkRepository.create({
     ...rest,
@@ -96,20 +81,12 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
   })
 
   if (drinkIngredients) {
-    const ingredientRepository = dataSource.getRepository(Ingredient)
-
-    const ingredients = await Promise.all(drinkIngredients.map(async (ing) => {
-      const ingredient = await ingredientRepository.exist({ where: { ...ing } })
-      ? <Ingredient>await ingredientRepository.findOne({ where: { ...ing } })
-      : ingredientRepository.create(ing)
-
-      return await ingredientRepository.save(ingredient)
-    }))
-
-    drink.ingredients = ingredients
+    drink.ingredients = await drink.addIngredients(drinkIngredients)
   }
 
-  return await drink.save()
+  await drink.save()
+
+  return drink
 }
 
 export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: DrinkInput }, any> = async (
@@ -120,37 +97,21 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
     // loaders: { drinksLoader },
   },
 ) => {
-  // if (!drinkInput.id) {
-  //   throw new Error('ID is required when editing a drink')
-  // }
+  const { id, ingredients, ...rest } = drinkInput
+  const userId = auth?.sub
 
-  // let drink: DrinkModel
-  // const userId = auth?.sub
-  // const { id, ingredients: drinkIngredients, ...rest } = drinkInput
+  if (!await drinkRepository.exist({ where: { userId, id } })) {
+    throw new Error('Drink not found.')
+  }
 
-  // try {
-  //   drink = await drinksLoader.load(drinkInput.id) as DrinkModel
-  // } catch {
-  //   drink = await Drink.findByPk(drinkInput.id, {
-  //     attributes: { include: ['userId'] },
-  //     include: [{ model: Ingredient, as: 'ingredients' }],
-  //   }) as DrinkModel
-  // }
+  const drink: Drink = await drinkRepository
+    .save({
+      id,
+      ...(ingredients ? { ingredients } : {}),
+      ...rest,
+    }, { reload: true })
 
-  // if (drink.totalParts > 1 && !drinkIngredients) {
-  //   throw new Error('This is a mixed drink, must include ingredients')
-  // }
+  console.log('foo', drink)
 
-  // const drinkUser = await drink.getUser()
-  // if (userId !== drinkUser.id) {
-  //   throw new Error('You do not have the permissions to edit this drink')
-  // }
-
-  // await drink.update({ ...rest }, { where: { id } })
-
-  // if (drinkIngredients) {
-  //   console.log('has ingredients')
-  // }
-
-  // return drink
+  return drink
 }

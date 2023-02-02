@@ -1,7 +1,7 @@
 import {
+  BaseEntity,
   Column,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -15,7 +15,7 @@ import { User } from './User.entity'
 
 @Entity({ name: 'entries' })
 @Unique(['drinkId', 'userId'])
-export class Entry {
+export class Entry extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
   id: string
@@ -43,10 +43,10 @@ export class Entry {
   )
   logs: DateLog[]
 
-  @Column({ name: 'drink_id' })
+  @Column({ name: 'drink_id', type: 'uuid' })
   drinkId: string
 
-  @Column({ name: 'user_id' })
+  @Column({ name: 'user_id', type: 'uuid' })
   userId: string
 }
 

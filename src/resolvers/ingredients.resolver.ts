@@ -26,12 +26,11 @@ export const ingredientsResolver: GraphQLFieldResolver<Drink, AppContext, any, a
   args,
   { loaders: { ingredientsLoader} },
 ) => {
+  console.log('here?', parent instanceof Drink)
   let ingredients: Ingredient[] = []
-  const isDrinkIngredients = parent instanceof Drink
+  // const isDrinkIngredients = parent instanceof Drink
 
-  console.log('here', parent.ingredients, parent.totalParts)
-
-  if (isDrinkIngredients && parent.ingredients?.length) {
+  if (parent.ingredients?.length) {
     try {
       ingredients = <Ingredient[]>await ingredientsLoader.load(parent?.id)
     } catch {
