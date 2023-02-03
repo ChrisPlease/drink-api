@@ -11,3 +11,4 @@ certs
 
 # local db export
 db
+!./src/db/*
