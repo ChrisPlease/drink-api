@@ -3,7 +3,7 @@ import type { BaseContext } from '@apollo/server'
 import DataLoader from 'dataloader'
 import { Response } from 'express'
 
-type Loaders = 'drinksLoader' | 'ingredientsLoader' | 'logsLoader'
+type Loaders = 'drinksLoader' | 'ingredientsLoader' /* | 'logsLoader' */
 
 export interface AppContext extends BaseContext {
   req: ExpressJwtRequest;

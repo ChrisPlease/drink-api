@@ -1,50 +1,32 @@
 import { GraphQLFieldResolver } from 'graphql'
-import { DateLog, Entry } from '../models'
-import { DrinkModel } from '../models/Drink.model'
-import { EntryModel } from '../models/Entry.model'
-import { UserModel } from '../models/User.model'
+import { DateLog } from '../database/entities/DateLog.entity'
+import { Drink } from '../database/entities/Drink.entity'
+import { Entry } from '../database/entities/Entry.entity'
+import { User } from '../database/entities/User.entity'
+import { dataSource } from '../database/data-source'
 import { AppContext } from '../types/context'
 
-export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: number }> = async (
+const entryRepository = dataSource.getRepository(Entry)
+const logRepository = dataSource.getRepository(DateLog)
+
+export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: string }> = async (
   parent,
   { id },
 ) => {
-  let entry: EntryModel = {} as EntryModel
-
-  entry = await Entry.findByPk(parent?.id || id) as EntryModel
-
-  return entry
+  return await entryRepository.findOneBy({ id })
 }
 
-export const drinkEntriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: number }> = async (
-  parent,
-  { drinkId },
+export const entriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: string }, any> = async (
+  parent: Drink | User | undefined,
+  { drinkId: queryParentId },
   { req: { auth } },
 ) => {
-  const userId = auth?.sub
-  let entry: EntryModel = {} as EntryModel
+  const drinkId: string | undefined = parent instanceof Drink ? parent?.id : queryParentId || undefined
+  const userId: string | undefined = parent instanceof User ? parent?.id : auth?.sub || undefined
 
-  ([entry] = await Entry.findCreateFind({ where: { drinkId, userId }}))
-
-  return entry
-}
-
-export const entriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: number }, any> = async (
-  parent: DrinkModel | UserModel | undefined,
-  { drinkId: id },
-  { req: { auth } },
-) => {
-  const drinkId = parent instanceof DrinkModel && parent?.id
-  const userId = parent instanceof UserModel && parent?.id
-
-  let entries: EntryModel[] = []
-
-  entries = await Entry.findAll({
-    order: [['updatedAt', 'desc'], ['count', 'desc']],
-    where: {
-      ...((drinkId || id) ? { drinkId: drinkId || id } : {}),
-      ...(userId ? { userId } : { userId: auth?.sub }),
-    },
+  const entries = await entryRepository.findBy({
+    ...(drinkId ? { drinkId } : {}),
+    ...(userId ? { userId } : {}),
   })
 
   return entries || []
@@ -55,7 +37,7 @@ export const entryCreateResolver: GraphQLFieldResolver<
   AppContext,
   {
     entry: {
-      drinkId: number,
+      drinkId: string,
       volume: number,
     },
   },
@@ -65,16 +47,49 @@ export const entryCreateResolver: GraphQLFieldResolver<
   { entry: { drinkId, volume } },
   { req: { auth } },
 ) => {
-  const userId = auth?.sub
-  let entry: EntryModel
+  const userId = <string>auth?.sub
 
-  ([entry] = await Entry.findCreateFind({ where: { drinkId, userId }}))
+  const drinkRepository = dataSource.getRepository(Drink)
+
+  const drink = await drinkRepository.findOneBy({ id: drinkId, userId })
+
+  if (!drink) {
+    throw new Error('Drink does not belong to you')
+  }
+
+  console.log('-------------------------------')
+  console.log('DRINK: ', drink)
+  console.log('-------------------------------')
+
+  const { id } = await entryRepository
+    .createQueryBuilder('entry')
+    .insert()
+    .into(Entry)
+    .values({
+      userId,
+      drinkId,
+      count: () => `COALESCE((SELECT count+1 FROM entries WHERE drink_id = '${
+        drinkId
+      }' AND user_id = '${
+        userId
+      }'),1)`,
+    })
+    .orUpdate(
+      ['count'],
+      ['drink_id', 'user_id'],
+    )
+    .returning(['id'])
+    .execute()
+    .then(res => res.raw[0])
+
+  const entry = await entryRepository.findOneBy({ id })
 
   if (entry) {
-    entry.increment('count')
-    await entry.createLog({ volume, entryId: entry.id })
-    await entry.save()
-    entry = await Entry.findByPk(entry.id, { include: [{ model: DateLog, through: {}}] }) as EntryModel
+    const log = new DateLog()
+    log.entryId = entry.id
+    log.volume = volume
+
+    await logRepository.save(log)
   }
 
   return entry

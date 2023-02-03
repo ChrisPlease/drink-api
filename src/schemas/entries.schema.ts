@@ -37,7 +37,7 @@ export const entryType: GraphQLObjectType<any, any> = new GraphQLObjectType({
 export const entryInput = new GraphQLInputObjectType({
   name: 'EntryInput',
   fields: {
-    drinkId: { type: GraphQLInt },
-    volume: { type: GraphQLInt },
+    drinkId: { type: new GraphQLNonNull(GraphQLString) },
+    volume: { type: new GraphQLNonNull(GraphQLInt) },
   },
 })

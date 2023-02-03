@@ -1,44 +1,40 @@
 import { GraphQLFieldResolver } from 'graphql'
-import { DateLog, EntryLog, sequelize } from '../models'
-import { DateLogModel } from '../models/DateLog.model'
-import { EntryModel } from '../models/Entry.model'
+import { DateLog } from '../database/entities/DateLog.entity'
+import { Entry } from '../database/entities/Entry.entity'
+import { dataSource } from '../database/data-source'
 import { AppContext } from '../types/context'
 
+const logsRepository = dataSource.getRepository(DateLog)
+
 export const logsResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
-  parent: EntryModel | undefined,
-  args,
-  { loaders: { logsLoader } },
+  parent: Entry | undefined,
 ) => {
-  let logs: DateLogModel[] = []
   const entryId = parent?.id
 
   try {
-    logs = await logsLoader.load(entryId) as DateLogModel[]
+    return await logsRepository.findBy({ entryId })
   } catch (err) {
-    logs = await DateLog.findAll({
-      include: [{ model: EntryLog, where: { entryId }, as: 'entryLog' }],
-    })
+    console.log(err)
   }
-  return logs
 }
 
-export const logVolumeHistoryResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
-  parent: EntryModel | undefined,
-) => {
-  const entryId = parent?.id
-  const logHistory = await DateLog.findAll({
-    group: 'volume',
-    order: [['count', 'desc'], ['timestamp', 'desc']],
-    attributes: [
-      'volume',
-      [sequelize.fn('count', sequelize.col('id')), 'count'],
-      [sequelize.fn('max', sequelize.col('entry_timestamp')), 'timestamp'],
-    ],
-    where: { entryId },
-  }).then(
-    (history: Record<string, any>) => history
-      .map((h: any) => ({ count: +h.count || 0, ...h.toJSON() })),
-  )
+// export const logVolumeHistoryResolver: GraphQLFieldResolver<any, AppContext, any, any> = async (
+//   parent: EntryModel | undefined,
+// ) => {
+//   const entryId = parent?.id
+//   const logHistory = await DateLog.findAll({
+//     group: 'volume',
+//     order: [['count', 'desc'], ['timestamp', 'desc']],
+//     attributes: [
+//       'volume',
+//       [sequelize.fn('count', sequelize.col('id')), 'count'],
+//       [sequelize.fn('max', sequelize.col('entry_timestamp')), 'timestamp'],
+//     ],
+//     where: { entryId },
+//   }).then(
+//     (history: Record<string, any>) => history
+//       .map((h: any) => ({ count: +h.count || 0, ...h.toJSON() })),
+//   )
 
-  return logHistory || []
-}
+//   return logHistory || []
+// }

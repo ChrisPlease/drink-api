@@ -1,58 +1,57 @@
 import { GraphQLFieldResolver } from 'graphql'
-import { Drink, Ingredient } from '../models'
-import { Op } from 'sequelize'
-import { DrinkModel } from '../models/Drink.model'
+// import chalk from 'chalk'
+import { dataSource } from '../database/data-source'
 import { AppContext } from '../types/context'
-import { UserModel } from '../models/User.model'
+import { Drink } from '../database/entities/Drink.entity'
+import { Ingredient } from '../database/entities/Ingredient.entity'
+import { User } from '../database/entities/User.entity'
+import { IsNull } from 'typeorm'
 
-export const drinkResolver: GraphQLFieldResolver<any, AppContext, { id: number }> = async (
+const drinkRepository = dataSource.getRepository(Drink)
+
+export const drinkResolver: GraphQLFieldResolver<Ingredient | undefined, AppContext, { id: string }> = async (
   parent,
   { id },
-  { loaders },
+  /* { loaders: { drinksLoader } }, */
 ) => {
-  let drink: DrinkModel = {} as DrinkModel
-  try {
-    drink = await loaders.drinksLoader.load(parent?.drinkId || id) as DrinkModel
-  } catch (err) {
-    drink = await Drink.findByPk(parent?.id || id, {
-      include: [{
-        model: Ingredient, as: 'ingredients',
-      }],
-    }) as DrinkModel
-  }
-  return drink
+  return await drinkRepository.findOne({
+    where: {
+      id: parent?.drinkId || id,
+    },
+    relations: ['ingredients'],
+  })
 }
 
 export const drinksResolver: GraphQLFieldResolver<
-  UserModel | undefined,
+  User | undefined,
   AppContext,
   { search: string; first: number; after: string },
   any
 > = async (
   parent,
-  { search },
-  { req: { auth } },
-) => {
-  const isUserDrinks = parent instanceof UserModel
-
-  const { rows: drinks } = await Drink.findAndCountAll({
-    where: {
-      ...(search ? { name: { [Op.iLike]: `%${search}%` as string }} : {}),
-      [Op.or]: [
-        { userId: isUserDrinks ? parent.id : auth?.sub },
-        ...(!isUserDrinks ? [{ userId: { [Op.is]: null } }] : []),
-      ],
+  params,
+  {
+    req: {
+      auth,
     },
-    distinct: true,
-    order: [['id', 'asc']],
-    include: [{ model: Ingredient, as: 'ingredients' }],
+  },
+
+) => {
+  const isUserDrinks = parent instanceof User
+  const [drinks, count] = await dataSource.getRepository(Drink).findAndCount({
+    where: [
+      { userId: isUserDrinks ? parent.id : auth?.sub },
+      ...(!isUserDrinks ? [{ userId: IsNull() }] : []),
+    ],
   })
+
+  console.log('COUNT:', count)
 
   return drinks
 }
 
 interface DrinkInput {
-  id?: number;
+  id: string;
   name: string;
   icon: string;
   caffeine?: number;
@@ -60,7 +59,7 @@ interface DrinkInput {
   coefficient?: number;
   ingredients?: {
     parts: number,
-    drinkId: number,
+    drinkId: string,
   }[];
 }
 
@@ -73,33 +72,50 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
     req: { auth },
   },
 ) => {
+  console.log('--------------------------------')
+  console.log('begin drink transaction')
+  console.log('--------------------------------')
   const userId = <string>auth?.sub
-  console.log(auth)
-  const foo = { ...rest, userId }
-  let drink = await Drink.create(foo)
+  const drink = new Drink()
+
+  drink.userId = userId
+
   if (drinkIngredients) {
-    const ingredients = await Promise.all(
-      drinkIngredients
-        .map(
-          async ({
-            parts,
-            drinkId,
-          }: {
-            parts: number,
-            drinkId: number,
-          }) => await Ingredient.findCreateFind({ where: { parts, drinkId } }),
-        ),
-    ).then((ing) => ing.map(([i]) => i))
 
-    await drink.setIngredients(ingredients)
+    drink.ingredients = await drink.addIngredients(drinkIngredients)
 
-    drink = await Drink.findByPk(drink.id, {
-      include: [{ model: Ingredient, as: 'ingredients' }],
-    }) as DrinkModel
+    const [{ caffeine, sugar, coefficient }] = await dataSource
+      .createQueryBuilder(Ingredient, 'i')
+      .select(
+        'ROUND(SUM((i.parts::float/t.total)*d.coefficient)::numeric, 2)',
+        'coefficient',
+      )
+      .addSelect(
+        'ROUND(SUM((i.parts::float/t.total)*d.caffeine)::numeric, 2)',
+        'caffeine',
+      )
+      .addSelect(
+        'ROUND(SUM((i.parts::float/t.total)*d.sugar)::numeric, 2)',
+        'sugar',
+      )
+      .innerJoin(Drink, 'd', 'd.id = i.drink_id')
+      .innerJoin(qb => {
+        return qb.select('SUM(i.parts)', 'total')
+          .from(Ingredient, 'i')
+          .leftJoin(Drink, 'd', 'd.id = i.drink_id')
+          .whereInIds(drink.ingredients?.map(({ id }) => id))
+      }, 't', 'true')
+      .whereInIds(drink.ingredients?.map(({ id }) => id))
+      .execute()
 
-    await drink.save()
+    drink.coefficient = coefficient
+    drink.caffeine = caffeine
+    drink.sugar = sugar
+
+    return await drinkRepository.save({ ...rest, ...drink })
   }
-  return drink
+
+  return drinkRepository.save({ ...rest, ...drink })
 }
 
 export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: DrinkInput }, any> = async (
@@ -107,36 +123,24 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
   { drink: drinkInput },
   {
     req: { auth },
-    loaders: { drinksLoader },
+    // loaders: { drinksLoader },
   },
 ) => {
-  if (!drinkInput.id) {
-    throw new Error('ID is required when editing a drink')
-  }
-
-  let drink: DrinkModel
+  const { id, ingredients, ...rest } = drinkInput
   const userId = auth?.sub
-  const { id, ingredients: drinkIngredients, ...rest } = drinkInput
 
-  try {
-    drink = await drinksLoader.load(drinkInput.id) as DrinkModel
-  } catch {
-    drink = await Drink.findByPk(drinkInput.id, {
-      attributes: { include: ['userId'] },
-      include: [{ model: Ingredient, as: 'ingredients' }],
-    }) as DrinkModel
+  if (!await drinkRepository.exist({ where: { userId, id } })) {
+    throw new Error('Drink not found.')
   }
 
-  if (drink.totalParts > 1 && !drinkIngredients) {
-    throw new Error('This is a mixed drink, must include ingredients')
-  }
+  const drink: Drink = await drinkRepository
+    .save({
+      id,
+      ...(ingredients ? { ingredients } : {}),
+      ...rest,
+    }, { reload: true })
 
-  const drinkUser = await drink.getUser()
-  if (userId !== drinkUser.id) {
-    throw new Error('You do not have the permissions to edit this drink')
-  }
-
-  await drink.update({ ...rest }, { where: { id } })
+  console.log('foo', drink)
 
   return drink
 }
