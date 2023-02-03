@@ -37,7 +37,6 @@
     "typeorm-extension": "^2.4.2"
   },
   "devDependencies": {
-    "@jorgebodega/typeorm-seeding": "^6.0.1",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.16",
     "@types/node": "^18.11.18",
