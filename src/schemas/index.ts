@@ -31,13 +31,10 @@ const queryType = new GraphQLObjectType({
         search: { type: GraphQLString },
       },
     },
-    ingredient: {
-      type: ingredientType,
-      args: {
-        id: { type: new GraphQLNonNull(GraphQLID) },
-      },
-    },
     ingredients: {
+      args: {
+        drinkId: { type: new GraphQLNonNull(GraphQLID) },
+      },
       type: new GraphQLList(ingredientType),
     },
     // drinkEntries: {

@@ -6,34 +6,19 @@ import { Drink } from '../database/entities/Drink.entity'
 
 const ingredientRepository = dataSource.getRepository(Ingredient)
 
-export const ingredientResolver: GraphQLFieldResolver<any, AppContext, { id: string }, any> = async (
-  parent,
-  { id },
-) => {
-  console.log('in the ingredient resolver:', id)
-  const ingredient = ingredientRepository.findOneBy({ id })
-
-  const foo = await Ingredient.findOneBy({ id })
-  console.log(foo)
-  throw new Error('Not yet implemented')
-  // return await Ingredient.findByPk(parent?.id || id, {
-  //   include: [{ model: DrinkIngredient, as: 'drinkIngredient', required: true }],
-  // }) as IngredientModel
-}
-
 export const ingredientsResolver: GraphQLFieldResolver<Drink, AppContext, any, any> = async (
   parent,
   args,
   { loaders: { ingredientsLoader} },
 ) => {
-  console.log('here?', parent instanceof Drink)
   let ingredients: Ingredient[] = []
-  // const isDrinkIngredients = parent instanceof Drink
 
   if (parent.ingredients?.length) {
     try {
+      console.log('trying')
       ingredients = <Ingredient[]>await ingredientsLoader.load(parent?.id)
     } catch {
+      console.log('catching')
       ingredients = await ingredientRepository.find({
         where: {
           drink: { id: parent.id },

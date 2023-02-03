@@ -5,7 +5,6 @@ import {
   drinkEditResolver,
 } from './drinks.resolver'
 import {
-  ingredientResolver,
   ingredientsResolver,
 } from './ingredients.resolver'
 import {
@@ -28,7 +27,6 @@ export const resolvers = {
   Query: {
     drink: drinkResolver,
     drinks: drinksResolver,
-    ingredient: ingredientResolver,
     ingredients: ingredientsResolver,
     // drinkEntries: drinkEntriesResolver,
     entries: entriesResolver,

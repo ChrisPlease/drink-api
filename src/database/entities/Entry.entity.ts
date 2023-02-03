@@ -46,7 +46,7 @@ export class Entry extends BaseEntity {
   @Column({ name: 'drink_id', type: 'uuid' })
   drinkId: string
 
-  @Column({ name: 'user_id', type: 'uuid' })
+  @Column({ name: 'user_id', type: 'varchar' })
   userId: string
 }
 

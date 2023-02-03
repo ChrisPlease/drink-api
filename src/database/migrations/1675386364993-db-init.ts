@@ -1,13 +1,13 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
-export class dbInit1675007289099 implements MigrationInterface {
-    name = 'dbInit1675007289099'
+export class dbInit1675386364993 implements MigrationInterface {
+    name = 'dbInit1675386364993'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query('CREATE TABLE "ingredients" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "parts" integer NOT NULL, "drink_id" uuid NOT NULL, CONSTRAINT "PK_9240185c8a5507251c9f15e0649" PRIMARY KEY ("id"))')
         await queryRunner.query('CREATE TABLE "users" ("id" character varying NOT NULL, CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))')
         await queryRunner.query('CREATE TABLE "drinks" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "name" character varying NOT NULL, "icon" character varying NOT NULL, "coefficient" double precision DEFAULT \'0\', "caffeine" double precision DEFAULT \'0\', "sugar" double precision DEFAULT \'0\', "user_id" character varying, CONSTRAINT "UQ_ae9bee7d1c147b2012de6d6312a" UNIQUE ("name", "user_id"), CONSTRAINT "PK_c729b137d69b681e87798293e3f" PRIMARY KEY ("id"))')
-        await queryRunner.query('CREATE TABLE "entries" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "count" integer DEFAULT \'0\', "drink_id" uuid NOT NULL, "user_id" uuid NOT NULL, "userId" character varying, "drinkId" uuid, CONSTRAINT "UQ_62a9a14d874150617dfa33394c9" UNIQUE ("drink_id", "user_id"), CONSTRAINT "REL_cec0665764a5df83bec3ca74ad" UNIQUE ("drinkId"), CONSTRAINT "PK_23d4e7e9b58d9939f113832915b" PRIMARY KEY ("id"))')
+        await queryRunner.query('CREATE TABLE "entries" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "count" integer DEFAULT \'0\', "drink_id" uuid NOT NULL, "user_id" character varying NOT NULL, "userId" character varying, "drinkId" uuid, CONSTRAINT "UQ_62a9a14d874150617dfa33394c9" UNIQUE ("drink_id", "user_id"), CONSTRAINT "REL_cec0665764a5df83bec3ca74ad" UNIQUE ("drinkId"), CONSTRAINT "PK_23d4e7e9b58d9939f113832915b" PRIMARY KEY ("id"))')
         await queryRunner.query('CREATE TABLE "logs" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "volume" integer NOT NULL, "timestamp" TIMESTAMP NOT NULL DEFAULT now(), "entry_id" uuid NOT NULL, CONSTRAINT "PK_fb1b805f2f7795de79fa69340ba" PRIMARY KEY ("id"))')
         await queryRunner.query('CREATE TABLE "drink_ingredients" ("ingredient_id" uuid NOT NULL, "drink_id" uuid NOT NULL, CONSTRAINT "PK_c048b9ac3d795348157465d6d00" PRIMARY KEY ("ingredient_id", "drink_id"))')
         await queryRunner.query('CREATE INDEX "IDX_f84dce9c6655656142641c3e7b" ON "drink_ingredients" ("ingredient_id") ')

@@ -8,12 +8,11 @@ import { User } from '../database/entities/User.entity'
 import { IsNull } from 'typeorm'
 
 const drinkRepository = dataSource.getRepository(Drink)
-const ingredientRepository = dataSource.getRepository(Ingredient)
 
 export const drinkResolver: GraphQLFieldResolver<Ingredient | undefined, AppContext, { id: string }> = async (
   parent,
   { id },
-  { loaders: { drinksLoader } },
+  /* { loaders: { drinksLoader } }, */
 ) => {
   return await drinkRepository.findOne({
     where: {
@@ -30,7 +29,7 @@ export const drinksResolver: GraphQLFieldResolver<
   any
 > = async (
   parent,
-  { search },
+  params,
   {
     req: {
       auth,
@@ -73,20 +72,50 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
     req: { auth },
   },
 ) => {
+  console.log('--------------------------------')
+  console.log('begin drink transaction')
+  console.log('--------------------------------')
   const userId = <string>auth?.sub
+  const drink = new Drink()
 
-  const drink = drinkRepository.create({
-    ...rest,
-    user: { id: userId },
-  })
+  drink.userId = userId
 
   if (drinkIngredients) {
+
     drink.ingredients = await drink.addIngredients(drinkIngredients)
+
+    const [{ caffeine, sugar, coefficient }] = await dataSource
+      .createQueryBuilder(Ingredient, 'i')
+      .select(
+        'ROUND(SUM((i.parts::float/t.total)*d.coefficient)::numeric, 2)',
+        'coefficient',
+      )
+      .addSelect(
+        'ROUND(SUM((i.parts::float/t.total)*d.caffeine)::numeric, 2)',
+        'caffeine',
+      )
+      .addSelect(
+        'ROUND(SUM((i.parts::float/t.total)*d.sugar)::numeric, 2)',
+        'sugar',
+      )
+      .innerJoin(Drink, 'd', 'd.id = i.drink_id')
+      .innerJoin(qb => {
+        return qb.select('SUM(i.parts)', 'total')
+          .from(Ingredient, 'i')
+          .leftJoin(Drink, 'd', 'd.id = i.drink_id')
+          .whereInIds(drink.ingredients?.map(({ id }) => id))
+      }, 't', 'true')
+      .whereInIds(drink.ingredients?.map(({ id }) => id))
+      .execute()
+
+    drink.coefficient = coefficient
+    drink.caffeine = caffeine
+    drink.sugar = sugar
+
+    return await drinkRepository.save({ ...rest, ...drink })
   }
 
-  await drink.save()
-
-  return drink
+  return drinkRepository.save({ ...rest, ...drink })
 }
 
 export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: DrinkInput }, any> = async (

@@ -14,8 +14,6 @@ import { Entry } from './Entry.entity'
 import { Ingredient } from './Ingredient.entity'
 import { User } from './User.entity'
 
-// const ingredientRepository = dataSource.getRepository(Ingredient)
-
 @Entity({ name: 'drinks' })
 @Unique(['name', 'userId'])
 export class Drink extends BaseEntity {
@@ -57,7 +55,10 @@ export class Drink extends BaseEntity {
   )
   ingredients?: Ingredient[]
 
-  @ManyToOne(() => User, (user) => user.drinks)
+  @ManyToOne(
+    () => User,
+    (user) => user.drinks,
+  )
   @JoinColumn({ name: 'user_id' })
   user: User
 
@@ -67,7 +68,11 @@ export class Drink extends BaseEntity {
   )
   entry: Entry
 
-  @Column({ name: 'user_id', nullable: true, type: 'uuid' })
+  @Column({
+    name: 'user_id',
+    nullable: true,
+    type: 'varchar',
+  })
   userId: string
 
   get totalParts() {
