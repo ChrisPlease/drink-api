@@ -73,8 +73,10 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
     req: { auth },
   },
 ) => {
-  const userId = auth?.sub
-  let drink = await Drink.create({ ...rest, userId })
+  const userId = <string>auth?.sub
+  console.log(auth)
+  const foo = { ...rest, userId }
+  let drink = await Drink.create(foo)
   if (drinkIngredients) {
     const ingredients = await Promise.all(
       drinkIngredients
@@ -114,7 +116,7 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
 
   let drink: DrinkModel
   const userId = auth?.sub
-  const { id, ingredients, ...rest } = drinkInput
+  const { id, ingredients: drinkIngredients, ...rest } = drinkInput
 
   try {
     drink = await drinksLoader.load(drinkInput.id) as DrinkModel
@@ -125,7 +127,7 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
     }) as DrinkModel
   }
 
-  if (drink.totalParts > 1 && !ingredients) {
+  if (drink.totalParts > 1 && !drinkIngredients) {
     throw new Error('This is a mixed drink, must include ingredients')
   }
 
@@ -134,8 +136,7 @@ export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: D
     throw new Error('You do not have the permissions to edit this drink')
   }
 
-  await drink.update(rest, { where: { id } })
+  await drink.update({ ...rest }, { where: { id } })
 
   return drink
-
 }

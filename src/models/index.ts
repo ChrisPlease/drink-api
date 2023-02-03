@@ -1,4 +1,4 @@
-import { dbConfig } from '../config/constants'
+import { dbConfig } from '../constants/db'
 import { Sequelize } from 'sequelize'
 import { DrinkFactory } from './Drink.model'
 import { IngredientFactory } from './Ingredient.model'
@@ -13,7 +13,7 @@ export const sequelize = new Sequelize(
   dbConfig.user,
   dbConfig.password,
   {
-    // logging: false,
+    logging: process.env.NODE_ENV === 'develop' && console.log,
     quoteIdentifiers: false,
     host: dbConfig.host,
     dialect: 'postgres',
