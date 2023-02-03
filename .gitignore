@@ -8,7 +8,3 @@ dist
 
 # nginx certs
 certs
-
-# local db export
-db
-!./src/db/*

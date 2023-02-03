@@ -1,17 +1,6 @@
 version: '3.8'
 services:
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    container_name: nginx-proxy
-    environment:
-      - VIRTUAL_PROTO=https
-    ports:
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./certs:/etc/nginx/certs
-    depends_on:
-      - api
+
   api:
     container_name: waterlog
     restart: always
@@ -27,8 +16,8 @@ services:
       - ${PORT}:${PORT}
     depends_on:
       - db
-  db:
-    container_name: postgres
+  waterlog-db:
+    container_name: waterlog-db
     image: postgres
     restart: always
     ports:

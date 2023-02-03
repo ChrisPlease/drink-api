@@ -22,6 +22,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/server": "^4.3.0",
+    "@jorgebodega/typeorm-seeding": "^6.0.1",
     "cors": "^2.8.5",
     "dataloader": "^2.1.0",
     "dotenv": "^16.0.1",
