@@ -1,36 +1,28 @@
 version: '3.8'
 services:
   nginx:
-    image: nginx:1.23-alpine
+    image: jonasal/nginx-certbot
+    restart: unless-stopped
+    environment:
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     volumes:
-      - ./data/nginx:/etc/nginx/conf.d
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-  certbot:
-    image: certbot/certbot
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt
-      - ./data/certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-  api:
+      - nginx_secrets
+      - ./data/nginx/user_conf.d:/etc/nginx/user_conf.d
+  waterlog-api:
     container_name: waterlog
     restart: always
     build:
       context: .
       dockerfile: Dockerfile.prod
     env_file:
-      - .env.production
-    environment:
-      - VIRTUAL_HOST=${HOST}
-      - VIRTUAL_PORT=${PORT}
+      - .env
     ports:
       - ${PORT}:${PORT}
     depends_on:
-      - db
+      - waterlog-db
   waterlog-db:
     container_name: waterlog-db
     image: postgres
@@ -38,10 +30,11 @@ services:
     ports:
       - '${PGPORT}:${PGPORT}'
     volumes:
-      - data:/var/lib/postgresql/data
+      - prod_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=${PGPASSWORD}
       - POSTGRES_DB=${PGDATABASE}
       - POSTGRES_USER=${PGUSER}
 volumes:
-  data: {}
+  prod_data: {}
+  nginx_secrets: {}

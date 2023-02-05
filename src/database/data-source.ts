@@ -7,7 +7,7 @@ export const dataSource = new DataSource({
   port: dbConfig.port,
   username: dbConfig.user,
   password: dbConfig.password,
-  database: 'api',
+  database: dbConfig.database,
   synchronize: false,
   logging: 'all',
   migrations: [`${__dirname}/migrations/**/*.{js,ts}`],
