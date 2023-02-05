@@ -5,11 +5,12 @@ services:
     restart: unless-stopped
     environment:
       - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+      - STAGING=${STAGING}
     ports:
       - 80:80
       - 443:443
     volumes:
-      - nginx_secrets
+      - nginx_secrets:/etc/letsencrypt
       - ./data/nginx/user_conf.d:/etc/nginx/user_conf.d
   waterlog-api:
     container_name: waterlog
