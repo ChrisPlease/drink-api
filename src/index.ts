@@ -22,7 +22,7 @@ const app: express.Application = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use(cors({ origin: 'http://127.0.0.1:5173' }))
+app.use(cors({ origin: 'https://waterlog.test:5173' }))
 
 async function initServer(typeDefs: GraphQLSchema) {
   const server = new ApolloServer<AppContext>({
