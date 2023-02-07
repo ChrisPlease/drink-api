@@ -7,11 +7,11 @@
     "start:dev": "nodemon --inspect=0.0.0.0 dist/index.js",
     "build:dev": "tsc --watch --preserveWatchOutput",
     "prestart": "rimraf dist",
-    "start": "NODE_ENV=develop concurrently \"npm:start:dev\" \"npm:build:dev\"",
+    "start": "NODE_ENV=develop concurrently \"npm:build:dev\" \"npm:start:dev\"",
     "build": "NODE_ENV=production tsc",
     "typeorm": "typeorm-ts-node-esm",
-    "migration:run": "npm run typeorm migration:run -- -d ./src/database/data-source.ts",
-    "seed": "ts-node ./node_modules/@jorgebodega/typeorm-seeding/dist/cli.js seed -d ./src/database/data-source.ts"
+    "migration:run": "npm run typeorm migration:run -- -d ./dist/database/data-source.js",
+    "seed": "node ./node_modules/@jorgebodega/typeorm-seeding/dist/cli.js seed -d ./dist/database/data-source.js"
   },
   "keywords": [
     "typescript",

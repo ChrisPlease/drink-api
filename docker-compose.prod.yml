@@ -1,8 +1,10 @@
 version: '3.8'
 services:
   nginx:
-    image: jonasal/nginx-certbot
+    container_name: nginx
+    image: jonasal/nginx-certbot:4.2.0-nginx1.23.3
     restart: unless-stopped
+    env_file: ./.env
     environment:
       - CERTBOT_EMAIL=${CERTBOT_EMAIL}
       - STAGING=${STAGING}
@@ -11,21 +13,23 @@ services:
       - 443:443
     volumes:
       - nginx_secrets:/etc/letsencrypt
-      - ./data/nginx/user_conf.d:/etc/nginx/user_conf.d
-  waterlog-api:
-    container_name: waterlog
+      - ./nginx/user_conf.d:/etc/nginx/user_conf.d
+    depends_on:
+      - api
+  api:
+    container_name: api
     restart: always
     build:
       context: .
       dockerfile: Dockerfile.prod
     env_file:
-      - .env
+      - ./.env
     ports:
       - ${PORT}:${PORT}
     depends_on:
       - waterlog-db
   waterlog-db:
-    container_name: waterlog-db
+    container_name: postgres
     image: postgres
     restart: always
     ports:
