@@ -8,15 +8,11 @@ import {
   ingredientsResolver,
 } from './ingredients.resolver'
 import {
-  // drinkEntriesResolver,
+  drinkEntriesResolver,
   entriesResolver,
   entryCreateResolver,
   entryResolver,
 } from './entries.resolver'
-import {
-  logsResolver,
-  // logVolumeHistoryResolver,
-} from './logs.resolver'
 import {
   userResolver,
   usersResolver,
@@ -28,7 +24,7 @@ export const resolvers = {
     drink: drinkResolver,
     drinks: drinksResolver,
     ingredients: ingredientsResolver,
-    // drinkEntries: drinkEntriesResolver,
+    drinkEntries: drinkEntriesResolver,
     entries: entriesResolver,
     entry: entryResolver,
     currentUser: userResolver,
@@ -51,7 +47,7 @@ export const resolvers = {
   Entry: {
     user: userResolver,
     drink: drinkResolver,
-    logs: logsResolver,
+    // logs: logsResolver,
     // logHistory: logVolumeHistoryResolver,
   },
   User: {
