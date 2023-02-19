@@ -8,7 +8,7 @@ export const dataSource = new DataSource({
   username: dbConfig.user,
   password: dbConfig.password,
   database: dbConfig.database,
-  synchronize: false,
+  synchronize: process.env.NODE_ENV === 'develop',
   logging: 'all',
   migrations: [`${__dirname}/migrations/**/*.{js,ts}`],
   entities: [`${__dirname}/entities/**/*.{js,ts}`],

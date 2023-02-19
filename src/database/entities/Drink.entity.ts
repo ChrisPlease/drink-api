@@ -6,8 +6,8 @@ import {
   ManyToOne,
   BaseEntity,
   ManyToMany,
-  OneToOne,
   Unique,
+  OneToMany,
 } from 'typeorm'
 import { dataSource } from '../data-source'
 import { Entry } from './Entry.entity'
@@ -48,6 +48,8 @@ export class Drink extends BaseEntity {
   })
   sugar?: number
 
+  servingSize: number
+
   @ManyToMany(
     () => Ingredient,
     (ingredient) => ingredient.drink,
@@ -62,11 +64,11 @@ export class Drink extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User
 
-  @OneToOne(
+  @OneToMany(
     () => Entry,
     (entry) => entry.drink,
   )
-  entry: Entry
+  entries: Entry[]
 
   @Column({
     name: 'user_id',

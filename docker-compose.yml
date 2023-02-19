@@ -9,6 +9,7 @@ services:
       - CERTBOT_EMAIL=${CERTBOT_EMAIL}
       - DEBUG=${DEBUG}
       - USE_LOCAL_CA=${USE_LOCAL_CA}
+      # - HOST=${HOST:-api.waterlog.test}
     ports:
       - 80:80
       - 443:443
@@ -24,9 +25,6 @@ services:
     build: .
     env_file:
       - ./.env
-    environment:
-     - VIRTUAL_HOST=${HOST}
-     - VIRTUAL_PORT=${PORT}
     ports:
       - ${PORT}:${PORT}
       - 9229:9229

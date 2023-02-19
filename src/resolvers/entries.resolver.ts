@@ -1,5 +1,4 @@
 import { GraphQLFieldResolver } from 'graphql'
-import { DateLog } from '../database/entities/DateLog.entity'
 import { Drink } from '../database/entities/Drink.entity'
 import { Entry } from '../database/entities/Entry.entity'
 import { User } from '../database/entities/User.entity'
@@ -7,7 +6,6 @@ import { dataSource } from '../database/data-source'
 import { AppContext } from '../types/context'
 
 const entryRepository = dataSource.getRepository(Entry)
-const logRepository = dataSource.getRepository(DateLog)
 
 export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: string }> = async (
   parent,
@@ -32,6 +30,39 @@ export const entriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: s
   return entries || []
 }
 
+export const drinkEntriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: string }, any> = async (
+  parent: undefined,
+  params,
+  { req: { auth } },
+) => {
+  console.log('hhhhhheeeeere ')
+  const userId = auth?.sub
+  const entries = await entryRepository
+    .find({
+      where: {
+        ...(userId ? { userId } : {}),
+      },
+    })
+
+  // const foo = await entryRepository
+  //   .createQueryBuilder('entry')
+  //   .where('entry.user_id = :userId', { userId })
+  //   .select('drink_id')
+  //   .addSelect((qb) => {
+  //     return qb
+  //       .select('COUNT(id)')
+  //       .from(Entry, 'e')
+  //       .where('e.drink_id = drink.id')
+  //       .innerJoin(Drink, 'drink')
+  //   } )
+  //   .addSelect('MAX(timestamp)', 'timestamp')
+  //   .groupBy('drink_id')
+  //   // .getMany()
+
+  console.log('entries', entries)
+  // console.log('raw', foo.getQuery())
+}
+
 export const entryCreateResolver: GraphQLFieldResolver<
   any,
   AppContext,
@@ -51,46 +82,19 @@ export const entryCreateResolver: GraphQLFieldResolver<
 
   const drinkRepository = dataSource.getRepository(Drink)
 
-  const drink = await drinkRepository.findOneBy({ id: drinkId, userId })
+  const drink = await drinkRepository.findOneBy({ id: drinkId })
 
-  if (!drink) {
+  if (drink?.userId && drink?.userId !== userId) {
     throw new Error('Drink does not belong to you')
   }
 
-  console.log('-------------------------------')
-  console.log('DRINK: ', drink)
-  console.log('-------------------------------')
+  if (drink) {
+    const entry = new Entry()
 
-  const { id } = await entryRepository
-    .createQueryBuilder('entry')
-    .insert()
-    .into(Entry)
-    .values({
-      userId,
-      drinkId,
-      count: () => `COALESCE((SELECT count+1 FROM entries WHERE drink_id = '${
-        drinkId
-      }' AND user_id = '${
-        userId
-      }'),1)`,
-    })
-    .orUpdate(
-      ['count'],
-      ['drink_id', 'user_id'],
-    )
-    .returning(['id'])
-    .execute()
-    .then(res => res.raw[0])
+    entry.userId = userId
+    entry.volume = volume
+    entry.drinkId = drink.id || drinkId
 
-  const entry = await entryRepository.findOneBy({ id })
-
-  if (entry) {
-    const log = new DateLog()
-    log.entryId = entry.id
-    log.volume = volume
-
-    await logRepository.save(log)
+    return await entry.save()
   }
-
-  return entry
 }

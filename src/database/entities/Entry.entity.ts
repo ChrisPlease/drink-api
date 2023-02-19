@@ -1,52 +1,92 @@
 import {
   BaseEntity,
+  CreateDateColumn,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
-  Unique,
+  VirtualColumn,
 } from 'typeorm'
-import { DateLog } from './DateLog.entity'
 import { Drink } from './Drink.entity'
 import { User } from './User.entity'
 
 @Entity({ name: 'entries' })
-@Unique(['drinkId', 'userId'])
 export class Entry extends BaseEntity {
 
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ nullable: true, default: 0 })
-  count: number
+  @Column({
+    name: 'volume',
+    type: 'float',
+    nullable: false,
+  })
+  volume: number
+
+  @CreateDateColumn()
+  timestamp: Date
 
   @ManyToOne(
     () => User,
     (user) => user.entries,
   )
-  @JoinColumn()
+  @JoinColumn({
+    name: 'user_id',
+  })
   user: User
 
-  @OneToOne(
+  @ManyToOne(
     () => Drink,
-    (drink) => drink.entry,
+    (drink) => drink.entries,
   )
-  @JoinColumn()
+  @JoinColumn({
+    name: 'drink_id',
+  })
   drink: Drink
 
-  @OneToMany(
-    () => DateLog,
-    (log) => log.entryId,
-  )
-  logs: DateLog[]
-
-  @Column({ name: 'drink_id', type: 'uuid' })
+  @Column({
+    name: 'drink_id',
+    type: 'varchar',
+  })
   drinkId: string
 
-  @Column({ name: 'user_id', type: 'varchar' })
+  @Column({
+    name: 'user_id',
+    type: 'varchar',
+  })
   userId: string
-}
 
+  @VirtualColumn({
+    query: (alias) => `SUM(${alias}.volume)`,
+  })
+  totalVolume: number
+
+  @VirtualColumn({
+    query: (alias) => `MAX(${alias}.timestamp)`,
+  })
+  lastEntry: Date
+
+  @VirtualColumn({
+    query: (alias) => `ROUND(SUM(${
+      alias
+    }.volume*(SELECT sugar FROM drinks WHERE drinks.id = ${
+      alias
+    }.drink_id)))`,
+  })
+  sugar: number
+
+  @VirtualColumn({
+    query: (alias) => `ROUND(SUM(${
+      alias
+    }.volume*(SELECT caffeine FROM drinks WHERE drinks.id = ${
+      alias
+    }.drink_id)))`,
+  })
+  caffeine: number
+
+  @VirtualColumn({
+    query: (alias) => `ROUND(AVG(${alias}.volume))`,
+  })
+  average: number
+}

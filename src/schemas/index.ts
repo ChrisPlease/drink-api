@@ -37,13 +37,13 @@ const queryType = new GraphQLObjectType({
       },
       type: new GraphQLList(ingredientType),
     },
-    // drinkEntries: {
-    //   type: entryType,
-    //   args: {
-    //     drinkId: { type: GraphQLID },
-    //     unique: { type: GraphQLBoolean },
-    //   },
-    // },
+    drinkEntries: {
+      type: new GraphQLList(entryType),
+      args: {
+        drinkId: { type: GraphQLID },
+        unique: { type: GraphQLBoolean },
+      },
+    },
     entry: {
       type: entryType,
       args: {
