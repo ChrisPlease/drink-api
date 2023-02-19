@@ -33,6 +33,7 @@ export const drinkInput = new GraphQLInputObjectType({
     id: { type: GraphQLString },
     name: { type: new GraphQLNonNull(GraphQLString) },
     icon: { type: new GraphQLNonNull(GraphQLString) },
+    servingSize: { type: GraphQLInt },
     caffeine: { type: GraphQLInt },
     coefficient: { type: GraphQLFloat },
     sugar: { type: GraphQLInt },

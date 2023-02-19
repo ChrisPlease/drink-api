@@ -1,15 +1,22 @@
 version: '3.8'
 services:
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    container_name: nginx-proxy
+  nginx:
+    container_name: nginx
+    image: jonasal/nginx-certbot:4.2.0-nginx1.23.3
+    restart: unless-stopped
+    env_file: ./.env
     environment:
-      - VIRTUAL_PROTO=https
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+      - DEBUG=${DEBUG}
+      - USE_LOCAL_CA=${USE_LOCAL_CA}
+      # - HOST=${HOST:-api.waterlog.test}
     ports:
-      - "443:443"
+      - 80:80
+      - 443:443
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./certs:/etc/nginx/certs
+      - ./certs:/etc/local_ca
+      - dev_nginx_secrets:/etc/letsencrypt
+      - ./nginx/user_conf.d:/etc/nginx/user_conf.d
     depends_on:
       - api
   api:
@@ -18,9 +25,6 @@ services:
     build: .
     env_file:
       - ./.env
-    environment:
-      - VIRTUAL_HOST=${HOST}
-      - VIRTUAL_PORT=${PORT}
     ports:
       - ${PORT}:${PORT}
       - 9229:9229
@@ -33,7 +37,7 @@ services:
     image: postgres
     restart: always
     ports:
-      - '5433:${PGPORT}'
+      - '${PGPORT}:${PGPORT}'
     volumes:
       - data:/var/lib/postgresql/data
     environment:
@@ -42,3 +46,4 @@ services:
       - POSTGRES_USER=${PGUSER}
 volumes:
   data: {}
+  dev_nginx_secrets: {}

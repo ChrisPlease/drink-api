@@ -13,13 +13,17 @@ export const drinkResolver: GraphQLFieldResolver<Ingredient | undefined, AppCont
   parent,
   { id },
   /* { loaders: { drinksLoader } }, */
+  { req: { auth } },
 ) => {
-  return await drinkRepository.findOne({
+  console.log('getting it from entry', parent)
+  const drink = await drinkRepository.findOne({
     where: {
       id: parent?.drinkId || id,
     },
     relations: ['ingredients'],
   })
+
+  return drink
 }
 
 export const drinksResolver: GraphQLFieldResolver<
@@ -54,6 +58,7 @@ interface DrinkInput {
   id: string;
   name: string;
   icon: string;
+  servingSize?: number;
   caffeine?: number;
   sugar?: number;
   coefficient?: number;
@@ -66,7 +71,7 @@ interface DrinkInput {
 export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink: DrinkInput }, any> = async (
   parent,
   {
-    drink: { ingredients: drinkIngredients, ...rest },
+    drink: { ingredients: drinkIngredients, servingSize, ...rest },
   },
   {
     req: { auth },
@@ -113,9 +118,18 @@ export const drinkCreateResolver: GraphQLFieldResolver<any, AppContext, { drink:
     drink.sugar = sugar
 
     return await drinkRepository.save({ ...rest, ...drink })
+  } else {
+    if (!servingSize) {
+      throw new Error('Drink serving size required')
+    }
+
+    const { caffeine, sugar } = rest
+
+    drink.sugar = Math.round(((sugar || 0)  / servingSize) * 1000) / 1000
+    drink.caffeine = Math.round(((caffeine || 0) / servingSize) * 1000) / 100
+    return drinkRepository.save({ ...rest, ...drink })
   }
 
-  return drinkRepository.save({ ...rest, ...drink })
 }
 
 export const drinkEditResolver: GraphQLFieldResolver<any, AppContext, { drink: DrinkInput }, any> = async (

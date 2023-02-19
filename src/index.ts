@@ -11,7 +11,6 @@ import { GraphQLSchema } from 'graphql'
 import { resolvers } from './resolvers'
 import { drinksLoader } from './loaders/drinksLoader'
 import { ingredientsLoader } from './loaders/ingredientsLoader'
-// import { logsLoader } from './loaders/logsLoader'
 import { AppContext } from './types/context'
 import { jwtHandler } from './middleware/jwtHandler'
 
@@ -20,9 +19,17 @@ import 'reflect-metadata'
 const app: express.Application = express()
 
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  }),
+)
 
-app.use(cors({ origin: 'http://127.0.0.1:5173' }))
+app.use(
+  cors({
+    origin: 'https://waterlog.test:8433',
+  }),
+)
 
 async function initServer(typeDefs: GraphQLSchema) {
   const server = new ApolloServer<AppContext>({
