@@ -18,20 +18,21 @@ import {
   usersResolver,
   userCreateResolver,
 } from './users.resolver'
+import { DrinkResolvers, QueryResolvers, Resolvers } from '../__generated__/graphql'
 
-export const resolvers = {
-  Query: {
-    drink: drinkResolver,
-    drinks: drinksResolver,
-    ingredients: ingredientsResolver,
-    drinkEntries: drinkEntriesResolver,
-    entries: entriesResolver,
-    entry: entryResolver,
-    currentUser: userResolver,
-    user: userResolver,
-    users: usersResolver,
+export const resolvers: Resolvers = {
+  Query: <QueryResolvers>{
+    // drink: drinkResolver,
+    // drinks: drinksResolver,
+    // ingredients: ingredientsResolver,
+    // drinkEntries: drinkEntriesResolver,
+    // entries: entriesResolver,
+    // entry: entryResolver,
+    // currentUser: userResolver,
+    // user: userResolver,
+    // users: usersResolver,
   },
-  Drink: {
+  Drink: <DrinkResolvers>{
     ingredients: ingredientsResolver,
     entries: entriesResolver,
   },

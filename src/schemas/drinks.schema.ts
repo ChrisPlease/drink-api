@@ -19,7 +19,12 @@ export const drinkType: GraphQLObjectType<any, any> = new GraphQLObjectType({
     icon: { type: new GraphQLNonNull(GraphQLString) },
     createdAt: { type: GraphQLString },
     updatedAt: { type: GraphQLString },
-    coefficient: { type: GraphQLFloat },
+    coefficient: {
+      type: GraphQLFloat,
+      resolve(foo) {
+        console.log(foo.coefficient)
+      },
+    },
     caffeine: { type: GraphQLFloat },
     sugar: { type: GraphQLFloat },
     ingredients: { type: new GraphQLList(ingredientType) },
@@ -33,7 +38,7 @@ export const drinkInput = new GraphQLInputObjectType({
     id: { type: GraphQLString },
     name: { type: new GraphQLNonNull(GraphQLString) },
     icon: { type: new GraphQLNonNull(GraphQLString) },
-    servingSize: { type: GraphQLInt },
+    servingSize: { type: GraphQLFloat },
     caffeine: { type: GraphQLInt },
     coefficient: { type: GraphQLFloat },
     sugar: { type: GraphQLInt },

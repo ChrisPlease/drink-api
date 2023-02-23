@@ -1,48 +1,81 @@
+import { Prisma, Drink, User } from '@prisma/client'
 import { GraphQLFieldResolver } from 'graphql'
-import { Drink } from '../database/entities/Drink.entity'
-import { Entry } from '../database/entities/Entry.entity'
-import { User } from '../database/entities/User.entity'
-import { dataSource } from '../database/data-source'
 import { AppContext } from '../types/context'
-
-const entryRepository = dataSource.getRepository(Entry)
+import { EntryResolvers } from '../__generated__/graphql'
 
 export const entryResolver: GraphQLFieldResolver<any, AppContext, { id: string }> = async (
   parent,
   { id },
 ) => {
-  return await entryRepository.findOneBy({ id })
+
+  throw new Error('not yet implemented')
+  // return await entryRepository.findOneBy({ id })
 }
 
-export const entriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: string }, any> = async (
-  parent: Drink | User | undefined,
-  { drinkId: queryParentId },
-  { req: { auth } },
+export const entriesResolver: GraphQLFieldResolver<unknown, AppContext, { drinkId: string }, any> = async (
+  parent,
+  { drinkId },
+  { prisma, req: { auth } },
 ) => {
-  const drinkId: string | undefined = parent instanceof Drink ? parent?.id : queryParentId || undefined
-  const userId: string | undefined = parent instanceof User ? parent?.id : auth?.sub || undefined
+  const userId = auth?.sub
 
-  const entries = await entryRepository.findBy({
-    ...(drinkId ? { drinkId } : {}),
-    ...(userId ? { userId } : {}),
+  return await prisma.entry.findMany({
+    where: {
+      userId,
+      drinkId: drinkId ? drinkId : undefined,
+    },
   })
-
-  return entries || []
 }
+
+const foo = `#graphql
+type Drink {
+  name:
+}
+
+`
 
 export const drinkEntriesResolver: GraphQLFieldResolver<any, AppContext, { drinkId: string }, any> = async (
-  parent: undefined,
-  params,
-  { req: { auth } },
+  parent: unknown,
+  { drinkId },
+  { prisma, req: { auth } },
 ) => {
-  console.log('hhhhhheeeeere ')
-  const userId = auth?.sub
-  const entries = await entryRepository
-    .find({
-      where: {
-        ...(userId ? { userId } : {}),
+  const userId = <string>auth?.sub
+
+  const entries = await prisma.entry.groupBy({
+    where: {
+      userId,
+      drinkId: drinkId ? drinkId : undefined,
+    },
+    by: ['drinkId', 'userId'],
+    _count: true,
+    _sum: {
+      volume: true,
+    },
+    _max: {
+      timestamp: true,
+    },
+    orderBy: {
+      _max: {
+        timestamp: 'desc',
       },
-    })
+    },
+  })
+
+  console.log(entries)
+
+  return entries.map(entry => ({
+    ...entry,
+  }))
+
+  console.log('hhhhhheeeeere ', entries)
+  throw new Error('Not yet implemented!')
+  // const userId = auth?.sub
+  // const entries = await entryRepository
+  //   .find({
+  //     where: {
+  //       ...(userId ? { userId } : {}),
+  //     },
+  //   })
 
   // const foo = await entryRepository
   //   .createQueryBuilder('entry')
@@ -59,7 +92,7 @@ export const drinkEntriesResolver: GraphQLFieldResolver<any, AppContext, { drink
   //   .groupBy('drink_id')
   //   // .getMany()
 
-  console.log('entries', entries)
+  // console.log('entries', entries)
   // console.log('raw', foo.getQuery())
 }
 
@@ -76,25 +109,15 @@ export const entryCreateResolver: GraphQLFieldResolver<
 > = async (
   parent,
   { entry: { drinkId, volume } },
-  { req: { auth } },
+  { req: { auth }, prisma },
 ) => {
   const userId = <string>auth?.sub
 
-  const drinkRepository = dataSource.getRepository(Drink)
-
-  const drink = await drinkRepository.findOneBy({ id: drinkId })
-
-  if (drink?.userId && drink?.userId !== userId) {
-    throw new Error('Drink does not belong to you')
-  }
-
-  if (drink) {
-    const entry = new Entry()
-
-    entry.userId = userId
-    entry.volume = volume
-    entry.drinkId = drink.id || drinkId
-
-    return await entry.save()
-  }
+  return await prisma.entry.create({
+    data: {
+      userId,
+      drinkId,
+      volume,
+    },
+  })
 }

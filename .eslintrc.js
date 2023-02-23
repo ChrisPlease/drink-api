@@ -52,4 +52,5 @@ module.exports = {
         '@typescript-eslint/parser': ['.ts', '.tsx'],
       },
     },
+    'ignorePatterns': ['src/__generated__/**/*'],
 }
