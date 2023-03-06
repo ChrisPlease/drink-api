@@ -4,7 +4,7 @@ services:
     container_name: nginx
     image: jonasal/nginx-certbot:4.2.0-nginx1.23.3
     restart: unless-stopped
-    env_file: ./.env
+    env_file: ./.env.production
     environment:
       - CERTBOT_EMAIL=${CERTBOT_EMAIL}
       - STAGING=${STAGING}
@@ -23,7 +23,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     env_file:
-      - ./.env
+      - ./.env.production
     ports:
       - ${PORT}:${PORT}
     depends_on:

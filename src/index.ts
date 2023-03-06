@@ -5,8 +5,6 @@ import { expressMiddleware } from '@apollo/server/express4'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import { errorHandler } from './middleware/errorHandler'
-import { schema } from './schemas'
-import { GraphQLSchema } from 'graphql'
 import { resolvers } from './resolvers'
 import { AppContext } from './types/context'
 import { jwtHandler } from './middleware/jwtHandler'
@@ -19,27 +17,23 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'error'],
 })
 
-app.use(bodyParser.json())
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  }),
-)
-
-app.use(
-  cors({
-    origin: 'https://waterlog.test:8433',
-  }),
-)
 
 async function initServer() {
   const server = new ApolloServer<AppContext>({
-    typeDefs: readFileSync(__dirname + '/schemas/schema.gql', { encoding: 'utf-8' }),
+    typeDefs: readFileSync('./schema.gql', { encoding: 'utf-8' }),
     resolvers,
   })
 
   await server.start()
   console.log('Apollo server started')
+  app.use(bodyParser.json())
+  app.use(
+    bodyParser.urlencoded({
+      extended: true,
+    }),
+  )
+
+  app.use(cors())
   app.use(jwtHandler)
   app.use(
     '/graphql',

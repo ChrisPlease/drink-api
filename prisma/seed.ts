@@ -4,16 +4,31 @@ const prisma = new PrismaClient()
 
 
 async function main() {
+  const userId = 'auth0|633cb40c15422d538368f4c6'
+  const userId2 = 'auth0|6341da849ae95d74a374a5e1'
+
+  const { id: waterId } = await prisma.drink.create({
+    data: {
+      name: 'Water',
+      icon: 'glass-water',
+      caffeine: 0,
+      coefficient: 1,
+      sugar: 0,
+    },
+  })
+
+  const { id: coffeeId } = await prisma.drink.create({
+    data: {
+      name: 'Coffee',
+      icon: 'mug-saucer',
+      caffeine: 12,
+      coefficient: 0.7,
+      sugar: 0,
+    },
+  })
 
   await prisma.drink.createMany({
     data: [
-      {
-        name: 'Water',
-        icon: 'glass-water',
-        caffeine: 0,
-        coefficient: 1,
-        sugar: 0,
-      },
       {
         name: 'Coffee',
         icon: 'mug-saucer',
@@ -144,26 +159,58 @@ async function main() {
 
   await prisma.user.createMany({
     data: [
-      { id: 'auth0|633cb40c15422d538368f4c6' },
-      { id: 'auth0|6341da849ae95d74a374a5e1' },
+      { id: userId },
+      { id: userId2 },
     ],
   })
 
-  await prisma.drink.create({
+  const { id } = await prisma.drink.create({
     data: {
       name: 'Seven & Seven',
       icon: 'whiskey-glass-ice',
-      userId: 'auth0|633cb40c15422d538368f4c6',
+      userId: userId,
       ingredients: {
-        create: [{
-          drinkId: sodaId,
-          parts: 4,
-        }, {
-          drinkId: whiskeyId,
-          parts: 1,
-        }],
+        create: [
+          { drinkId: sodaId, parts: 4 },
+          { drinkId: whiskeyId, parts: 1 },
+        ],
       },
     },
+  })
+
+  const [{ sugar, caffeine, coefficient }] = await prisma.$queryRaw<{ caffeine: string; sugar: string; coefficient: string }[]>`
+  SELECT
+    ROUND(SUM((i.parts::float/t.parts)*d.coefficient)::numeric, 2) AS coefficient,
+    ROUND(SUM((i.parts::float/t.parts)*d.caffeine)::numeric, 2) AS caffeine,
+    ROUND(SUM((i.parts::float/t.parts)*d.sugar)::numeric, 2) AS sugar
+  FROM _drink_ingredients di
+  INNER JOIN ingredients i ON di."B" = i.id
+  INNER JOIN drinks d ON i.drink_id = d.id
+  INNER JOIN (
+    SELECT di."A" AS drink_id,	SUM(i.parts) AS parts FROM ingredients i INNER JOIN _drink_ingredients di ON di."B" = i.id GROUP BY di."A"
+  ) t ON t.drink_id = di."A"
+  WHERE di."A" = ${id}::uuid`
+
+  await prisma.drink.update({
+    where: { id },
+    data: {
+      caffeine: +caffeine,
+      sugar: +sugar,
+      coefficient: +coefficient,
+    },
+  })
+
+  await prisma.entry.createMany({
+    data: [
+      { drinkId: sodaId, userId, volume: 12 },
+      { drinkId: sodaId, userId, volume: 12 },
+      { drinkId: whiskeyId, userId, volume: 1.5 },
+      { drinkId: whiskeyId, userId, volume: 1.5 },
+
+      { drinkId: waterId, userId: userId2, volume: 28 },
+      { drinkId: waterId, userId: userId2, volume: 32 },
+      { drinkId: coffeeId, userId: userId2, volume: 12 },
+    ],
   })
 }
 

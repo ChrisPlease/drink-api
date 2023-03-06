@@ -1,58 +1,17 @@
-import {
-  drinkResolver,
-  drinksResolver,
-  drinkCreateResolver,
-  drinkEditResolver,
-} from './drinks.resolver'
-import {
-  ingredientsResolver,
-} from './ingredients.resolver'
-import {
-  drinkEntriesResolver,
-  entriesResolver,
-  entryCreateResolver,
-  entryResolver,
-} from './entries.resolver'
-import {
-  userResolver,
-  usersResolver,
-  userCreateResolver,
-} from './users.resolver'
-import { DrinkResolvers, QueryResolvers, Resolvers } from '../__generated__/graphql'
+import { Resolvers } from '../__generated__/graphql'
+import { queryResolvers } from './query.resolver'
+import { mutationResolvers } from './mutation.resolver'
+import { drinkResolvers } from './drinks.resolver'
+import { ingredientResolvers } from './ingredients.resolver'
+import { entryResolvers } from './entries.resolver'
+import { historyResolvers } from './history.resolver'
 
 export const resolvers: Resolvers = {
-  Query: <QueryResolvers>{
-    // drink: drinkResolver,
-    // drinks: drinksResolver,
-    // ingredients: ingredientsResolver,
-    // drinkEntries: drinkEntriesResolver,
-    // entries: entriesResolver,
-    // entry: entryResolver,
-    // currentUser: userResolver,
-    // user: userResolver,
-    // users: usersResolver,
-  },
-  Drink: <DrinkResolvers>{
-    ingredients: ingredientsResolver,
-    entries: entriesResolver,
-  },
-  Mutation: {
-    drinkCreate: drinkCreateResolver,
-    drinkEdit: drinkEditResolver,
-    entryCreate: entryCreateResolver,
-    userCreate: userCreateResolver,
-  },
-  Ingredient: {
-    drink: drinkResolver,
-  },
-  Entry: {
-    user: userResolver,
-    drink: drinkResolver,
-    // logs: logsResolver,
-    // logHistory: logVolumeHistoryResolver,
-  },
-  User: {
-    drinks: drinksResolver,
-    entries: entriesResolver,
-  },
+  Query: queryResolvers,
+  Drink: drinkResolvers,
+  Ingredient: ingredientResolvers,
+  Entry: entryResolvers,
+  DrinkHistory: historyResolvers,
+
+  Mutation: mutationResolvers,
 }

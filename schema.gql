@@ -1,0 +1,77 @@
+scalar Date
+scalar Icon
+
+type Drink {
+  id: ID!
+  name: String!
+  icon: Icon!
+  coefficient: Float
+  caffeine: Float
+  sugar: Float
+  entries: [Entry]
+  ingredients: [Ingredient]
+  user: User
+}
+
+type Ingredient {
+  id: ID!
+  parts: Int!
+  drink: Drink
+}
+
+type Entry {
+  id: ID!
+  volume: Float!
+  caffeine: Float!
+  sugar: Float!
+  waterContent: Float!
+  user: User
+  drink: Drink
+  timestamp: Date!
+}
+
+type DrinkHistory {
+  count: Int!
+  totalVolume: Float!
+  waterVolume: Float!
+  lastEntry: Date
+  drink: Drink!
+}
+
+type User {
+  id: ID!
+}
+
+input IngredientInput {
+  drinkId: ID!
+  parts: Int!
+}
+
+input DrinkInput {
+  name: String!
+  icon: Icon!
+
+  servingSize: String
+  caffeine: String
+  sugar: String
+  coefficient: String
+
+  ingredients: [IngredientInput!]
+}
+
+type Query {
+  drink(drinkId: ID!): Drink
+  drinks(userId: ID): [Drink]
+  entries(drinkId: ID, distinct: Boolean): [Entry]
+  users: [User!]
+  currentUser: User
+  user(userId: ID!): User
+  drinkHistory(drinkId: ID!): DrinkHistory
+  drinksHistory: [DrinkHistory]
+}
+
+type Mutation {
+  entryCreate(volume: Float!, drinkId: ID!): Entry
+  drinkCreate(drinkInput: DrinkInput!): Drink
+  drinkDelete(drinkId: ID!): Drink
+}

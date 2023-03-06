@@ -1,19 +1,16 @@
 import { PrismaClient, Drink } from '@prisma/client'
-
-type DrinkInput = {
-  name: string,
-  icon: string,
-  userId: string,
-}
-
-type Ingredient = {
-  drinkId: string,
-  parts: number,
-}
+import { DrinkInput, IngredientInput } from '../__generated__/graphql'
 
 export function Drinks(prismaDrink: PrismaClient['drink'], client: PrismaClient) {
   return Object.assign(prismaDrink, {
-    async createWithIngredients(data: DrinkInput, ingredients: Ingredient[]): Promise<Drink> {
+    async createWithIngredients({
+      /* eslint-disable @typescript-eslint/no-unused-vars */
+      coefficient: _,
+      caffeine: __,
+      sugar: ___,
+      /* eslint-enable @typescript-eslint/no-unused-vars */
+      ...data
+    }: DrinkInput & { userId: string }, ingredients: IngredientInput[]): Promise<Drink> {
       const { id } = await prismaDrink.create({
         data: {
           ...data,
@@ -23,7 +20,7 @@ export function Drinks(prismaDrink: PrismaClient['drink'], client: PrismaClient)
         },
       })
 
-      const [nutrition] = await client.$queryRaw<{ caffeine: string; sugar: string; coefficient: string }[]>`
+      const [{ sugar, caffeine, coefficient }] = await client.$queryRaw<{ caffeine: string; sugar: string; coefficient: string }[]>`
       SELECT
         ROUND(SUM((i.parts::float/t.parts)*d.coefficient)::numeric, 2) AS coefficient,
         ROUND(SUM((i.parts::float/t.parts)*d.caffeine)::numeric, 2) AS caffeine,
@@ -39,9 +36,9 @@ export function Drinks(prismaDrink: PrismaClient['drink'], client: PrismaClient)
       return await prismaDrink.update({
         where: { id },
         data: {
-          caffeine: +nutrition.caffeine,
-          sugar: +nutrition.sugar,
-          coefficient: +nutrition.coefficient,
+          caffeine: +caffeine,
+          sugar: +sugar,
+          coefficient: +coefficient,
         },
       })
     },

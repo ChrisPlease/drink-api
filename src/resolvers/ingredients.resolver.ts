@@ -1,31 +1,10 @@
-import { GraphQLFieldResolver } from 'graphql'
-import { AppContext } from '../types/context'
 import { Drink } from '@prisma/client'
-import { Drinks } from '../models/Drink.model'
+import { IngredientResolvers } from '../__generated__/graphql'
 
-// const ingredientRepository = dataSource.getRepository(Ingredient)
+export const ingredientResolvers: IngredientResolvers = {
+  async drink(parent, _, { prisma }) {
+    const [drink] = <Drink[]>await prisma.$queryRaw`SELECT d.* FROM ingredients i INNER JOIN drinks d ON d.id = i.drink_id WHERE i.id = ${parent.id}::uuid`
 
-export const ingredientsResolver: GraphQLFieldResolver<Drink, AppContext, any, any> = async (
-  parent,
-  args,
-  { prisma },
-) => {
-  // let ingredients: Ingredient[] = []
-
-  return await prisma.drink.findUnique({ where: { id: parent.id } }).ingredients()
-  // if (parent.ingredients?.length) {
-  //   try {
-  //     console.log('trying')
-  //     ingredients = <Ingredient[]>await ingredientsLoader.load(parent?.id)
-  //   } catch {
-  //     console.log('catching')
-  //     ingredients = await ingredientRepository.find({
-  //       where: {
-  //         drink: { id: parent.id },
-  //       },
-  //     })
-  //   }
-  // }
-
-  // return ingredients
+    return drink
+  },
 }
