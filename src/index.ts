@@ -4,41 +4,36 @@ import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import cors from 'cors'
 import bodyParser from 'body-parser'
-import { dataSource } from './database/data-source'
 import { errorHandler } from './middleware/errorHandler'
-import { schema } from './schemas'
-import { GraphQLSchema } from 'graphql'
 import { resolvers } from './resolvers'
-import { drinksLoader } from './loaders/drinksLoader'
-import { ingredientsLoader } from './loaders/ingredientsLoader'
 import { AppContext } from './types/context'
 import { jwtHandler } from './middleware/jwtHandler'
-
-import 'reflect-metadata'
+import { PrismaClient } from '@prisma/client'
+import { readFileSync } from 'fs'
 
 const app: express.Application = express()
 
-app.use(bodyParser.json())
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  }),
-)
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'error'],
+})
 
-app.use(
-  cors({
-    origin: 'https://waterlog.test:8433',
-  }),
-)
 
-async function initServer(typeDefs: GraphQLSchema) {
+async function initServer() {
   const server = new ApolloServer<AppContext>({
-    typeDefs,
+    typeDefs: readFileSync('./schema.gql', { encoding: 'utf-8' }),
     resolvers,
   })
 
   await server.start()
   console.log('Apollo server started')
+  app.use(bodyParser.json())
+  app.use(
+    bodyParser.urlencoded({
+      extended: true,
+    }),
+  )
+
+  app.use(cors())
   app.use(jwtHandler)
   app.use(
     '/graphql',
@@ -47,11 +42,7 @@ async function initServer(typeDefs: GraphQLSchema) {
       context: async ({ req, res }) => ({
         req,
         res,
-        loaders: {
-          drinksLoader,
-          ingredientsLoader,
-          // logsLoader,
-        },
+        prisma,
       }),
     }),
     errorHandler,
@@ -59,25 +50,11 @@ async function initServer(typeDefs: GraphQLSchema) {
   app.use(errorHandler)
 }
 
-initServer(schema)
+initServer()
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the WaterLog API' })
 })
-
-dataSource.initialize()
-  .then(() => {
-    console.log('Data Source has been initialized successfully')
-  })
-  .catch((err) => {
-    console.error('Error during Data Source Init:', err)
-  })
-
-// sequelize.sync({ force: isDev })
-//   .then(async () => {
-//     console.log('Sync complete')
-//   })
-//   .catch(err => console.log(err))
 
 app.listen(process.env.PORT || 4040, () => {
   console.log(
