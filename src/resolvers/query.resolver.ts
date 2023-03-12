@@ -1,6 +1,6 @@
 import { QueryResolvers } from '../__generated__/graphql'
 import { Entries } from '../models/Entry.model'
-import { Drink } from '@prisma/client'
+import { Drink, Prisma } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
 
 export const queryResolvers: QueryResolvers = {
@@ -12,8 +12,12 @@ export const queryResolvers: QueryResolvers = {
     return drink
   },
 
-  async drinks(_, { userId }, { prisma, req: { auth } }) {
-    return await prisma.drink.findMany({
+  async drinks(_, { search, userId, cursor, limit }, { prisma, req: { auth } }) {
+    const args: Prisma.DrinkFindManyArgs = {
+      ...(cursor ? {
+        skip: 1,
+        cursor: { id: cursor },
+      } : {}),
       where: {
         ...(
           userId ? { userId } : {
@@ -23,19 +27,108 @@ export const queryResolvers: QueryResolvers = {
             ],
           }
         ),
+        ...(search ? { name: { contains: search, mode: 'insensitive' } } : {}),
       },
+      orderBy: {
+        id: 'asc',
+      },
+    }
+    const count = await prisma.drink.count(args as Prisma.DrinkCountArgs)
+    const res = await prisma.drink.findMany({
+      ...(limit ? { take: limit } : {}),
+      ...args,
     })
+
+    const lastId = res[res.length - 1]?.id
+
+    return {
+      edges: res.map(({ id, ...rest }) => ({ cursor: id, node: { ...rest, id }})),
+      pageInfo: {
+        hasNextPage: count > res.length,
+        endCursor: lastId,
+      },
+    }
   },
 
-  async entries(_, { drinkId, distinct }, { prisma, req: { auth } }) {
+  async entries(_, { cursor, limit, drinkId, distinct }, { prisma, req: { auth } }) {
+    const userId = <string>auth?.sub
     const entries = Entries(prisma.entry)
 
-    return await entries
-      .findWithNutrition(
-        auth?.sub,
-        <string>drinkId,
-        distinct === null ? undefined : distinct,
+    if (distinct) {
+      const { count, entries: rawEntries } = await entries.findAndCountDistinct(
+        prisma,
+        userId,
+        drinkId ? drinkId : undefined,
+        limit ? limit : undefined,
+        cursor ? cursor : undefined,
       )
+
+      console.log(limit, count)
+
+      return {
+        edges: rawEntries.map(({ id, ...item }) => ({ cursor: id, node: { id, ...item } })),
+        pageInfo: {
+          endCursor: rawEntries[rawEntries.length - 1].id,
+          hasNextPage: count > (limit ?? 0),
+        },
+      }
+    } else {
+      const args: Prisma.EntryFindManyArgs & Prisma.EntryCountArgs = {
+        ...(cursor ? {
+          skip: 1,
+          cursor: { id: cursor },
+        } : {}),
+        where: {
+          AND: [
+            { drinkId: <string>drinkId },
+            { userId },
+          ],
+        },
+      }
+
+      const count = await prisma.entry.count({
+        ...(cursor ? { skip: 1, cursor: { id: cursor } } : {}),
+        where: {
+          AND: [
+            { drinkId: <string>drinkId },
+            { userId: <string>userId },
+          ],
+        },
+        orderBy: [
+          { timestamp: 'desc' },
+          { userId: 'desc' },
+        ],
+      })
+
+      const foundEntries = await entries
+        .findWithNutrition({
+          include: {
+            drink: {
+              select: {
+                caffeine: true,
+                sugar: true,
+                coefficient: true,
+              },
+            },
+          },
+          ...(limit ? { take: limit } : {}),
+          orderBy: {
+            timestamp: 'desc',
+          },
+          ...args,
+        })
+
+      const lastId = foundEntries[foundEntries.length - 1].id
+      return {
+        edges: foundEntries
+          .map(({ id, ...rest }) => ({ cursor: id, node: { ...rest, id }})),
+        pageInfo: {
+          hasNextPage: count > foundEntries.length,
+          endCursor: lastId,
+        },
+      }
+    }
+
   },
 
   async drinkHistory(_, { drinkId }, { prisma, req: { auth } }) {

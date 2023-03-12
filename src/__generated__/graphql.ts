@@ -30,6 +30,12 @@ export type Drink = {
   user?: Maybe<User>;
 };
 
+export type DrinkEdge = {
+  __typename?: 'DrinkEdge';
+  cursor?: Maybe<Scalars['String']>;
+  node: Drink;
+};
+
 export type DrinkHistory = {
   __typename?: 'DrinkHistory';
   count: Scalars['Int'];
@@ -59,6 +65,12 @@ export type Entry = {
   user?: Maybe<User>;
   volume: Scalars['Float'];
   waterContent: Scalars['Float'];
+};
+
+export type EntryEdge = {
+  __typename?: 'EntryEdge';
+  cursor?: Maybe<Scalars['String']>;
+  node: Entry;
 };
 
 export type Ingredient = {
@@ -96,14 +108,36 @@ export type MutationEntryCreateArgs = {
   volume: Scalars['Float'];
 };
 
+export type PageInfo = {
+  __typename?: 'PageInfo';
+  endCursor?: Maybe<Scalars['String']>;
+  hasNextPage?: Maybe<Scalars['Boolean']>;
+};
+
+export type PaginatedDrinks = PaginatedQuery & {
+  __typename?: 'PaginatedDrinks';
+  edges: Array<DrinkEdge>;
+  pageInfo?: Maybe<PageInfo>;
+};
+
+export type PaginatedEntries = PaginatedQuery & {
+  __typename?: 'PaginatedEntries';
+  edges: Array<EntryEdge>;
+  pageInfo?: Maybe<PageInfo>;
+};
+
+export type PaginatedQuery = {
+  pageInfo?: Maybe<PageInfo>;
+};
+
 export type Query = {
   __typename?: 'Query';
   currentUser?: Maybe<User>;
   drink?: Maybe<Drink>;
   drinkHistory?: Maybe<DrinkHistory>;
-  drinks?: Maybe<Array<Maybe<Drink>>>;
+  drinks?: Maybe<PaginatedDrinks>;
   drinksHistory?: Maybe<Array<Maybe<DrinkHistory>>>;
-  entries?: Maybe<Array<Maybe<Entry>>>;
+  entries?: Maybe<PaginatedEntries>;
   user?: Maybe<User>;
   users?: Maybe<Array<User>>;
 };
@@ -120,13 +154,18 @@ export type QueryDrinkHistoryArgs = {
 
 
 export type QueryDrinksArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
+  limit?: InputMaybe<Scalars['Int']>;
+  search?: InputMaybe<Scalars['String']>;
   userId?: InputMaybe<Scalars['ID']>;
 };
 
 
 export type QueryEntriesArgs = {
+  cursor?: InputMaybe<Scalars['String']>;
   distinct?: InputMaybe<Scalars['Boolean']>;
   drinkId?: InputMaybe<Scalars['ID']>;
+  limit?: InputMaybe<Scalars['Int']>;
 };
 
 
@@ -212,9 +251,11 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Drink: ResolverTypeWrapper<Drink>;
+  DrinkEdge: ResolverTypeWrapper<DrinkEdge>;
   DrinkHistory: ResolverTypeWrapper<DrinkHistory>;
   DrinkInput: DrinkInput;
   Entry: ResolverTypeWrapper<Entry>;
+  EntryEdge: ResolverTypeWrapper<EntryEdge>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Icon: ResolverTypeWrapper<Scalars['Icon']>;
@@ -222,6 +263,10 @@ export type ResolversTypes = ResolversObject<{
   IngredientInput: IngredientInput;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
+  PageInfo: ResolverTypeWrapper<PageInfo>;
+  PaginatedDrinks: ResolverTypeWrapper<PaginatedDrinks>;
+  PaginatedEntries: ResolverTypeWrapper<PaginatedEntries>;
+  PaginatedQuery: ResolversTypes['PaginatedDrinks'] | ResolversTypes['PaginatedEntries'];
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
   User: ResolverTypeWrapper<User>;
@@ -232,9 +277,11 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
   Date: Scalars['Date'];
   Drink: Drink;
+  DrinkEdge: DrinkEdge;
   DrinkHistory: DrinkHistory;
   DrinkInput: DrinkInput;
   Entry: Entry;
+  EntryEdge: EntryEdge;
   Float: Scalars['Float'];
   ID: Scalars['ID'];
   Icon: Scalars['Icon'];
@@ -242,6 +289,10 @@ export type ResolversParentTypes = ResolversObject<{
   IngredientInput: IngredientInput;
   Int: Scalars['Int'];
   Mutation: {};
+  PageInfo: PageInfo;
+  PaginatedDrinks: PaginatedDrinks;
+  PaginatedEntries: PaginatedEntries;
+  PaginatedQuery: ResolversParentTypes['PaginatedDrinks'] | ResolversParentTypes['PaginatedEntries'];
   Query: {};
   String: Scalars['String'];
   User: User;
@@ -261,6 +312,12 @@ export type DrinkResolvers<ContextType = AppContext, ParentType extends Resolver
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DrinkEdgeResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['DrinkEdge'] = ResolversParentTypes['DrinkEdge']> = ResolversObject<{
+  cursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Drink'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -285,6 +342,12 @@ export type EntryResolvers<ContextType = AppContext, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type EntryEdgeResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['EntryEdge'] = ResolversParentTypes['EntryEdge']> = ResolversObject<{
+  cursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['Entry'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface IconScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Icon'], any> {
   name: 'Icon';
 }
@@ -302,13 +365,36 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   entryCreate?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryCreateArgs, 'drinkId' | 'volume'>>;
 }>;
 
+export type PageInfoResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
+  endCursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasNextPage?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PaginatedDrinksResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['PaginatedDrinks'] = ResolversParentTypes['PaginatedDrinks']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['DrinkEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<Maybe<ResolversTypes['PageInfo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PaginatedEntriesResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['PaginatedEntries'] = ResolversParentTypes['PaginatedEntries']> = ResolversObject<{
+  edges?: Resolver<Array<ResolversTypes['EntryEdge']>, ParentType, ContextType>;
+  pageInfo?: Resolver<Maybe<ResolversTypes['PageInfo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PaginatedQueryResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['PaginatedQuery'] = ResolversParentTypes['PaginatedQuery']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'PaginatedDrinks' | 'PaginatedEntries', ParentType, ContextType>;
+  pageInfo?: Resolver<Maybe<ResolversTypes['PageInfo']>, ParentType, ContextType>;
+}>;
+
 export type QueryResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   currentUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   drink?: Resolver<Maybe<ResolversTypes['Drink']>, ParentType, ContextType, RequireFields<QueryDrinkArgs, 'drinkId'>>;
   drinkHistory?: Resolver<Maybe<ResolversTypes['DrinkHistory']>, ParentType, ContextType, RequireFields<QueryDrinkHistoryArgs, 'drinkId'>>;
-  drinks?: Resolver<Maybe<Array<Maybe<ResolversTypes['Drink']>>>, ParentType, ContextType, Partial<QueryDrinksArgs>>;
+  drinks?: Resolver<Maybe<ResolversTypes['PaginatedDrinks']>, ParentType, ContextType, Partial<QueryDrinksArgs>>;
   drinksHistory?: Resolver<Maybe<Array<Maybe<ResolversTypes['DrinkHistory']>>>, ParentType, ContextType>;
-  entries?: Resolver<Maybe<Array<Maybe<ResolversTypes['Entry']>>>, ParentType, ContextType, Partial<QueryEntriesArgs>>;
+  entries?: Resolver<Maybe<ResolversTypes['PaginatedEntries']>, ParentType, ContextType, Partial<QueryEntriesArgs>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'userId'>>;
   users?: Resolver<Maybe<Array<ResolversTypes['User']>>, ParentType, ContextType>;
 }>;
@@ -321,11 +407,17 @@ export type UserResolvers<ContextType = AppContext, ParentType extends Resolvers
 export type Resolvers<ContextType = AppContext> = ResolversObject<{
   Date?: GraphQLScalarType;
   Drink?: DrinkResolvers<ContextType>;
+  DrinkEdge?: DrinkEdgeResolvers<ContextType>;
   DrinkHistory?: DrinkHistoryResolvers<ContextType>;
   Entry?: EntryResolvers<ContextType>;
+  EntryEdge?: EntryEdgeResolvers<ContextType>;
   Icon?: GraphQLScalarType;
   Ingredient?: IngredientResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  PageInfo?: PageInfoResolvers<ContextType>;
+  PaginatedDrinks?: PaginatedDrinksResolvers<ContextType>;
+  PaginatedEntries?: PaginatedEntriesResolvers<ContextType>;
+  PaginatedQuery?: PaginatedQueryResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 }>;
