@@ -59,10 +59,39 @@ input DrinkInput {
   ingredients: [IngredientInput!]
 }
 
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean
+}
+
+interface PaginatedQuery {
+  pageInfo: PageInfo
+}
+
+type DrinkEdge {
+  node: Drink!
+  cursor: String
+}
+
+type PaginatedDrinks implements PaginatedQuery {
+  edges: [DrinkEdge!]!
+  pageInfo: PageInfo
+}
+
+type EntryEdge {
+  node: Entry!
+  cursor: String
+}
+
+type PaginatedEntries implements PaginatedQuery {
+  edges: [EntryEdge!]!
+  pageInfo: PageInfo
+}
+
 type Query {
   drink(drinkId: ID!): Drink
-  drinks(userId: ID): [Drink]
-  entries(drinkId: ID, distinct: Boolean): [Entry]
+  drinks(search: String, cursor: String, limit: Int, userId: ID): PaginatedDrinks
+  entries(distinct: Boolean, cursor: String, limit: Int, drinkId: ID): PaginatedEntries
   users: [User!]
   currentUser: User
   user(userId: ID!): User

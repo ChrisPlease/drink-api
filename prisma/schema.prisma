@@ -52,6 +52,7 @@ model Entry {
   userId    String    @map("user_id") @db.VarChar
   user      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  @@unique([timestamp, userId])
   @@map("entries")
 }
 
