@@ -12,7 +12,7 @@ scalar Icon
 """
 Drink Interface for all drinks
 """
-interface DrinkInterface {
+interface Drink {
   id: ID!
   name: String!
   icon: Icon!
@@ -26,8 +26,7 @@ interface DrinkInterface {
 """
 Base Drink used for all drinks
 """
-# eslint-disable-next-line @graphql-eslint/no-unreachable-types
-type BaseDrink implements DrinkInterface {
+type BaseDrink implements Drink {
   id: ID!
   name: String!
   icon: Icon!
@@ -41,8 +40,7 @@ type BaseDrink implements DrinkInterface {
 """
 Mixed Drink when drink has ingredients
 """
-# eslint-disable-next-line @graphql-eslint/no-unreachable-types
-type MixedDrink implements DrinkInterface {
+type MixedDrink implements Drink {
   id: ID!
   name: String!
   icon: Icon!
@@ -57,7 +55,7 @@ type MixedDrink implements DrinkInterface {
 """
 Union of Mixed and Base Drinks
 """
-union Drink = BaseDrink | MixedDrink
+union DrinkResult = BaseDrink | MixedDrink
 
 """
 Base Ingredient used in Drink type
@@ -78,7 +76,7 @@ type Entry {
   sugar: Float!
   waterContent: Float!
   user: User
-  drink: Drink
+  drink: DrinkResult
   timestamp: Date!
 }
 
@@ -91,7 +89,7 @@ type DrinkHistory {
   totalVolume: Float!
   waterVolume: Float!
   lastEntry: Date
-  drink: Drink!
+  drink: DrinkResult!
 }
 
 """
@@ -143,7 +141,7 @@ interface PaginatedQuery {
 Edge for Paginated Drinks
 """
 type DrinkEdge {
-  node: Drink!
+  node: DrinkResult!
   cursor: String
 }
 
@@ -175,9 +173,19 @@ type EntriesPaginated implements PaginatedQuery {
 Root Queries
 """
 type Query {
-  drink(drinkId: ID!): Drink
-  drinks(search: String, cursor: String, limit: Int, userId: ID): DrinksPaginated
-  entries(distinct: Boolean, cursor: String, limit: Int, drinkId: ID): EntriesPaginated
+  drink(drinkId: ID!): DrinkResult
+  drinks(
+    search: String,
+    cursor: String,
+    limit: Int,
+    userId: ID
+  ): DrinksPaginated
+  entries(
+    distinct: Boolean,
+    cursor: String,
+    limit: Int,
+    drinkId: ID
+  ): EntriesPaginated
   users: [User!]
   currentUser: User
   user(userId: ID!): User
@@ -190,6 +198,6 @@ Root Mutations
 """
 type Mutation {
   entryCreate(volume: Float!, drinkId: ID!): Entry
-  drinkCreate(drinkInput: DrinkInput!): Drink
-  drinkDelete(drinkId: ID!): Drink
+  drinkCreate(drinkInput: DrinkInput!): DrinkResult
+  drinkDelete(drinkId: ID!): DrinkResult
 }
