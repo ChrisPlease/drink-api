@@ -205,5 +205,18 @@ export const queryResolvers: QueryResolvers = {
       ...entry
     }) => ({ waterVolume, totalVolume, lastEntry,...entry }))
   },
+
+  async me(parent, args, { prisma, req }) {
+    const userId = <string>req.auth?.sub
+    return await prisma.user.findUnique({ where: { id: userId }})
+  },
+
+  async user(parent, { userId }, { prisma }) {
+    return await prisma.user.findUnique({ where: { id: userId } })
+  },
+
+  async users(parent, args, { prisma }) {
+    return await prisma.user.findMany()
+  },
 }
 
