@@ -9,29 +9,9 @@
     "subscriptionType": null,
     "types": [
       {
-        "kind": "SCALAR",
-        "name": "Boolean",
-        "description": "The `Boolean` scalar type represents `true` or `false`.",
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "SCALAR",
-        "name": "Date",
-        "description": null,
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
         "kind": "OBJECT",
-        "name": "Drink",
-        "description": null,
+        "name": "BaseDrink",
+        "description": "Base Drink used for all drinks",
         "fields": [
           {
             "name": "caffeine",
@@ -65,9 +45,13 @@
               "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "Entry",
-                "ofType": null
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Entry",
+                  "ofType": null
+                }
               }
             },
             "isDeprecated": false,
@@ -106,15 +90,152 @@
             "deprecationReason": null
           },
           {
-            "name": "ingredients",
+            "name": "name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sugar",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "user",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "Drink",
+            "ofType": null
+          }
+        ],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
+        "name": "Boolean",
+        "description": "The `Boolean` scalar type represents `true` or `false`.",
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
+        "name": "Date",
+        "description": "Date scalar used for JS Date",
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INTERFACE",
+        "name": "Drink",
+        "description": "Drink Interface for all drinks",
+        "fields": [
+          {
+            "name": "caffeine",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "coefficient",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "entries",
             "description": null,
             "args": [],
             "type": {
               "kind": "LIST",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "Ingredient",
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Entry",
+                  "ofType": null
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "icon",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Icon",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
                 "ofType": null
               }
             },
@@ -165,12 +286,23 @@
         "inputFields": null,
         "interfaces": [],
         "enumValues": null,
-        "possibleTypes": null
+        "possibleTypes": [
+          {
+            "kind": "OBJECT",
+            "name": "BaseDrink",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "MixedDrink",
+            "ofType": null
+          }
+        ]
       },
       {
         "kind": "OBJECT",
         "name": "DrinkEdge",
-        "description": null,
+        "description": "Edge for Paginated Drinks",
         "fields": [
           {
             "name": "cursor",
@@ -192,8 +324,8 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "Drink",
+                "kind": "UNION",
+                "name": "DrinkResult",
                 "ofType": null
               }
             },
@@ -209,7 +341,7 @@
       {
         "kind": "OBJECT",
         "name": "DrinkHistory",
-        "description": null,
+        "description": "Drink History to retreive summary of drink entries",
         "fields": [
           {
             "name": "count",
@@ -235,8 +367,8 @@
               "kind": "NON_NULL",
               "name": null,
               "ofType": {
-                "kind": "OBJECT",
-                "name": "Drink",
+                "kind": "UNION",
+                "name": "DrinkResult",
                 "ofType": null
               }
             },
@@ -296,7 +428,7 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "DrinkInput",
-        "description": null,
+        "description": "Input for Drink type",
         "fields": null,
         "inputFields": [
           {
@@ -405,9 +537,136 @@
         "possibleTypes": null
       },
       {
+        "kind": "UNION",
+        "name": "DrinkResult",
+        "description": "Union of Mixed and Base Drinks",
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": [
+          {
+            "kind": "OBJECT",
+            "name": "BaseDrink",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "MixedDrink",
+            "ofType": null
+          }
+        ]
+      },
+      {
+        "kind": "OBJECT",
+        "name": "DrinksPaginated",
+        "description": "Paginated list of drinks",
+        "fields": [
+          {
+            "name": "edges",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "DrinkEdge",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pageInfo",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "PageInfo",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "PaginatedQuery",
+            "ofType": null
+          }
+        ],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "EntriesPaginated",
+        "description": "Paginated list of entries",
+        "fields": [
+          {
+            "name": "edges",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "EntryEdge",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "pageInfo",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "PageInfo",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "PaginatedQuery",
+            "ofType": null
+          }
+        ],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "Entry",
-        "description": null,
+        "description": "Base Entry for logged drinks",
         "fields": [
           {
             "name": "caffeine",
@@ -430,8 +689,8 @@
             "description": null,
             "args": [],
             "type": {
-              "kind": "OBJECT",
-              "name": "Drink",
+              "kind": "UNION",
+              "name": "DrinkResult",
               "ofType": null
             },
             "isDeprecated": false,
@@ -538,7 +797,7 @@
       {
         "kind": "OBJECT",
         "name": "EntryEdge",
-        "description": null,
+        "description": "Edge for Paginated Entries",
         "fields": [
           {
             "name": "cursor",
@@ -597,7 +856,7 @@
       {
         "kind": "SCALAR",
         "name": "Icon",
-        "description": null,
+        "description": "Icon scalar mapped to FontAwesome `IconName` type",
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -607,14 +866,14 @@
       {
         "kind": "OBJECT",
         "name": "Ingredient",
-        "description": null,
+        "description": "Base Ingredient used in Drink type",
         "fields": [
           {
             "name": "drink",
             "description": null,
             "args": [],
             "type": {
-              "kind": "OBJECT",
+              "kind": "INTERFACE",
               "name": "Drink",
               "ofType": null
             },
@@ -662,7 +921,7 @@
       {
         "kind": "INPUT_OBJECT",
         "name": "IngredientInput",
-        "description": null,
+        "description": "Input for Ingredient type",
         "fields": null,
         "inputFields": [
           {
@@ -714,8 +973,165 @@
       },
       {
         "kind": "OBJECT",
+        "name": "MixedDrink",
+        "description": "Mixed Drink when drink has ingredients",
+        "fields": [
+          {
+            "name": "caffeine",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "coefficient",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "entries",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Entry",
+                  "ofType": null
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "icon",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Icon",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "id",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "ingredients",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "Ingredient",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sugar",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "user",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "OBJECT",
+              "name": "User",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "Drink",
+            "ofType": null
+          }
+        ],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
         "name": "Mutation",
-        "description": null,
+        "description": "Root Mutations",
         "fields": [
           {
             "name": "drinkCreate",
@@ -739,8 +1155,8 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "Drink",
+              "kind": "UNION",
+              "name": "DrinkResult",
               "ofType": null
             },
             "isDeprecated": false,
@@ -768,8 +1184,8 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "Drink",
+              "kind": "UNION",
+              "name": "DrinkResult",
               "ofType": null
             },
             "isDeprecated": false,
@@ -829,7 +1245,7 @@
       {
         "kind": "OBJECT",
         "name": "PageInfo",
-        "description": null,
+        "description": "Pagination List metadata",
         "fields": [
           {
             "name": "endCursor",
@@ -862,115 +1278,9 @@
         "possibleTypes": null
       },
       {
-        "kind": "OBJECT",
-        "name": "PaginatedDrinks",
-        "description": null,
-        "fields": [
-          {
-            "name": "edges",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "DrinkEdge",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "pageInfo",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "PageInfo",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [
-          {
-            "kind": "INTERFACE",
-            "name": "PaginatedQuery",
-            "ofType": null
-          }
-        ],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "PaginatedEntries",
-        "description": null,
-        "fields": [
-          {
-            "name": "edges",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "LIST",
-                "name": null,
-                "ofType": {
-                  "kind": "NON_NULL",
-                  "name": null,
-                  "ofType": {
-                    "kind": "OBJECT",
-                    "name": "EntryEdge",
-                    "ofType": null
-                  }
-                }
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "pageInfo",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "PageInfo",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [
-          {
-            "kind": "INTERFACE",
-            "name": "PaginatedQuery",
-            "ofType": null
-          }
-        ],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
         "kind": "INTERFACE",
         "name": "PaginatedQuery",
-        "description": null,
+        "description": "Interface for paginated queries",
         "fields": [
           {
             "name": "pageInfo",
@@ -991,12 +1301,12 @@
         "possibleTypes": [
           {
             "kind": "OBJECT",
-            "name": "PaginatedDrinks",
+            "name": "DrinksPaginated",
             "ofType": null
           },
           {
             "kind": "OBJECT",
-            "name": "PaginatedEntries",
+            "name": "EntriesPaginated",
             "ofType": null
           }
         ]
@@ -1004,7 +1314,7 @@
       {
         "kind": "OBJECT",
         "name": "Query",
-        "description": null,
+        "description": "Root Queries",
         "fields": [
           {
             "name": "currentUser",
@@ -1040,8 +1350,8 @@
               }
             ],
             "type": {
-              "kind": "OBJECT",
-              "name": "Drink",
+              "kind": "UNION",
+              "name": "DrinkResult",
               "ofType": null
             },
             "isDeprecated": false,
@@ -1131,7 +1441,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "PaginatedDrinks",
+              "name": "DrinksPaginated",
               "ofType": null
             },
             "isDeprecated": false,
@@ -1208,7 +1518,7 @@
             ],
             "type": {
               "kind": "OBJECT",
-              "name": "PaginatedEntries",
+              "name": "EntriesPaginated",
               "ofType": null
             },
             "isDeprecated": false,
@@ -1282,7 +1592,7 @@
       {
         "kind": "OBJECT",
         "name": "User",
-        "description": null,
+        "description": "Base user type",
         "fields": [
           {
             "name": "id",
