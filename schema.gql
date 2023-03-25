@@ -1,24 +1,76 @@
+"""
+Date scalar used for JS Date
+"""
 scalar Date
+
+"""
+Icon scalar mapped to FontAwesome `IconName` type
+"""
 scalar Icon
 
-type Drink {
+
+"""
+Drink Interface for all drinks
+"""
+interface DrinkInterface {
   id: ID!
   name: String!
   icon: Icon!
   coefficient: Float
   caffeine: Float
   sugar: Float
-  entries: [Entry]
-  ingredients: [Ingredient]
+  entries: [Entry!]
   user: User
 }
 
+"""
+Base Drink used for all drinks
+"""
+# eslint-disable-next-line @graphql-eslint/no-unreachable-types
+type BaseDrink implements DrinkInterface {
+  id: ID!
+  name: String!
+  icon: Icon!
+  coefficient: Float
+  caffeine: Float
+  sugar: Float
+  entries: [Entry!]
+  user: User
+}
+
+"""
+Mixed Drink when drink has ingredients
+"""
+# eslint-disable-next-line @graphql-eslint/no-unreachable-types
+type MixedDrink implements DrinkInterface {
+  id: ID!
+  name: String!
+  icon: Icon!
+  coefficient: Float
+  caffeine: Float
+  sugar: Float
+  entries: [Entry!]
+  user: User
+  ingredients: [Ingredient!]!
+}
+
+"""
+Union of Mixed and Base Drinks
+"""
+union Drink = BaseDrink | MixedDrink
+
+"""
+Base Ingredient used in Drink type
+"""
 type Ingredient {
   id: ID!
   parts: Int!
   drink: Drink
 }
 
+"""
+Base Entry for logged drinks
+"""
 type Entry {
   id: ID!
   volume: Float!
@@ -30,6 +82,10 @@ type Entry {
   timestamp: Date!
 }
 
+"""
+Drink History to retreive summary of drink entries
+"""
+# eslint-disable-next-line
 type DrinkHistory {
   count: Int!
   totalVolume: Float!
@@ -38,15 +94,24 @@ type DrinkHistory {
   drink: Drink!
 }
 
+"""
+Base user type
+"""
 type User {
   id: ID!
 }
 
+"""
+Input for Ingredient type
+"""
 input IngredientInput {
   drinkId: ID!
   parts: Int!
 }
 
+"""
+Input for Drink type
+"""
 input DrinkInput {
   name: String!
   icon: Icon!
@@ -59,39 +124,60 @@ input DrinkInput {
   ingredients: [IngredientInput!]
 }
 
+"""
+Pagination List metadata
+"""
 type PageInfo {
   endCursor: String
   hasNextPage: Boolean
 }
 
+"""
+Interface for paginated queries
+"""
 interface PaginatedQuery {
   pageInfo: PageInfo
 }
 
+"""
+Edge for Paginated Drinks
+"""
 type DrinkEdge {
   node: Drink!
   cursor: String
 }
 
-type PaginatedDrinks implements PaginatedQuery {
+"""
+Paginated list of drinks
+"""
+type DrinksPaginated implements PaginatedQuery {
   edges: [DrinkEdge!]!
   pageInfo: PageInfo
 }
 
+"""
+Edge for Paginated Entries
+"""
 type EntryEdge {
   node: Entry!
   cursor: String
 }
 
-type PaginatedEntries implements PaginatedQuery {
+"""
+Paginated list of entries
+"""
+type EntriesPaginated implements PaginatedQuery {
   edges: [EntryEdge!]!
   pageInfo: PageInfo
 }
 
+"""
+Root Queries
+"""
 type Query {
   drink(drinkId: ID!): Drink
-  drinks(search: String, cursor: String, limit: Int, userId: ID): PaginatedDrinks
-  entries(distinct: Boolean, cursor: String, limit: Int, drinkId: ID): PaginatedEntries
+  drinks(search: String, cursor: String, limit: Int, userId: ID): DrinksPaginated
+  entries(distinct: Boolean, cursor: String, limit: Int, drinkId: ID): EntriesPaginated
   users: [User!]
   currentUser: User
   user(userId: ID!): User
@@ -99,6 +185,9 @@ type Query {
   drinksHistory: [DrinkHistory]
 }
 
+"""
+Root Mutations
+"""
 type Mutation {
   entryCreate(volume: Float!, drinkId: ID!): Entry
   drinkCreate(drinkInput: DrinkInput!): Drink
