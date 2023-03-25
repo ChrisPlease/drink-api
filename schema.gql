@@ -63,7 +63,7 @@ Base Ingredient used in Drink type
 type Ingredient {
   id: ID!
   parts: Int!
-  drink: Drink
+  drink: DrinkResult
 }
 
 """
@@ -173,6 +173,7 @@ type EntriesPaginated implements PaginatedQuery {
 Root Queries
 """
 type Query {
+  """ Get a drink by id """
   drink(drinkId: ID!): DrinkResult
   drinks(
     search: String,
@@ -187,7 +188,7 @@ type Query {
     drinkId: ID
   ): EntriesPaginated
   users: [User!]
-  currentUser: User
+  me: User
   user(userId: ID!): User
   drinkHistory(drinkId: ID!): DrinkHistory
   drinksHistory: [DrinkHistory]
