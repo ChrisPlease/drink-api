@@ -1,10 +1,22 @@
 import { Drink } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
-import { DrinkResolvers } from '../__generated__/graphql'
+import { BaseDrinkResolvers, DrinkResolvers, DrinkResultResolvers, MixedDrinkResolvers } from '../__generated__/graphql'
+
+export const drinkResultResolvers: DrinkResultResolvers = {
+  async __resolveType(parent, { prisma }) {
+    const ingredients = await prisma.drink.findUnique({
+      where: { id: parent.id },
+    }).ingredients()
+    return ingredients?.length ? 'MixedDrink' : 'BaseDrink'
+  },
+
+}
 
 export const drinkResolvers: DrinkResolvers = {
+  ...drinkResultResolvers,
 
   async entries(parent, args, { prisma, req: { auth } }) {
+    console.log('fooooooo')
     const entries = await prisma.drink.findUnique({
       where: { id: parent.id },
     }).entries({
@@ -44,18 +56,26 @@ export const drinkResolvers: DrinkResolvers = {
     }) || []
   },
 
-  async ingredients(parent, args, { prisma }) {
-    const ingredients = await prisma.drink.findUnique({
-      where: { id: parent.id },
-    }).ingredients()
-
-    return ingredients
-  },
-
   async user(parent, args, { prisma }) {
     return await prisma.drink.findUnique({
       where: { id: parent.id },
     }).user()
   },
 
+}
+
+export const baseDrinkResolvers: BaseDrinkResolvers = {
+  ...drinkResolvers,
+}
+
+export const mixedDrinkResolvers: MixedDrinkResolvers = {
+  ...drinkResolvers,
+
+  async ingredients(parent, args, { prisma }) {
+    const ingredients = await prisma.drink.findUnique({
+      where: { id: parent.id },
+    }).ingredients()
+
+    return ingredients || []
+  },
 }
