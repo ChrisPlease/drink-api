@@ -20,7 +20,6 @@ export const queryResolvers: QueryResolvers = {
       search,
       sort,
       userId,
-      // cursor,
       first,
       last,
       before,
@@ -29,9 +28,12 @@ export const queryResolvers: QueryResolvers = {
     const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
       sort ? sort : { name: 'asc' }
     )
-    const sortKey = <keyof Drink>Object.keys(orderBy)[0]
+    const sortKey = <keyof Prisma.DrinkOrderByWithRelationInput>Object.keys(orderBy)[0]
+    const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(sortKey === 'createdAt'
+      ? sortKey
+      : 'id_name')
 
-    const { orderBy: orderByArg, ...args }: Prisma.DrinkFindManyArgs = {
+    const { orderBy: orderByArg, ...baseArgs } = {
       where: {
         ...(
           userId ? { userId } : {
@@ -41,48 +43,27 @@ export const queryResolvers: QueryResolvers = {
             ],
           }
         ),
-        ...(search ? { name: { contains: search, mode: 'insensitive' } } : {}),
+        ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
       },
       orderBy,
     }
 
-    return await findManyCursorConnection<Drink, { [x: string]: string }>(
-      (args) => prisma.drink.findMany({ ...args, orderBy: orderByArg }),
-      () => prisma.drink.count(args as Prisma.DrinkCountArgs),
+    return await findManyCursorConnection<Drink, Prisma.DrinkWhereUniqueInput>(
+      (args) => prisma.drink.findMany({ ...args, orderBy: orderByArg, ...baseArgs }),
+      () => prisma.drink.count(baseArgs),
       { first, last, after, before },
       {
-        getCursor: (record) => ({ [sortKey]: record[sortKey]?.toString() || '' }),
-        encodeCursor(cursor) {
-            return toCursorHash(cursor?.[sortKey].toString() || '')
+        getCursor: (record) => {
+          const key = cursorKey in record ? [cursorKey] : cursorKey.split('_')
+
+          return cursorKey in record
+            ? { [cursorKey]: record[cursorKey as keyof Drink] }
+            : { [cursorKey]: key.reduce((acc, item) => ({ ...acc, [item]: record?.[item as keyof Drink] }), {}) }
         },
-        decodeCursor(cursorString) {
-            return { [sortKey]: fromCursorHash(cursorString) }
-        },
+        encodeCursor: (cursor) => toCursorHash(JSON.stringify(cursor[cursorKey])),
+        decodeCursor: (cursorString) => ({ [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }),
       },
     )
-
-    // const res = await prisma.drink.findMany({
-    //     ...args,
-    //   })
-    //   .then(drinks => drinks.map((node) => ({
-    //     cursor: toCursorHash(node[sortKey]?.toString() || ''),
-    //     node,
-    //   })))
-
-    // const startCursorIndex = res.findIndex(({ cursor: itemCursor }) => itemCursor === cursor)
-    // const endCursorIndex = limit ? (limit + startCursorIndex + 1) : undefined
-    // const slicedResult = res.slice(startCursorIndex + 1, endCursorIndex)
-
-
-    // return {
-    //   edges: slicedResult,
-    //   pageInfo: {
-    //     hasPreviousPage: startCursorIndex > 0,
-    //     hasNextPage: (endCursorIndex || res.length) <= res.length - 1,
-    //     startCursor: slicedResult[0].cursor,
-    //     endCursor: slicedResult[slicedResult.length - 1].cursor,
-    //   },
-    // }
   },
 
   async entries(_, { cursor, limit, drinkId, distinct }, { prisma, req: { auth } }) {

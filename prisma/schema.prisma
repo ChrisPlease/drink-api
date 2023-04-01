@@ -30,6 +30,7 @@ model Drink {
   @@index(name)
   @@index(createdAt)
   @@index([id,userId])
+  @@unique([id,name])
   @@unique([id,userId])
   @@unique([name,userId])
   @@map("drinks")
