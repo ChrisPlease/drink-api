@@ -10,6 +10,22 @@ scalar Icon
 
 
 """
+Sort Enum
+"""
+enum Sort {
+  ASC
+  DESC
+}
+
+"""
+Sorting input for Drinks
+"""
+input DrinkSort {
+  name: Sort
+  createdAt: Sort
+}
+
+"""
 Drink Interface for all drinks
 """
 interface Drink {
@@ -21,6 +37,7 @@ interface Drink {
   sugar: Float
   entries: [Entry!]
   user: User
+  createdAt: Date!
 }
 
 """
@@ -35,6 +52,7 @@ type BaseDrink implements Drink {
   sugar: Float
   entries: [Entry!]
   user: User
+  createdAt: Date!
 }
 
 """
@@ -50,6 +68,7 @@ type MixedDrink implements Drink {
   entries: [Entry!]
   user: User
   ingredients: [Ingredient!]!
+  createdAt: Date!
 }
 
 """
@@ -126,8 +145,10 @@ input DrinkInput {
 Pagination List metadata
 """
 type PageInfo {
+  startCursor: String
   endCursor: String
   hasNextPage: Boolean
+  hasPreviousPage: Boolean
 }
 
 """
@@ -170,15 +191,34 @@ type EntriesPaginated implements PaginatedQuery {
 }
 
 """
+Edge for Paginated Drink History
+"""
+type DrinkHistoryEdge {
+  node: DrinkHistory!
+  cursor: String!
+}
+
+"""
+Paginated Drinks History list
+"""
+type DrinksHistoryPaginated implements PaginatedQuery {
+  edges: [DrinkHistoryEdge!]!
+  pageInfo: PageInfo
+}
+
+"""
 Root Queries
 """
 type Query {
   """ Get a drink by id """
   drink(drinkId: ID!): DrinkResult
   drinks(
+    sort: DrinkSort,
     search: String,
-    cursor: String,
-    limit: Int,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int,
     userId: ID
   ): DrinksPaginated
   entries(
@@ -191,7 +231,10 @@ type Query {
   me: User
   user(userId: ID!): User
   drinkHistory(drinkId: ID!): DrinkHistory
-  drinksHistory: [DrinkHistory]
+  drinksHistory(
+    cursor: String,
+    limit: Int,
+  ): DrinksHistoryPaginated
 }
 
 """
