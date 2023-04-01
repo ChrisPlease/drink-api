@@ -20,6 +20,9 @@ export const resolvers: Resolvers = {
   Ingredient: ingredientResolvers,
   Entry: entryResolvers,
   DrinkHistory: historyResolvers,
-
+  Sort: {
+    ASC: 'asc',
+    DESC: 'desc',
+  },
   Mutation: mutationResolvers,
 }

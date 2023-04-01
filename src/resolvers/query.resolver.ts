@@ -2,6 +2,8 @@ import { QueryResolvers } from '../__generated__/graphql'
 import { Entries } from '../models/Entry.model'
 import { Drink, Prisma } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
+import { toCursorHash, fromCursorHash } from '../utils/cursorHash'
 
 export const queryResolvers: QueryResolvers = {
 
@@ -12,12 +14,24 @@ export const queryResolvers: QueryResolvers = {
     return drink
   },
 
-  async drinks(_, { search, userId, cursor, limit }, { prisma, req: { auth } }) {
-    const args: Prisma.DrinkFindManyArgs = {
-      ...(cursor ? {
-        skip: 1,
-        cursor: { id: cursor },
-      } : {}),
+  async drinks(
+    _,
+    {
+      search,
+      sort,
+      userId,
+      // cursor,
+      first,
+      last,
+      before,
+      after,
+    }, { prisma, req: { auth } }) {
+    const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
+      sort ? sort : { name: 'asc' }
+    )
+    const sortKey = <keyof Drink>Object.keys(orderBy)[0]
+
+    const { orderBy: orderByArg, ...args }: Prisma.DrinkFindManyArgs = {
       where: {
         ...(
           userId ? { userId } : {
@@ -29,28 +43,50 @@ export const queryResolvers: QueryResolvers = {
         ),
         ...(search ? { name: { contains: search, mode: 'insensitive' } } : {}),
       },
-      orderBy: {
-        id: 'asc',
-      },
+      orderBy,
     }
-    const count = await prisma.drink.count(args as Prisma.DrinkCountArgs)
-    const res = await prisma.drink.findMany({
-      ...(limit ? { take: limit } : {}),
-      ...args,
-    })
 
-    const lastId = res[res.length - 1]?.id
-
-    return {
-      edges: res.map(({ id, ...rest }) => ({ cursor: id, node: { ...rest, id }})),
-      pageInfo: {
-        hasNextPage: count > res.length,
-        endCursor: lastId,
+    return await findManyCursorConnection<Drink, { [x: string]: string }>(
+      (args) => prisma.drink.findMany({ ...args, orderBy: orderByArg }),
+      () => prisma.drink.count(args as Prisma.DrinkCountArgs),
+      { first, last, after, before },
+      {
+        getCursor: (record) => ({ [sortKey]: record[sortKey]?.toString() || '' }),
+        encodeCursor(cursor) {
+            return toCursorHash(cursor?.[sortKey].toString() || '')
+        },
+        decodeCursor(cursorString) {
+            return { [sortKey]: fromCursorHash(cursorString) }
+        },
       },
-    }
+    )
+
+    // const res = await prisma.drink.findMany({
+    //     ...args,
+    //   })
+    //   .then(drinks => drinks.map((node) => ({
+    //     cursor: toCursorHash(node[sortKey]?.toString() || ''),
+    //     node,
+    //   })))
+
+    // const startCursorIndex = res.findIndex(({ cursor: itemCursor }) => itemCursor === cursor)
+    // const endCursorIndex = limit ? (limit + startCursorIndex + 1) : undefined
+    // const slicedResult = res.slice(startCursorIndex + 1, endCursorIndex)
+
+
+    // return {
+    //   edges: slicedResult,
+    //   pageInfo: {
+    //     hasPreviousPage: startCursorIndex > 0,
+    //     hasNextPage: (endCursorIndex || res.length) <= res.length - 1,
+    //     startCursor: slicedResult[0].cursor,
+    //     endCursor: slicedResult[slicedResult.length - 1].cursor,
+    //   },
+    // }
   },
 
   async entries(_, { cursor, limit, drinkId, distinct }, { prisma, req: { auth } }) {
+    console.log(distinct)
     const userId = <string>auth?.sub
     const entries = Entries(prisma.entry)
 
@@ -62,8 +98,6 @@ export const queryResolvers: QueryResolvers = {
         limit ? limit : undefined,
         cursor ? cursor : undefined,
       )
-
-      console.log(limit, count)
 
       return {
         edges: rawEntries.map(({ id, ...item }) => ({ cursor: id, node: { id, ...item } })),
@@ -161,10 +195,11 @@ export const queryResolvers: QueryResolvers = {
     }
   },
 
-  async drinksHistory(_, __, { prisma, req: { auth } }) {
+  async drinksHistory(_, { limit, cursor }, { prisma, req: { auth } }) {
     const userId = <string>auth?.sub
 
     type RawEntry = {
+      id: string,
       drink: Drink,
       count: number,
       total_volume: number,
@@ -174,10 +209,7 @@ export const queryResolvers: QueryResolvers = {
 
     const entries = <RawEntry[]>await prisma.$queryRaw`
     SELECT
-      json_build_object(
-        'id', d.id,
-        'coefficient', d.coefficient
-      ) AS drink,
+      row_to_json(d) AS drink,
       e.count,
       e.water_volume,
       e.total_volume,
@@ -198,12 +230,29 @@ export const queryResolvers: QueryResolvers = {
       ELSE 0
     END, e.last_entry desc;`
 
-    return entries.map(({
-      water_volume: waterVolume,
-      total_volume: totalVolume,
-      last_entry: lastEntry,
-      ...entry
-    }) => ({ waterVolume, totalVolume, lastEntry,...entry }))
+    return {
+      edges: entries.map(({
+          water_volume: waterVolume,
+          total_volume: totalVolume,
+          last_entry: lastEntry,
+          drink: { id, ...drink },
+          ...entry
+        }) => ({
+          node: {
+            waterVolume,
+            totalVolume,
+            lastEntry,
+            drink: { id, ...drink },
+            ...entry,
+          },
+          cursor: id,
+          }),
+        ),
+      pageInfo: {
+        endCursor: '123',
+        hasNextPage: false,
+      },
+    }
   },
 
   async me(parent, args, { prisma, req }) {
