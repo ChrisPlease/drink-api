@@ -10,6 +10,7 @@ generates:
       contextType: "../types/context#AppContext"
       mappers:
         Drink: .prisma/client#Drink as DrinkModel
+        Entry: .prisma/client#Entry as EntryModel
       inputMaybeValue: undefined | T
   ./graphql.schema.json:
     plugins:
