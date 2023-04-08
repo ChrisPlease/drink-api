@@ -13,16 +13,21 @@ import { historyResolvers } from './history.resolver'
 
 export const resolvers: Resolvers = {
   Query: queryResolvers,
+
   Drink: drinkResolvers,
   BaseDrink: baseDrinkResolvers,
   MixedDrink: mixedDrinkResolvers,
   DrinkResult: drinkResultResolvers,
-  Ingredient: ingredientResolvers,
-  Entry: entryResolvers,
   DrinkHistory: historyResolvers,
+
+  Ingredient: ingredientResolvers,
+
+  Entry: entryResolvers,
+
   Sort: {
     ASC: 'asc',
     DESC: 'desc',
   },
+
   Mutation: mutationResolvers,
 }
