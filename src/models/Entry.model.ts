@@ -1,6 +1,8 @@
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient, Entry } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
-import { Entry } from '../__generated__/graphql'
+import { ConnectionArguments, findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
+import { toCursorHash, fromCursorHash } from '../utils/cursorHash'
+import { QueryEntriesArgs } from '../__generated__/graphql'
 
 type Nutrition = {
   caffeine: number,
@@ -21,10 +23,9 @@ interface RawEntry {
 }
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
-
   return Object.assign(prismaEntry, {
     async findWithNutrition(
-      args: Prisma.EntryFindManyArgs): Promise<Entry[]> {
+      args: Prisma.EntryFindManyArgs): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number })[]> {
       const entries = await prismaEntry.findMany({
         ...args,
         include: {
@@ -52,51 +53,89 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       })
     },
 
-    async findAndCountDistinct(
+    async findManyPaginated(
       client: PrismaClient,
+      { sort, drinkId, distinct }: QueryEntriesArgs,
+      { first, last, before, after }: ConnectionArguments,
       userId: string,
-      drinkId?: string,
-      limit?: number,
-      cursor?: string,
-    ): Promise<{ count: number; entries: RawEntry[] }> {
+    ) {
+      console.log('here')
+      const orderBy = <Prisma.EntryOrderByWithRelationInput>(
+        sort
+          ? Object.keys(sort)[0] === 'drink'
+            ? { drink: { name: sort.drink } } : sort
+          : { drink: { name: 'desc' } }
+      )
 
-      const rawEntries = await client.$queryRaw<RawEntry[]>`
-            WITH cte AS (
-        SELECT ROW_NUMBER() OVER (ORDER BY timestamp DESC) row_idx,
-          *
-        FROM (
-            SELECT
-              DISTINCT ON (volume)
-              *
-            FROM entries WHERE user_id = ${userId} ${
+      const sortKey = Object.keys(orderBy)[0]
+      let cursorKey = sortKey
+
+      switch (sortKey) {
+        case 'volume':
+          cursorKey += '_id'
+          break
+        case 'drink':
+          cursorKey += 'Id_id'
+          break
+        default:
+          break
+      }
+
+      const { orderBy: orderByArg, ...baseArgs }: Prisma.EntryFindManyArgs = {
+        where: {
+          AND: [
+            { drinkId: <string>drinkId },
+            { userId },
+          ],
+        },
+        orderBy,
+      }
+
+      if (distinct) {
+        baseArgs.distinct = 'volume'
+      }
+      return await findManyCursorConnection<Entry, Prisma.EntryWhereUniqueInput>(
+        (args) => this.findWithNutrition({
+          ...args,
+          orderBy: orderByArg,
+          ...baseArgs,
+        }),
+        async () => {
+          let count = 0
+          if (distinct) {
+            ([{ count }] = await client.$queryRaw<{ count: number }[]>`
+            SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${userId} ${
               drinkId ? Prisma.sql`AND drink_id = ${drinkId}::uuid` : Prisma.empty
-            } ORDER BY volume,timestamp DESC
-          ) e ORDER BY timestamp DESC
-        )
-
-        SELECT
-          c.id,
-          c.volume,
-          ROUND((d.sugar*c.volume)::numeric, 2) sugar,
-          ROUND((d.coefficient*c.volume)::numeric,2) "waterContent",
-          ROUND((d.caffeine*c.volume)::numeric,2) caffeine,
-          c.timestamp,
-          c.drink_id,
-          c.user_id
-        FROM cte c
-        LEFT JOIN drinks d ON d.id = c.drink_id
-        ${
-          cursor
-            ? Prisma.sql`INNER JOIN cte c2 ON c2.id = ${cursor}::uuid AND c.row_idx > c2.row_idx`
-            : Prisma.empty
-        }
-        ORDER BY c.row_idx
-        `
-
-        return {
-          count: rawEntries.length,
-          entries: limit ? rawEntries.slice(0, limit) : rawEntries,
-        }
+            }
+            `)
+          } else {
+            count = await prismaEntry.count(
+              { ...baseArgs } as Omit<Prisma.EntryFindManyArgs, 'select' | 'include'>,
+            )
+          }
+          return count
+        },
+        { first, last, before, after },
+        {
+          getCursor(record) {
+            const key = cursorKey in record ? [cursorKey] : cursorKey.split('_')
+            return cursorKey in record
+              ? { [cursorKey]: record[cursorKey as keyof Entry] }
+              : {
+                [cursorKey]: key
+                  .reduce(
+                    (acc, item) => ({ ...acc, [item]: record?.[item as keyof Entry] }), {},
+                  ),
+                }
+          },
+          encodeCursor: (cursor) => toCursorHash(
+            JSON.stringify(cursor[cursorKey as keyof Prisma.EntryWhereUniqueInput]),
+          ),
+          decodeCursor: (cursorString) => (
+            { [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }
+          ),
+        },
+      )
     },
   })
 }

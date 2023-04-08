@@ -85,6 +85,16 @@ type Ingredient {
   drink: DrinkResult
 }
 
+
+"""
+Sorting input for Entries
+"""
+input EntrySort {
+  timestamp: Sort
+  drink: Sort
+  volume: Sort
+}
+
 """
 Base Entry for logged drinks
 """
@@ -102,12 +112,22 @@ type Entry {
 """
 Drink History to retreive summary of drink entries
 """
-# eslint-disable-next-line
 type DrinkHistory {
+  id: ID!
   count: Int!
   totalVolume: Float!
   waterVolume: Float!
   lastEntry: Date
+  entries(
+    sort: EntrySort,
+    distinct: Boolean,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int,
+    limit: Int,
+    drinkId: ID
+  ): EntriesPaginated
   drink: DrinkResult!
 }
 
@@ -222,8 +242,12 @@ type Query {
     userId: ID
   ): DrinksPaginated
   entries(
+    sort: EntrySort,
     distinct: Boolean,
-    cursor: String,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int,
     limit: Int,
     drinkId: ID
   ): EntriesPaginated
@@ -232,8 +256,10 @@ type Query {
   user(userId: ID!): User
   drinkHistory(drinkId: ID!): DrinkHistory
   drinksHistory(
-    cursor: String,
-    limit: Int,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
   ): DrinksHistoryPaginated
 }
 
