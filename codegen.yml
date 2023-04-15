@@ -8,6 +8,13 @@ generates:
     config:
       useIndexSignature: true
       contextType: "../types/context#AppContext"
+      mappers:
+        Drink: .prisma/client#Drink as DrinkModel
+        BaseDrink: .prisma/client#Drink as BaseDrinkModel
+        MixedDrink: .prisma/client#Drink as MixedDrinkModel
+        Entry: .prisma/client#Entry as EntryModel
+        DrinkHistory: ../types/models#DrinkHistory as DrinkHistoryModel
+      inputMaybeValue: undefined | T
   ./graphql.schema.json:
     plugins:
       - "introspection"
