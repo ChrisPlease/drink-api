@@ -18,6 +18,13 @@ enum Sort {
 }
 
 """
+Node interface for Paginated Queries
+"""
+interface Node {
+  id: ID!
+}
+
+"""
 Sorting input for Drinks
 """
 input DrinkSort {
@@ -28,7 +35,7 @@ input DrinkSort {
 """
 Drink Interface for all drinks
 """
-interface Drink {
+interface Drink implements Node {
   id: ID!
   name: String!
   icon: Icon!
@@ -43,7 +50,7 @@ interface Drink {
 """
 Base Drink used for all drinks
 """
-type BaseDrink implements Drink {
+type BaseDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
@@ -58,7 +65,7 @@ type BaseDrink implements Drink {
 """
 Mixed Drink when drink has ingredients
 """
-type MixedDrink implements Drink {
+type MixedDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
@@ -98,7 +105,7 @@ input EntrySort {
 """
 Base Entry for logged drinks
 """
-type Entry {
+type Entry implements Node {
   id: ID!
   volume: Float!
   caffeine: Float!
@@ -112,7 +119,7 @@ type Entry {
 """
 Drink History to retreive summary of drink entries
 """
-type DrinkHistory {
+type DrinkHistory implements Node {
   id: ID!
   count: Int!
   totalVolume: Float!
@@ -230,6 +237,7 @@ type DrinksHistoryPaginated implements PaginatedQuery {
 Root Queries
 """
 type Query {
+  node(id: ID!): Node
   """ Get a drink by id """
   drink(drinkId: ID!): DrinkResult
   drinks(

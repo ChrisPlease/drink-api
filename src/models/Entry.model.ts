@@ -10,22 +10,34 @@ type Nutrition = {
   sugar: number,
 }
 
-interface RawEntry {
-  caffeine: number;
-  volume: number;
-  id: string;
-  waterContent: number;
-  sugar: number;
-  timestamp: Date;
-  drink_id: string;
-  user_id: string;
-
-}
-
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
+    async findUniqueWithNutrition(
+      args: Prisma.EntryFindUniqueArgs,
+    ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number }) | undefined> {
+      const entry = await prismaEntry.findUnique({
+        ...args,
+        include: {
+          drink: { select: { caffeine: true, sugar: true, coefficient: true } },
+        },
+      })
+
+      const drink = entry?.drink
+
+      const nutrition: Nutrition = {
+        caffeine: roundNumber((drink?.caffeine ?? 0) * (entry?.volume ?? 0)),
+        sugar: roundNumber((drink?.sugar ?? 0) * (entry?.volume ?? 0)),
+        waterContent: roundNumber((drink?.coefficient ?? 0) * (entry?.volume ?? 0)),
+      }
+
+      return entry ? {
+        ...entry,
+        ...nutrition,
+      } : undefined
+    },
     async findWithNutrition(
-      args: Prisma.EntryFindManyArgs): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number })[]> {
+      args: Prisma.EntryFindManyArgs,
+    ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number })[]> {
       const entries = await prismaEntry.findMany({
         ...args,
         include: {
@@ -39,7 +51,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         },
       })
 
-      return entries.map(({ drink, ...entry }) => {
+      return entries.map(({ id, drink, ...entry }) => {
         const nutrition: Nutrition = {
           caffeine: roundNumber((drink?.caffeine ?? 0) * entry.volume),
           sugar: roundNumber((drink?.sugar ?? 0) * entry.volume),
@@ -47,6 +59,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         }
 
         return {
+          id: toCursorHash(`Entry:${id}`),
           ...nutrition,
           ...entry,
         }
@@ -59,7 +72,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       { first, last, before, after }: ConnectionArguments,
       userId: string,
     ) {
-      console.log('here')
       const orderBy = <Prisma.EntryOrderByWithRelationInput>(
         sort
           ? Object.keys(sort)[0] === 'drink'
