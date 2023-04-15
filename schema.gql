@@ -10,9 +10,32 @@ scalar Icon
 
 
 """
+Sort Enum
+"""
+enum Sort {
+  ASC
+  DESC
+}
+
+"""
+Node interface for Paginated Queries
+"""
+interface Node {
+  id: ID!
+}
+
+"""
+Sorting input for Drinks
+"""
+input DrinkSort {
+  name: Sort
+  createdAt: Sort
+}
+
+"""
 Drink Interface for all drinks
 """
-interface Drink {
+interface Drink implements Node {
   id: ID!
   name: String!
   icon: Icon!
@@ -21,12 +44,13 @@ interface Drink {
   sugar: Float
   entries: [Entry!]
   user: User
+  createdAt: Date!
 }
 
 """
 Base Drink used for all drinks
 """
-type BaseDrink implements Drink {
+type BaseDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
@@ -35,12 +59,13 @@ type BaseDrink implements Drink {
   sugar: Float
   entries: [Entry!]
   user: User
+  createdAt: Date!
 }
 
 """
 Mixed Drink when drink has ingredients
 """
-type MixedDrink implements Drink {
+type MixedDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
@@ -50,6 +75,7 @@ type MixedDrink implements Drink {
   entries: [Entry!]
   user: User
   ingredients: [Ingredient!]!
+  createdAt: Date!
 }
 
 """
@@ -66,10 +92,20 @@ type Ingredient {
   drink: DrinkResult
 }
 
+
+"""
+Sorting input for Entries
+"""
+input EntrySort {
+  timestamp: Sort
+  drink: Sort
+  volume: Sort
+}
+
 """
 Base Entry for logged drinks
 """
-type Entry {
+type Entry implements Node {
   id: ID!
   volume: Float!
   caffeine: Float!
@@ -83,12 +119,22 @@ type Entry {
 """
 Drink History to retreive summary of drink entries
 """
-# eslint-disable-next-line
-type DrinkHistory {
+type DrinkHistory implements Node {
+  id: ID!
   count: Int!
   totalVolume: Float!
   waterVolume: Float!
   lastEntry: Date
+  entries(
+    sort: EntrySort,
+    distinct: Boolean,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int,
+    limit: Int,
+    drinkId: ID
+  ): EntriesPaginated
   drink: DrinkResult!
 }
 
@@ -126,8 +172,10 @@ input DrinkInput {
 Pagination List metadata
 """
 type PageInfo {
+  startCursor: String
   endCursor: String
   hasNextPage: Boolean
+  hasPreviousPage: Boolean
 }
 
 """
@@ -170,20 +218,44 @@ type EntriesPaginated implements PaginatedQuery {
 }
 
 """
+Edge for Paginated Drink History
+"""
+type DrinkHistoryEdge {
+  node: DrinkHistory!
+  cursor: String!
+}
+
+"""
+Paginated Drinks History list
+"""
+type DrinksHistoryPaginated implements PaginatedQuery {
+  edges: [DrinkHistoryEdge!]!
+  pageInfo: PageInfo
+}
+
+"""
 Root Queries
 """
 type Query {
+  node(id: ID!): Node
   """ Get a drink by id """
   drink(drinkId: ID!): DrinkResult
   drinks(
+    sort: DrinkSort,
     search: String,
-    cursor: String,
-    limit: Int,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int,
     userId: ID
   ): DrinksPaginated
   entries(
+    sort: EntrySort,
     distinct: Boolean,
-    cursor: String,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int,
     limit: Int,
     drinkId: ID
   ): EntriesPaginated
@@ -191,7 +263,12 @@ type Query {
   me: User
   user(userId: ID!): User
   drinkHistory(drinkId: ID!): DrinkHistory
-  drinksHistory: [DrinkHistory]
+  drinksHistory(
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
+  ): DrinksHistoryPaginated
 }
 
 """
