@@ -60,19 +60,6 @@ export const queryResolvers: QueryResolvers = {
       sort ? sort : { name: 'asc' }
     )
 
-    console.log(after, fromCursorHash(after || ''))
-
-    // const { before, after } = {
-    //   before: beforeArg ? fromCursorHash(beforeArg).split(':')?.[1] : null,
-    //   after: afterArg ? fromCursorHash(afterArg).split(':')?.[1] : null,
-    // }
-
-    // console.log('before', before)
-    // console.log('after', after)
-    // console.log('afterArg', afterArg)
-    // console.log('cursorHash', fromCursorHash(afterArg || ''))
-    // console.log('after', after, afterArg, fromCursorHash(afterArg || ''))
-
     const sortKey = <keyof Prisma.DrinkOrderByWithRelationInput>Object.keys(orderBy)[0]
     const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(sortKey === 'createdAt'
       ? sortKey

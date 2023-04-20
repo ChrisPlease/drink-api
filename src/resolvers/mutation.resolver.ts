@@ -8,7 +8,6 @@ export const mutationResolvers: MutationResolvers = {
     const userId = <string>auth?.sub
     const [,id] = fromCursorHash(drinkId).split(':')
 
-    console.log(id)
     const {
       id: entryId,
       drink: { caffeine, sugar, coefficient },
