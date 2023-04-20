@@ -1,18 +1,22 @@
 import { roundNumber } from '../utils/roundNumber'
 import { Drinks } from '../models/Drink.model'
 import { MutationResolvers } from '../__generated__/graphql'
+import { fromCursorHash, toCursorHash } from '../utils/cursorHash'
 
 export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, { volume, drinkId }, { prisma, req: { auth } }) {
     const userId = <string>auth?.sub
+    const [,id] = fromCursorHash(drinkId).split(':')
 
+    console.log(id)
     const {
+      id: entryId,
       drink: { caffeine, sugar, coefficient },
       ...entry
     } = await prisma.entry.create({
       data: {
         volume,
-        drinkId,
+        drinkId: id,
         userId,
       },
       include: {
@@ -33,6 +37,7 @@ export const mutationResolvers: MutationResolvers = {
     }
 
     return {
+      id: toCursorHash(`Entry:${entryId}`),
       ...nutrition,
       ...entry,
     }

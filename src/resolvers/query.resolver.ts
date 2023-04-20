@@ -59,6 +59,20 @@ export const queryResolvers: QueryResolvers = {
     const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
       sort ? sort : { name: 'asc' }
     )
+
+    console.log(after, fromCursorHash(after || ''))
+
+    // const { before, after } = {
+    //   before: beforeArg ? fromCursorHash(beforeArg).split(':')?.[1] : null,
+    //   after: afterArg ? fromCursorHash(afterArg).split(':')?.[1] : null,
+    // }
+
+    // console.log('before', before)
+    // console.log('after', after)
+    // console.log('afterArg', afterArg)
+    // console.log('cursorHash', fromCursorHash(afterArg || ''))
+    // console.log('after', after, afterArg, fromCursorHash(afterArg || ''))
+
     const sortKey = <keyof Prisma.DrinkOrderByWithRelationInput>Object.keys(orderBy)[0]
     const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(sortKey === 'createdAt'
       ? sortKey
@@ -103,10 +117,28 @@ export const queryResolvers: QueryResolvers = {
 
           return cursorKey in record
             ? { [cursorKey]: record[cursorKey as keyof Drink] }
-            : { [cursorKey]: key.reduce((acc, item) => ({ ...acc, [item]: record?.[item as keyof Drink] }), {}) }
+            : { [cursorKey]: key.reduce(
+              (acc, item) => ({
+                ...acc,
+                [item]: record?.[item as keyof Drink],
+              }), {}) }
         },
-        encodeCursor: (cursor) => toCursorHash(JSON.stringify(cursor[cursorKey])),
-        decodeCursor: (cursorString) => ({ [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }),
+        encodeCursor: (cursor) => {
+          const dehashedCursor = Object.entries(cursor[cursorKey] as Record<string, any>)
+            .reduce((acc, [key, val]) => {
+              if (key === 'id') {
+                acc[key] = fromCursorHash(val).split(':')[1]
+              } else {
+                acc[key] = val
+              }
+              return acc
+            }, {} as Record<string, any>)
+
+          return toCursorHash(JSON.stringify(dehashedCursor))
+        },
+        decodeCursor: (cursorString) => {
+          return { [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }
+        },
       },
     )
   },
