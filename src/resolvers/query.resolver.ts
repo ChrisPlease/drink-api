@@ -59,6 +59,7 @@ export const queryResolvers: QueryResolvers = {
     const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
       sort ? sort : { name: 'asc' }
     )
+
     const sortKey = <keyof Prisma.DrinkOrderByWithRelationInput>Object.keys(orderBy)[0]
     const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(sortKey === 'createdAt'
       ? sortKey
@@ -103,10 +104,28 @@ export const queryResolvers: QueryResolvers = {
 
           return cursorKey in record
             ? { [cursorKey]: record[cursorKey as keyof Drink] }
-            : { [cursorKey]: key.reduce((acc, item) => ({ ...acc, [item]: record?.[item as keyof Drink] }), {}) }
+            : { [cursorKey]: key.reduce(
+              (acc, item) => ({
+                ...acc,
+                [item]: record?.[item as keyof Drink],
+              }), {}) }
         },
-        encodeCursor: (cursor) => toCursorHash(JSON.stringify(cursor[cursorKey])),
-        decodeCursor: (cursorString) => ({ [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }),
+        encodeCursor: (cursor) => {
+          const dehashedCursor = Object.entries(cursor[cursorKey] as Record<string, any>)
+            .reduce((acc, [key, val]) => {
+              if (key === 'id') {
+                acc[key] = fromCursorHash(val).split(':')[1]
+              } else {
+                acc[key] = val
+              }
+              return acc
+            }, {} as Record<string, any>)
+
+          return toCursorHash(JSON.stringify(dehashedCursor))
+        },
+        decodeCursor: (cursorString) => {
+          return { [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }
+        },
       },
     )
   },
