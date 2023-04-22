@@ -21,7 +21,7 @@ export const queryResolvers: QueryResolvers = {
       case 'DrinkResult':
       case 'MixedDrink':
       case 'BaseDrink':
-        res = <Drink>await Drinks(prisma.drink, prisma).findUnique({ where: { id } })
+        res = <Drink>await Drinks(prisma.drink).findUnique({ where: { id } })
         break
       case 'DrinkHistory':
         res = <DrinkHistory>await DrinkHistoryModel(prisma).findDrinkHistory({ drinkId: id, userId })
@@ -112,14 +112,12 @@ export const queryResolvers: QueryResolvers = {
         },
         encodeCursor: (cursor) => {
           const dehashedCursor = Object.entries(cursor[cursorKey] as Record<string, any>)
-            .reduce((acc, [key, val]) => {
-              if (key === 'id') {
-                acc[key] = fromCursorHash(val).split(':')[1]
-              } else {
-                acc[key] = val
-              }
-              return acc
-            }, {} as Record<string, any>)
+            .reduce((acc, [key, val]) => ({
+              [key]: key === 'id'
+                ? fromCursorHash(val).split(':')[1]
+                : val,
+              ...acc,
+            }), {} as Record<string, any>)
 
           return toCursorHash(JSON.stringify(dehashedCursor))
         },
@@ -195,7 +193,7 @@ export const queryResolvers: QueryResolvers = {
 
     type RawEntry = {
       id: string,
-      drink: Drink,
+      drink: Drink & { ingredients: number },
       count: number,
       total_volume: number,
       water_volume: number,
@@ -205,6 +203,7 @@ export const queryResolvers: QueryResolvers = {
     return await findManyCursorConnection(
       async (args) => {
         const { take, cursor } = args
+        const id = fromCursorHash(cursor?.id || '').split(':')[1]
         return prisma.$queryRaw<RawEntry[]>`
         WITH cte AS (
           SELECT
@@ -217,7 +216,15 @@ export const queryResolvers: QueryResolvers = {
             e.water_volume,
             e.total_volume,
             e.last_entry
-          FROM drinks d
+          FROM (
+            SELECT
+              d1.*,
+              COUNT(i1) AS ingredients
+            FROM drinks d1
+            LEFT JOIN _drink_ingredients di ON d1.id = di."A"
+            LEFT JOIN ingredients i1 ON i1.id = di."B"
+            GROUP BY d1.id
+          ) d
           LEFT JOIN (
             SELECT
               d.id AS drink_id,
@@ -237,18 +244,17 @@ export const queryResolvers: QueryResolvers = {
             c.water_volume,
             c.total_volume,
             c.last_entry
-          FROM cte c
-          ORDER BY CASE WHEN c.last_entry IS NULL THEN 1 ELSE 0 END, c.last_entry DESC ${cursor
-            ? Prisma.sql`INNER JOIN cte AS c2 ON (c2.id = ${cursor.id}::uuid AND c.row_idx > c2.row_idx)`
+          FROM cte c ${cursor
+            ? Prisma.sql`INNER JOIN cte AS c2 ON (c2.id = ${id}::uuid AND c.row_idx > c2.row_idx)`
             : Prisma.empty
-          } ${
+          } ORDER BY CASE WHEN c.last_entry IS NULL THEN 1 ELSE 0 END, c.last_entry DESC  ${
             take ? Prisma.sql`LIMIT ${take}` : Prisma.empty
           };`
         .then(query => query.map(({
           water_volume: waterVolume,
           total_volume: totalVolume,
           last_entry: lastEntry,
-          drink: { id: drinkId, ...drink },
+          drink: { id: drinkId, ingredients, ...drink },
           id,
           ...entry
         }) => ({
@@ -256,7 +262,7 @@ export const queryResolvers: QueryResolvers = {
           waterVolume,
           totalVolume,
           lastEntry,
-          drink: { id: toCursorHash(`DrinkResult:${drinkId}`), ...drink },
+          drink: { id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drinkId}`), ...drink },
           ...entry,
         })))
       },

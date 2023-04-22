@@ -19,7 +19,11 @@ export function DrinkHistory(client: PrismaClient) {
       })
 
 
-      const { id, _count: { ingredients }, ...drink } = <Drink & any>await client.drink.findUnique({
+      const {
+        id,
+        _count: { ingredients },
+        ...drink
+      } = <Drink & { _count: { ingredients: number } }>await client.drink.findUnique({
         where: { id: drinkId },
         include: {
           _count: { select: { ingredients: true } },

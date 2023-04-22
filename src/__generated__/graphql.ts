@@ -93,6 +93,7 @@ export type DrinkInput = {
   caffeine?: InputMaybe<Scalars['String']>;
   coefficient?: InputMaybe<Scalars['String']>;
   icon: Scalars['Icon'];
+  id?: InputMaybe<Scalars['ID']>;
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name: Scalars['String'];
   servingSize?: InputMaybe<Scalars['String']>;
@@ -190,6 +191,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   drinkCreate?: Maybe<DrinkResult>;
   drinkDelete?: Maybe<DrinkResult>;
+  drinkEdit?: Maybe<DrinkResult>;
   entryCreate?: Maybe<Entry>;
 };
 
@@ -203,6 +205,12 @@ export type MutationDrinkCreateArgs = {
 /** Root Mutations */
 export type MutationDrinkDeleteArgs = {
   drinkId: Scalars['ID'];
+};
+
+
+/** Root Mutations */
+export type MutationDrinkEditArgs = {
+  drinkInput: DrinkInput;
 };
 
 
@@ -574,6 +582,7 @@ export type MixedDrinkResolvers<ContextType = AppContext, ParentType extends Res
 export type MutationResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   drinkCreate?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType, RequireFields<MutationDrinkCreateArgs, 'drinkInput'>>;
   drinkDelete?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType, RequireFields<MutationDrinkDeleteArgs, 'drinkId'>>;
+  drinkEdit?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType, RequireFields<MutationDrinkEditArgs, 'drinkInput'>>;
   entryCreate?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryCreateArgs, 'drinkId' | 'volume'>>;
 }>;
 

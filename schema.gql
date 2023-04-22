@@ -157,6 +157,8 @@ input IngredientInput {
 Input for Drink type
 """
 input DrinkInput {
+  id: ID
+
   name: String!
   icon: Icon!
 
@@ -278,4 +280,5 @@ type Mutation {
   entryCreate(volume: Float!, drinkId: ID!): Entry
   drinkCreate(drinkInput: DrinkInput!): DrinkResult
   drinkDelete(drinkId: ID!): DrinkResult
+  drinkEdit(drinkInput: DrinkInput!): DrinkResult
 }

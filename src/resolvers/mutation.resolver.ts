@@ -2,6 +2,7 @@ import { roundNumber } from '../utils/roundNumber'
 import { Drinks } from '../models/Drink.model'
 import { MutationResolvers } from '../__generated__/graphql'
 import { fromCursorHash, toCursorHash } from '../utils/cursorHash'
+import { ModelType } from '../types/models'
 
 export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, { volume, drinkId }, { prisma, req: { auth } }) {
@@ -43,8 +44,10 @@ export const mutationResolvers: MutationResolvers = {
   },
 
   async drinkCreate(_, { drinkInput }, { prisma, req: { auth } }) {
-    const drink = Drinks(prisma.drink, prisma)
+    const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
+
+    if (drinkInput.id) throw new Error('ID was provided')
 
     const {
       caffeine,
@@ -58,6 +61,7 @@ export const mutationResolvers: MutationResolvers = {
       return await drink.createWithIngredients(
         { userId, ...rest },
         ingredients,
+        prisma,
       )
     }
 
@@ -68,10 +72,35 @@ export const mutationResolvers: MutationResolvers = {
     }
 
     return await drink.create({ data: { ...rest, ...nutrition, userId }})
+      .then(({ id, ...rest }) => ({
+        id: toCursorHash(`BaseDrink:${id}`),
+        ...rest,
+      }))
   },
 
   async drinkDelete(_, { drinkId }, { prisma, req: { auth } }) {
     const userId = <string>auth?.sub
-    return await prisma.drink.delete({ where: { id_userId: { id: drinkId, userId } } })
+    return await prisma.drink
+      .delete({ where: { id_userId: { id: fromCursorHash(drinkId).split(':')[1], userId } } })
+      /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+      .then(({ id, ...rest }) => ({
+        id: drinkId,
+        ...rest,
+      }))
+  },
+
+  async drinkEdit(_, { drinkInput }, { prisma, req: { auth } }) {
+    const userId = <string>auth?.sub
+
+    if (!drinkInput.id) throw new Error('Drink ID required')
+
+    const [type,id] = fromCursorHash(drinkInput.id).split(':') as [ModelType,string]
+
+    const drink = Drinks(prisma.drink)
+
+    if (type === 'MixedDrink') {
+      console.log('is mixed drink')
+    }
+    return null
   },
 }

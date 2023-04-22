@@ -27,14 +27,9 @@ async function initServer() {
   await server.start()
   console.log('Apollo server started')
   app.use(bodyParser.json())
-  app.use(
-    bodyParser.urlencoded({
-      extended: true,
-    }),
-  )
+  app.use(bodyParser.urlencoded({ extended: true }))
 
   app.use(cors())
-  app.use(jwtHandler)
   app.use(
     '/graphql',
     jwtHandler,

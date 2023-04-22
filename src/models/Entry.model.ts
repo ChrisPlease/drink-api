@@ -140,12 +140,18 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
                   ),
                 }
           },
-          encodeCursor: (cursor) => toCursorHash(
-            JSON.stringify(cursor[cursorKey as keyof Prisma.EntryWhereUniqueInput]),
-          ),
-          decodeCursor: (cursorString) => (
-            { [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }
-          ),
+          encodeCursor: (cursor) => {
+            const dehashedCursor = Object
+              .entries(cursor[cursorKey as keyof Prisma.EntryWhereUniqueInput] as Record<string, any>)
+              .reduce((acc, [key, val]) => ({
+                  [key]: key === 'id'
+                    ? fromCursorHash(val).split(':')[1]
+                    : val,
+                  ...acc,
+                }), {} as Record<string, any>)
+            return toCursorHash(JSON.stringify(dehashedCursor))
+          },
+          decodeCursor: (cursorString) => ({ [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }),
         },
       )
     },
