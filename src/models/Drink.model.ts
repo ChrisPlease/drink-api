@@ -23,30 +23,39 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       const { id } = await prismaDrink.create({
         data: {
           ...data,
-          ingredients: { create: ingredients },
+          ingredients: {
+            create: ingredients
+              .map(ingredient => ({ ingredient: { create: ingredient } })),
+          },
         },
       })
+
+      type Nutrition = {
+        caffeine: string,
+        sugar: string,
+        coefficient: string,
+      }
 
       const [{
         sugar,
         caffeine,
         coefficient,
-      }] = await client.$queryRaw<{ caffeine: string; sugar: string; coefficient: string }[]>`
+      }] = await client.$queryRaw<Nutrition[]>`
       SELECT
         ROUND(SUM((i.parts::float/t.parts)*d.coefficient)::numeric, 2) AS coefficient,
         ROUND(SUM((i.parts::float/t.parts)*d.caffeine)::numeric, 2) AS caffeine,
         ROUND(SUM((i.parts::float/t.parts)*d.sugar)::numeric, 2) AS sugar
-      FROM _drink_ingredients di
-      INNER JOIN ingredients i ON di."B" = i.id
+      FROM drink_ingredients di
+      INNER JOIN ingredients i ON di.ingredient_id = i.id
       INNER JOIN drinks d ON i.drink_id = d.id
       INNER JOIN (
         SELECT
-          di."A" AS drink_id,
+          di.drink_id AS drink_id,
           SUM(i.parts) AS parts
         FROM ingredients i
-        INNER JOIN _drink_ingredients di ON di."B" = i.id GROUP BY di."A"
-      ) t ON t.drink_id = di."A"
-      WHERE di."A" = ${id}::uuid`
+        INNER JOIN drink_ingredients di ON di.ingredient_id = i.id GROUP BY di.drink_id
+      ) t ON t.drink_id = di.drink_id
+      WHERE di.drink_id = ${id}::uuid`
 
       return await prismaDrink.update({
         where: { id },

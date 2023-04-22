@@ -11,8 +11,8 @@ export const ingredientResolvers: IngredientResolvers = {
         COUNT(i2) AS ingredients
       FROM ingredients i
       INNER JOIN drinks d ON d.id = i.drink_id
-      LEFT JOIN _drink_ingredients di ON di."B" = d.id
-      LEFT JOIN ingredients i2 ON di."A" = i2.id
+      LEFT JOIN drink_ingredients di ON di.ingredient_id = d.id
+      LEFT JOIN ingredients i2 ON di.drink_id = i2.id
       WHERE i.id = ${parent.id}::uuid
       GROUP BY d.id`
 

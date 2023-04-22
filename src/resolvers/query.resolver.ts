@@ -38,6 +38,7 @@ export const queryResolvers: QueryResolvers = {
       ...rest,
     }
   },
+
   async drink(_, { drinkId }, { prisma }) {
     const drink = await prisma.drink.findUnique({
       where: { id: drinkId },

@@ -20,11 +20,11 @@ model Drink {
   userId      String?      @map("user_id") @db.VarChar
   user        User?        @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  ingredients Ingredient[] @relation("drink_ingredients")
+  ingredients DrinkIngredients[]
 
   entries     Entry[]
 
-  createdAt   DateTime     @unique() @default(now()) @db.Timestamp(6)
+  createdAt   DateTime     @map("created_at") @unique() @default(now()) @db.Timestamp(6)
 
   @@index(name)
   @@index(createdAt)
@@ -39,10 +39,21 @@ model Ingredient {
   id      String    @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   parts   Int
 
-  drink   Drink[]   @relation("drink_ingredients")
+  drink   DrinkIngredients[]
   drinkId String    @map("drink_id") @db.Uuid
 
   @@map("ingredients")
+}
+
+model DrinkIngredients {
+  drinkId       String      @map("drink_id") @db.Uuid
+  drink         Drink       @relation(fields: [drinkId], references: [id])
+
+  ingredientId  String      @map("ingredient_id") @db.Uuid
+  ingredient    Ingredient  @relation(fields: [ingredientId], references: [id])
+
+  @@id([drinkId, ingredientId])
+  @@map("drink_ingredients")
 }
 
 model Entry {
