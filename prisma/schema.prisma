@@ -10,7 +10,6 @@ datasource db {
 }
 
 model Drink {
-
   id          String       @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name        String       @db.VarChar
   icon        String       @db.VarChar

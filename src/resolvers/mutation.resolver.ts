@@ -11,7 +11,11 @@ export const mutationResolvers: MutationResolvers = {
 
     const {
       id: entryId,
-      drink: { caffeine, sugar, coefficient },
+      drink: {
+        caffeine,
+        sugar,
+        coefficient,
+      },
       ...entry
     } = await prisma.entry.create({
       data: {
@@ -97,9 +101,12 @@ export const mutationResolvers: MutationResolvers = {
     const [type,id] = fromCursorHash(drinkInput.id).split(':') as [ModelType,string]
 
     const drink = Drinks(prisma.drink)
+    if (!await drink.findUnique({ where: { id_userId: { id, userId } } })) throw new Error('drink not found')
 
-    if (type === 'MixedDrink') {
+    if (type !== 'MixedDrink') {
       console.log('is mixed drink')
+    } else {
+      console.log('is not mixed drink')
     }
     return null
   },
