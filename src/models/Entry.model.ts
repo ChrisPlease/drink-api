@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, Entry } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
 import { ConnectionArguments, findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
-import { toCursorHash, fromCursorHash } from '../utils/cursorHash'
+import { toCursorHash, fromCursorHash, encodeCursor } from '../utils/cursorHash'
 import { QueryEntriesArgs } from '../__generated__/graphql'
 
 type Nutrition = {
@@ -79,8 +79,10 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           : { drink: { name: 'desc' } }
       )
 
+
+
       const sortKey = Object.keys(orderBy)[0]
-      let cursorKey = sortKey
+      let cursorKey = sortKey as keyof Prisma.EntryWhereUniqueInput
 
       switch (sortKey) {
         case 'volume':
@@ -141,17 +143,10 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
                 }
           },
           encodeCursor: (cursor) => {
-            const dehashedCursor = Object
-              .entries(cursor[cursorKey as keyof Prisma.EntryWhereUniqueInput] as Record<string, any>)
-              .reduce((acc, [key, val]) => ({
-                  [key]: key === 'id'
-                    ? fromCursorHash(val).split(':')[1]
-                    : val,
-                  ...acc,
-                }), {} as Record<string, any>)
+            const dehashedCursor = encodeCursor(cursor, ['id'])
             return toCursorHash(JSON.stringify(dehashedCursor))
           },
-          decodeCursor: (cursorString) => ({ [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }),
+          decodeCursor: (cursorString) => JSON.parse(fromCursorHash(cursorString)),
         },
       )
     },

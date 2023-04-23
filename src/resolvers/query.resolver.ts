@@ -5,7 +5,7 @@ import { DrinkHistory as DrinkHistoryModel } from '../models/History.model'
 import { Drink, Entry, Prisma } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
-import { toCursorHash, fromCursorHash } from '../utils/cursorHash'
+import { toCursorHash, fromCursorHash, encodeCursor } from '../utils/cursorHash'
 import { Drinks } from '../models/Drink.model'
 
 type NodeEntry = 'Entry' | 'DrinkResult' | 'BaseDrink' | 'MixedDrink' | 'DrinkHistory'
@@ -40,10 +40,12 @@ export const queryResolvers: QueryResolvers = {
   },
 
   async drink(_, { drinkId }, { prisma }) {
+    const [,id] = fromCursorHash(drinkId).split(':')
     const drink = await prisma.drink.findUnique({
-      where: { id: drinkId },
+      where: { id },
     })
-    return drink
+
+    return drink ? { ...drink, id: drinkId } : drink
   },
 
   async drinks(
@@ -102,7 +104,6 @@ export const queryResolvers: QueryResolvers = {
       {
         getCursor: (record) => {
           const key = cursorKey in record ? [cursorKey] : cursorKey.split('_')
-
           return cursorKey in record
             ? { [cursorKey]: record[cursorKey as keyof Drink] }
             : { [cursorKey]: key.reduce(
@@ -112,19 +113,10 @@ export const queryResolvers: QueryResolvers = {
               }), {}) }
         },
         encodeCursor: (cursor) => {
-          const dehashedCursor = Object.entries(cursor[cursorKey] as Record<string, any>)
-            .reduce((acc, [key, val]) => ({
-              [key]: key === 'id'
-                ? fromCursorHash(val).split(':')[1]
-                : val,
-              ...acc,
-            }), {} as Record<string, any>)
-
+          const dehashedCursor = encodeCursor(cursor, ['id'])
           return toCursorHash(JSON.stringify(dehashedCursor))
         },
-        decodeCursor: (cursorString) => {
-          return { [cursorKey]: JSON.parse(fromCursorHash(cursorString)) }
-        },
+        decodeCursor: (cursorString) => JSON.parse(fromCursorHash(cursorString)),
       },
     )
   },

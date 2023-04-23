@@ -10,7 +10,6 @@ import { fromCursorHash } from '../utils/cursorHash'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
   async __resolveType(parent, { prisma }) {
-    console.log('resolving')
     const [,id] = fromCursorHash(parent.id).split(':')
     const ingredients = await prisma.drink.findUnique({
       where: { id },
@@ -65,8 +64,9 @@ export const drinkResolvers: DrinkResolvers = {
   },
 
   async user(parent, args, { prisma }) {
+    const [,id] = fromCursorHash(parent.id).split(':')
     return await prisma.drink.findUnique({
-      where: { id: parent.id },
+      where: { id },
     }).user()
   },
 

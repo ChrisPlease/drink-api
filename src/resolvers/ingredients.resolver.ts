@@ -4,7 +4,6 @@ import { toCursorHash } from '../utils/cursorHash'
 
 export const ingredientResolvers: IngredientResolvers = {
   async drink(parent, _, { prisma }) {
-    console.log(parent.id)
     const [{ id, ingredients, ...drink }] = <(Drink & { ingredients: number })[]>await prisma.$queryRaw`
       SELECT
         d.*,
