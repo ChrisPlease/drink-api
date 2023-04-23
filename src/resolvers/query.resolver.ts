@@ -11,7 +11,7 @@ import { Drinks } from '../models/Drink.model'
 type NodeEntry = 'Entry' | 'DrinkResult' | 'BaseDrink' | 'MixedDrink' | 'DrinkHistory'
 
 export const queryResolvers: QueryResolvers = {
-  async node(parent, { id: argId }, { prisma, req: { auth } }) {
+  async node(_, { id: argId }, { prisma, req: { auth } }) {
     const [__typename,id] = fromCursorHash(argId).split(':') as [NodeEntry, string]
     const userId = <string>auth?.sub
 
@@ -214,8 +214,8 @@ export const queryResolvers: QueryResolvers = {
               d1.*,
               COUNT(i1) AS ingredients
             FROM drinks d1
-            LEFT JOIN _drink_ingredients di ON d1.id = di."A"
-            LEFT JOIN ingredients i1 ON i1.id = di."B"
+            LEFT JOIN drink_ingredients di ON d1.id = di.drink_id
+            LEFT JOIN ingredients i1 ON i1.id = di.ingredient_id
             GROUP BY d1.id
           ) d
           LEFT JOIN (
