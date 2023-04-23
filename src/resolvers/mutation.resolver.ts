@@ -51,8 +51,6 @@ export const mutationResolvers: MutationResolvers = {
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
 
-    if (drinkInput.id) throw new Error('ID was provided')
-
     const {
       caffeine,
       sugar,
@@ -84,8 +82,19 @@ export const mutationResolvers: MutationResolvers = {
 
   async drinkDelete(_, { drinkId }, { prisma, req: { auth } }) {
     const userId = <string>auth?.sub
-    return await prisma.drink
-      .delete({ where: { id_userId: { id: fromCursorHash(drinkId).split(':')[1], userId } } })
+    const [,id] = fromCursorHash(drinkId).split(':')
+    const drink = Drinks(prisma.drink)
+
+    console.log(userId, id)
+    return await drink
+      .delete({
+        where: {
+          id_userId: {
+            id,
+            userId,
+          },
+        },
+      })
       /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
       .then(({ id, ...rest }) => ({
         id: drinkId,
@@ -104,9 +113,9 @@ export const mutationResolvers: MutationResolvers = {
     if (!await drink.findUnique({ where: { id_userId: { id, userId } } })) throw new Error('drink not found')
 
     if (type !== 'MixedDrink') {
-      console.log('is mixed drink')
-    } else {
       console.log('is not mixed drink')
+    } else {
+      console.log('is mixed drink')
     }
     return null
   },

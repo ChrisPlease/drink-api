@@ -49,11 +49,34 @@ export type Drink = {
   user?: Maybe<User>;
 };
 
+/** Input for Creating a new Drink */
+export type DrinkCreateInput = {
+  caffeine?: InputMaybe<Scalars['Float']>;
+  coefficient?: InputMaybe<Scalars['Float']>;
+  icon: Scalars['Icon'];
+  ingredients?: InputMaybe<Array<IngredientInput>>;
+  name: Scalars['String'];
+  servingSize?: InputMaybe<Scalars['Float']>;
+  sugar?: InputMaybe<Scalars['Float']>;
+};
+
 /** Edge for Paginated Drinks */
 export type DrinkEdge = {
   __typename?: 'DrinkEdge';
   cursor?: Maybe<Scalars['String']>;
   node: DrinkResult;
+};
+
+/** Input for Editing a Drink */
+export type DrinkEditInput = {
+  caffeine?: InputMaybe<Scalars['String']>;
+  coefficient?: InputMaybe<Scalars['String']>;
+  icon?: InputMaybe<Scalars['Icon']>;
+  id: Scalars['ID'];
+  ingredients?: InputMaybe<Array<IngredientInput>>;
+  name?: InputMaybe<Scalars['String']>;
+  servingSize?: InputMaybe<Scalars['String']>;
+  sugar?: InputMaybe<Scalars['String']>;
 };
 
 /** Drink History to retreive summary of drink entries */
@@ -86,18 +109,6 @@ export type DrinkHistoryEdge = {
   __typename?: 'DrinkHistoryEdge';
   cursor: Scalars['String'];
   node: DrinkHistory;
-};
-
-/** Input for Drink type */
-export type DrinkInput = {
-  caffeine?: InputMaybe<Scalars['String']>;
-  coefficient?: InputMaybe<Scalars['String']>;
-  icon: Scalars['Icon'];
-  id?: InputMaybe<Scalars['ID']>;
-  ingredients?: InputMaybe<Array<IngredientInput>>;
-  name: Scalars['String'];
-  servingSize?: InputMaybe<Scalars['String']>;
-  sugar?: InputMaybe<Scalars['String']>;
 };
 
 /** Union of Mixed and Base Drinks */
@@ -198,7 +209,7 @@ export type Mutation = {
 
 /** Root Mutations */
 export type MutationDrinkCreateArgs = {
-  drinkInput: DrinkInput;
+  drinkInput: DrinkCreateInput;
 };
 
 
@@ -210,7 +221,7 @@ export type MutationDrinkDeleteArgs = {
 
 /** Root Mutations */
 export type MutationDrinkEditArgs = {
-  drinkInput: DrinkInput;
+  drinkInput: DrinkEditInput;
 };
 
 
@@ -398,10 +409,11 @@ export type ResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Drink: ResolverTypeWrapper<DrinkModel>;
+  DrinkCreateInput: DrinkCreateInput;
   DrinkEdge: ResolverTypeWrapper<Omit<DrinkEdge, 'node'> & { node: ResolversTypes['DrinkResult'] }>;
+  DrinkEditInput: DrinkEditInput;
   DrinkHistory: ResolverTypeWrapper<DrinkHistoryModel>;
   DrinkHistoryEdge: ResolverTypeWrapper<Omit<DrinkHistoryEdge, 'node'> & { node: ResolversTypes['DrinkHistory'] }>;
-  DrinkInput: DrinkInput;
   DrinkResult: ResolversTypes['BaseDrink'] | ResolversTypes['MixedDrink'];
   DrinkSort: DrinkSort;
   DrinksHistoryPaginated: ResolverTypeWrapper<Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversTypes['DrinkHistoryEdge']> }>;
@@ -433,10 +445,11 @@ export type ResolversParentTypes = ResolversObject<{
   Boolean: Scalars['Boolean'];
   Date: Scalars['Date'];
   Drink: DrinkModel;
+  DrinkCreateInput: DrinkCreateInput;
   DrinkEdge: Omit<DrinkEdge, 'node'> & { node: ResolversParentTypes['DrinkResult'] };
+  DrinkEditInput: DrinkEditInput;
   DrinkHistory: DrinkHistoryModel;
   DrinkHistoryEdge: Omit<DrinkHistoryEdge, 'node'> & { node: ResolversParentTypes['DrinkHistory'] };
-  DrinkInput: DrinkInput;
   DrinkResult: ResolversParentTypes['BaseDrink'] | ResolversParentTypes['MixedDrink'];
   DrinkSort: DrinkSort;
   DrinksHistoryPaginated: Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversParentTypes['DrinkHistoryEdge']> };

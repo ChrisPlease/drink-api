@@ -1,5 +1,5 @@
 import { PrismaClient, Drink } from '@prisma/client'
-import { DrinkInput, IngredientInput } from '../__generated__/graphql'
+import { DrinkCreateInput, IngredientInput } from '../__generated__/graphql'
 import { fromCursorHash, toCursorHash } from '../utils/cursorHash'
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
@@ -11,7 +11,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       sugar: ___,
       /* eslint-enable @typescript-eslint/no-unused-vars */
       ...data
-    }: DrinkInput & { userId: string },
+    }: DrinkCreateInput & { userId: string },
     drinkIngredients: IngredientInput[],
     client: PrismaClient,
     ): Promise<Drink> {
