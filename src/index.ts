@@ -25,6 +25,7 @@ prisma.$use(
         field: 'deleted',
         createValue: (value) => value ? new Date() : null,
       },
+      Entry: true,
     },
   }),
 )

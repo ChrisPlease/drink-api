@@ -70,6 +70,8 @@ model Entry {
   userId    String    @map("user_id") @db.VarChar
   user      User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
+  deleted   Boolean   @default(false)
+
   @@unique([volume,id])
   @@unique([drinkId,id])
   @@unique([id,userId])
