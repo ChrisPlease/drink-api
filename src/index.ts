@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { createSoftDeleteMiddleware } from 'prisma-soft-delete-middleware'
 import express from 'express'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -17,40 +18,16 @@ const prisma = new PrismaClient({
   log: [/* 'query',  */'info', 'error'],
 })
 
-prisma.$use(async (params, next) => {
-  console.log('===========================================')
-  console.log('=============start=========================')
-  console.log('===========================================')
-  if (params.model == 'Drink') {
-    if (params.action == 'delete') {
-      // Delete queries
-      // Change action to an update
-      params.action = 'update'
-      params.args['data'] = { deleted: new Date() }
-    }
-    if (params.action == 'deleteMany') {
-      // Delete many queries
-      params.action = 'updateMany'
-      if (params.args.data !== undefined) {
-        params.args.data['deleted'] = new Date()
-      } else {
-        params.args['data'] = { deleted: new Date() }
-      }
-    }
-    if (params.action === 'findUnique') {
-      params.action = 'findFirst'
-      params.args.where['deleted'] = null
-    }
-
-    if (params.action === 'findMany') {
-      params.args.where['deleted'] = null
-    }
-  }
-  console.log('===========================================')
-  console.log('==============end==========================')
-  console.log('===========================================')
-  return next(params)
-})
+prisma.$use(
+  createSoftDeleteMiddleware({
+    models: {
+      Drink: {
+        field: 'deleted',
+        createValue: (value) => value ? new Date() : null,
+      },
+    },
+  }),
+)
 
 async function initServer() {
   const server = new ApolloServer<AppContext>({
