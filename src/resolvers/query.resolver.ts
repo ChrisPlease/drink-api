@@ -104,13 +104,13 @@ export const queryResolvers: QueryResolvers = {
       {
         getCursor: (record) => {
           const key = cursorKey in record ? [cursorKey] : cursorKey.split('_')
-          return cursorKey in record
+          return (cursorKey in record
             ? { [cursorKey]: record[cursorKey as keyof Drink] }
             : { [cursorKey]: key.reduce(
               (acc, item) => ({
                 ...acc,
                 [item]: record?.[item as keyof Drink],
-              }), {}) }
+              }), {}) }) as Prisma.DrinkWhereUniqueInput
         },
         encodeCursor: (cursor) => {
           const dehashedCursor = encodeCursor(cursor, ['id'])

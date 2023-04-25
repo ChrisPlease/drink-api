@@ -133,14 +133,14 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         {
           getCursor(record) {
             const key = cursorKey in record ? [cursorKey] : cursorKey.split('_')
-            return cursorKey in record
+            return (cursorKey in record
               ? { [cursorKey]: record[cursorKey as keyof Entry] }
               : {
                 [cursorKey]: key
                   .reduce(
                     (acc, item) => ({ ...acc, [item]: record?.[item as keyof Entry] }), {},
                   ),
-                }
+                }) as Prisma.EntryWhereUniqueInput
           },
           encodeCursor: (cursor) => {
             const dehashedCursor = encodeCursor(cursor, ['id'])

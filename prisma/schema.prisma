@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions", "filteredRelationCount"]
+  previewFeatures = ["postgresqlExtensions", "filteredRelationCount", "extendedWhereUnique"]
 }
 
 datasource db {
@@ -26,6 +26,8 @@ model Drink {
 
   createdAt   DateTime           @map("created_at") @unique() @default(now()) @db.Timestamp(6)
 
+  deleted     DateTime?
+
   @@index(name)
   @@index(createdAt)
   @@index([id,userId])
@@ -46,11 +48,12 @@ model Ingredient {
 }
 
 model DrinkIngredients {
-  drinkId       String      @map("drink_id") @db.Uuid
-  drink         Drink       @relation(fields: [drinkId], references: [id], onDelete: Cascade)
 
   ingredientId  String      @map("ingredient_id") @db.Uuid
   ingredient    Ingredient  @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  drinkId       String      @map("drink_id") @db.Uuid
+  drink         Drink       @relation(fields: [drinkId], references: [id], onDelete: Cascade)
 
   @@id([drinkId, ingredientId])
   @@map("drink_ingredients")
@@ -69,6 +72,7 @@ model Entry {
 
   @@unique([volume,id])
   @@unique([drinkId,id])
+  @@unique([id,userId])
   @@unique([timestamp, userId])
   @@map("entries")
 }

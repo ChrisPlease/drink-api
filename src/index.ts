@@ -14,9 +14,43 @@ import { readFileSync } from 'fs'
 const app: express.Application = express()
 
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'error'],
+  log: [/* 'query',  */'info', 'error'],
 })
 
+prisma.$use(async (params, next) => {
+  console.log('===========================================')
+  console.log('=============start=========================')
+  console.log('===========================================')
+  if (params.model == 'Drink') {
+    if (params.action == 'delete') {
+      // Delete queries
+      // Change action to an update
+      params.action = 'update'
+      params.args['data'] = { deleted: new Date() }
+    }
+    if (params.action == 'deleteMany') {
+      // Delete many queries
+      params.action = 'updateMany'
+      if (params.args.data !== undefined) {
+        params.args.data['deleted'] = new Date()
+      } else {
+        params.args['data'] = { deleted: new Date() }
+      }
+    }
+    if (params.action === 'findUnique') {
+      params.action = 'findFirst'
+      params.args.where['deleted'] = null
+    }
+
+    if (params.action === 'findMany') {
+      params.args.where['deleted'] = null
+    }
+  }
+  console.log('===========================================')
+  console.log('==============end==========================')
+  console.log('===========================================')
+  return next(params)
+})
 
 async function initServer() {
   const server = new ApolloServer<AppContext>({

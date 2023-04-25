@@ -293,6 +293,7 @@ Root Mutations
 """
 type Mutation {
   entryCreate(volume: Float!, drinkId: ID!): Entry
+  entryDelete(entryId: ID!): Entry
   drinkCreate(drinkInput: DrinkCreateInput!): DrinkResult
   drinkDelete(drinkId: ID!): DrinkResult
   drinkEdit(drinkInput: DrinkEditInput!): DrinkResult

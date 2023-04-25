@@ -3,9 +3,12 @@ import { Drinks } from '../models/Drink.model'
 import { MutationResolvers } from '../__generated__/graphql'
 import { fromCursorHash, toCursorHash } from '../utils/cursorHash'
 import { ModelType } from '../types/models'
+import { Entries } from '../models/Entry.model'
+import { Entry } from '@prisma/client'
 
 export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, { volume, drinkId }, { prisma, req: { auth } }) {
+    const entry = Entries(prisma.entry)
     const userId = <string>auth?.sub
     const [,id] = fromCursorHash(drinkId).split(':')
 
@@ -16,8 +19,8 @@ export const mutationResolvers: MutationResolvers = {
         sugar,
         coefficient,
       },
-      ...entry
-    } = await prisma.entry.create({
+      ...rest
+    } = await entry.create({
       data: {
         volume,
         drinkId: id,
@@ -43,8 +46,24 @@ export const mutationResolvers: MutationResolvers = {
     return {
       id: toCursorHash(`Entry:${entryId}`),
       ...nutrition,
-      ...entry,
+      ...rest,
     }
+  },
+
+  async entryDelete(_, { entryId }, { prisma, req: { auth } }) {
+    const entry = Entries(prisma.entry)
+    const userId = <string>auth?.sub
+    const [,id] = fromCursorHash(entryId).split(':')
+
+    return await entry.delete({
+      where: {
+        id_userId: {
+          id,
+          userId,
+        },
+      },
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    }).then(({ id, ...rest }) => ({ id: entryId, ...rest })) as Entry
   },
 
   async drinkCreate(_, { drinkInput }, { prisma, req: { auth } }) {
@@ -81,11 +100,10 @@ export const mutationResolvers: MutationResolvers = {
   },
 
   async drinkDelete(_, { drinkId }, { prisma, req: { auth } }) {
+    const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
     const [,id] = fromCursorHash(drinkId).split(':')
-    const drink = Drinks(prisma.drink)
 
-    console.log(userId, id)
     return await drink
       .delete({
         where: {
@@ -103,13 +121,12 @@ export const mutationResolvers: MutationResolvers = {
   },
 
   async drinkEdit(_, { drinkInput }, { prisma, req: { auth } }) {
+    const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
+    const [type,id] = fromCursorHash(drinkInput.id).split(':') as [ModelType,string]
 
     if (!drinkInput.id) throw new Error('Drink ID required')
 
-    const [type,id] = fromCursorHash(drinkInput.id).split(':') as [ModelType,string]
-
-    const drink = Drinks(prisma.drink)
     if (!await drink.findUnique({ where: { id_userId: { id, userId } } })) throw new Error('drink not found')
 
     if (type !== 'MixedDrink') {
