@@ -1,5 +1,5 @@
 import { PrismaClient, Drink } from '@prisma/client'
-import { DrinkCreateInput, DrinkEditInput, IngredientInput } from '../__generated__/graphql'
+import { DrinkCreateInput, DrinkEditInput } from '../__generated__/graphql'
 import { roundNumber } from '../utils/roundNumber'
 import { fromCursorHash, toCursorHash } from '../utils/cursorHash'
 import { Nutrition, NutritionQuery } from '../types/models'
@@ -61,17 +61,12 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     },
 
     async createWithIngredients({
-      /* eslint-disable @typescript-eslint/no-unused-vars */
-      coefficient: _,
-      caffeine: __,
-      sugar: ___,
-      /* eslint-enable @typescript-eslint/no-unused-vars */
+      ingredients: drinkIngredients,
       ...data
-    }: Omit<DrinkCreateInput, 'ingredients'> & { userId: string },
-    drinkIngredients: IngredientInput[],
+    }: Omit<DrinkCreateInput, 'caffeine' | 'sugar' | 'coefficient'> & { userId: string },
     client: PrismaClient,
     ): Promise<Drink> {
-      const ingredients = drinkIngredients.map(({ drinkId, parts }) => ({
+      const ingredients = (drinkIngredients || []).map(({ drinkId, parts }) => ({
         drinkId: fromCursorHash(drinkId).split(':')[1],
         parts,
       }))
