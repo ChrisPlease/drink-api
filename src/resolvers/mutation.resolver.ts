@@ -119,7 +119,7 @@ export const mutationResolvers: MutationResolvers = {
         sugar,
         servingSize,
         coefficient,
-        ingredients: newIngredients,
+        ingredients,
         ...drinkInput
       },
     }, { prisma, req: { auth } }) {
@@ -134,21 +134,9 @@ export const mutationResolvers: MutationResolvers = {
 
     if (type === 'MixedDrink') {
       if (hasNutrition) throw new Error('Cannot add nutrition to a Base Drink')
-      if (newIngredients) {
-        const oldIngredients = await drink
-          .findUnique({ where: { id, userId } })
-          .ingredients({ select: { ingredient: { select: { id: true } } } })
-          .then(ingredients => ingredients?.map(
-            ({ ingredient: { id }}) => id,
-          ))
-
-        await prisma.ingredient.deleteMany({
-          where: { id: { in: oldIngredients } },
-        })
-
+      if (ingredients) {
         return await drink.updateWithIngredients(
-          { userId, ...drinkInput },
-          newIngredients,
+          { userId, ingredients, ...drinkInput },
           prisma,
         )
       } else {
@@ -158,7 +146,7 @@ export const mutationResolvers: MutationResolvers = {
         })
       }
     } else {
-      if (newIngredients) throw new Error('Cannot add ingredients to a Base Drink')
+      if (ingredients) throw new Error('Cannot add ingredients to a Base Drink')
       const nutrition = { caffeine, sugar, coefficient }
 
       if (Object.values(nutrition).some(item => item) && !servingSize) {

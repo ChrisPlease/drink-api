@@ -93,13 +93,25 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       {
         id: drinkId,
         userId,
+        ingredients: newIngredients,
         ...data
-      }: Omit<DrinkEditInput, 'ingredients' | 'coefficient' | 'caffeine' | 'sugar'> & { userId: string },
-      drinkIngredients: IngredientInput[],
+      }: Omit<DrinkEditInput, 'coefficient' | 'caffeine' | 'sugar'> & { userId: string },
       client: PrismaClient,
     ): Promise<Drink | null> {
       const [,id] = fromCursorHash(drinkId).split(':')
-      const ingredients = drinkIngredients.map(({ drinkId, parts }) => ({
+
+      const oldIngredients = await prismaDrink
+        .findUnique({ where: { id, userId } })
+        .ingredients({ select: { ingredient: { select: { id: true } } } })
+        .then(ingredients => ingredients?.map(
+          ({ ingredient: { id }}) => id,
+        ))
+
+      await client.ingredient.deleteMany({
+        where: { id: { in: oldIngredients } },
+      })
+
+      const ingredients = (newIngredients || []).map(({ drinkId, parts }) => ({
         drinkId: fromCursorHash(drinkId).split(':')[1],
         parts,
       }))
