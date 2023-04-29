@@ -5,20 +5,22 @@ import { DrinkHistory as DrinkHistoryModel } from '../models/History.model'
 import { Drink, Entry, Prisma } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
-import { toCursorHash, fromCursorHash, encodeCursor } from '../utils/cursorHash'
+import {
+  toCursorHash,
+  fromCursorHash,
+  encodeCursor,
+  deconstructId,
+} from '../utils/cursorHash'
 import { Drinks } from '../models/Drink.model'
-
-type NodeEntry = 'Entry' | 'DrinkResult' | 'BaseDrink' | 'MixedDrink' | 'DrinkHistory'
 
 export const queryResolvers: QueryResolvers = {
   async node(_, { id: argId }, { prisma, req: { auth } }) {
-    const [__typename,id] = fromCursorHash(argId).split(':') as [NodeEntry, string]
+    const [__typename,id] = deconstructId(argId)
     const userId = <string>auth?.sub
 
     let res
 
     switch (__typename) {
-      case 'DrinkResult':
       case 'MixedDrink':
       case 'BaseDrink':
         res = <Drink>await Drinks(prisma.drink).findUnique({ where: { id } })
@@ -40,7 +42,7 @@ export const queryResolvers: QueryResolvers = {
   },
 
   async drink(_, { drinkId }, { prisma }) {
-    const [,id] = fromCursorHash(drinkId).split(':')
+    const [,id] = deconstructId(drinkId)
     const drink = await prisma.drink.findUnique({
       where: { id },
     })
@@ -196,7 +198,7 @@ export const queryResolvers: QueryResolvers = {
     return await findManyCursorConnection(
       async (args) => {
         const { take, cursor } = args
-        const id = fromCursorHash(cursor?.id || '').split(':')[1]
+        const [,id] = deconstructId(cursor?.id || '')
         return prisma.$queryRaw<RawEntry[]>`
         WITH cte AS (
           SELECT

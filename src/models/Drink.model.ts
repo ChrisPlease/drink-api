@@ -1,7 +1,7 @@
 import { PrismaClient, Drink } from '@prisma/client'
 import { DrinkCreateInput, DrinkEditInput } from '../__generated__/graphql'
 import { roundNumber } from '../utils/roundNumber'
-import { fromCursorHash, toCursorHash } from '../utils/cursorHash'
+import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Nutrition, NutritionQuery } from '../types/models'
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
@@ -67,7 +67,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     client: PrismaClient,
     ): Promise<Drink> {
       const ingredients = (drinkIngredients || []).map(({ drinkId, parts }) => ({
-        drinkId: fromCursorHash(drinkId).split(':')[1],
+        drinkId: deconstructId(drinkId)[1],
         parts,
       }))
 
@@ -93,7 +93,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       }: Omit<DrinkEditInput, 'coefficient' | 'caffeine' | 'sugar'> & { userId: string },
       client: PrismaClient,
     ): Promise<Drink | null> {
-      const [,id] = fromCursorHash(drinkId).split(':')
+      const [,id] = deconstructId(drinkId)
 
       const oldIngredients = await prismaDrink
         .findUnique({ where: { id, userId } })
@@ -107,7 +107,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       })
 
       const ingredients = (newIngredients || []).map(({ drinkId, parts }) => ({
-        drinkId: fromCursorHash(drinkId).split(':')[1],
+        drinkId: deconstructId(drinkId)[1],
         parts,
       }))
       await prismaDrink.update({
@@ -137,7 +137,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       userId,
       ...data
     }: Omit<DrinkEditInput, 'ingredients'> & { userId: string }): Promise<Drink | null> {
-      const [,id] = fromCursorHash(drinkId).split(':')
+      const [,id] = deconstructId(drinkId)
 
       const nutrition = Object.entries({ caffeine, sugar, coefficient })
         .reduce((acc, [key, val]) => {

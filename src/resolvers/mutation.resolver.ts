@@ -1,8 +1,7 @@
 import { roundNumber } from '../utils/roundNumber'
 import { Drinks } from '../models/Drink.model'
 import { MutationResolvers } from '../__generated__/graphql'
-import { fromCursorHash, toCursorHash } from '../utils/cursorHash'
-import { ModelType } from '../types/models'
+import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Entries } from '../models/Entry.model'
 import { Entry } from '@prisma/client'
 
@@ -10,7 +9,7 @@ export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, { volume, drinkId }, { prisma, req: { auth } }) {
     const entry = Entries(prisma.entry)
     const userId = <string>auth?.sub
-    const [,id] = fromCursorHash(drinkId).split(':')
+    const [,id] = deconstructId(drinkId)
 
     const {
       id: entryId,
@@ -53,7 +52,7 @@ export const mutationResolvers: MutationResolvers = {
   async entryDelete(_, { entryId }, { prisma, req: { auth } }) {
     const entry = Entries(prisma.entry)
     const userId = <string>auth?.sub
-    const [,id] = fromCursorHash(entryId).split(':')
+    const [,id] = deconstructId(entryId)
 
     return await entry.delete({
       where: {
@@ -92,7 +91,7 @@ export const mutationResolvers: MutationResolvers = {
   async drinkDelete(_, { drinkId }, { prisma, req: { auth } }) {
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
-    const [,id] = fromCursorHash(drinkId).split(':')
+    const [,id] = deconstructId(drinkId)
 
     return await drink
       .delete({
@@ -125,7 +124,7 @@ export const mutationResolvers: MutationResolvers = {
     const hasNutrition = !!caffeine || !!sugar || !!servingSize || !!coefficient
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
-    const [type,id] = fromCursorHash(drinkInput.id).split(':') as [ModelType,string]
+    const [type,id] = deconstructId(drinkInput.id)
 
     if (!drinkInput.id) throw new Error('Drink ID required')
 

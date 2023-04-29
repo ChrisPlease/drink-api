@@ -1,11 +1,11 @@
-// import { ModelType } from '../types/models'
+import { ModelType } from '../types/models'
 
-const toCursorHash = (str: string) => Buffer.from(str).toString('base64')
+export const toCursorHash = (str: string) => Buffer.from(str).toString('base64')
 
-const fromCursorHash = (str: string) =>
+export const fromCursorHash = (str: string) =>
   Buffer.from(str, 'base64').toString('ascii')
 
-const encodeCursor = (cursor: Record<string, any>, hashKeys: string[]) => {
+export const encodeCursor = (cursor: Record<string, any>, hashKeys: string[]) => {
   return Object.entries(cursor)
     .reduce((acc, [key, val]) => {
       if (
@@ -26,8 +26,6 @@ const encodeCursor = (cursor: Record<string, any>, hashKeys: string[]) => {
     }, {} as Record<string, any>)
 }
 
-export {
-  toCursorHash,
-  fromCursorHash,
-  encodeCursor,
+export const deconstructId = (id: string): [ModelType, string] => {
+  return fromCursorHash(id).split(':') as [ModelType, string]
 }
