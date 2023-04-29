@@ -57,10 +57,8 @@ export const mutationResolvers: MutationResolvers = {
 
     return await entry.delete({
       where: {
-        id_userId: {
-          id,
-          userId,
-        },
+        id,
+        userId,
       },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     }).then(({ id, ...rest }) => ({ id: entryId, ...rest })) as Entry
@@ -71,12 +69,15 @@ export const mutationResolvers: MutationResolvers = {
     const userId = <string>auth?.sub
 
     const {
-      caffeine,
-      sugar,
-      servingSize,
       ingredients,
+      caffeine,
+      servingSize,
+      sugar,
+      coefficient,
       ...rest
     } = drinkInput
+
+    const nutrition = { caffeine, servingSize, sugar, coefficient }
 
     if (ingredients) {
       return await drink.createWithIngredients(
@@ -86,17 +87,7 @@ export const mutationResolvers: MutationResolvers = {
       )
     }
 
-    const nutrition = {
-      caffeine: roundNumber(+(caffeine ?? 0) / +(servingSize ?? 1)),
-      sugar: roundNumber(+(sugar ?? 0) / +(servingSize ?? 1)),
-      coefficient: roundNumber(+(drinkInput.coefficient ?? 0)),
-    }
-
-    return await drink.create({ data: { ...rest, ...nutrition, userId }})
-      .then(({ id, ...rest }) => ({
-        id: toCursorHash(`BaseDrink:${id}`),
-        ...rest,
-      }))
+    return await drink.createWithNutrition({ userId, ...nutrition, ...rest })
   },
 
   async drinkDelete(_, { drinkId }, { prisma, req: { auth } }) {
@@ -120,20 +111,66 @@ export const mutationResolvers: MutationResolvers = {
       }))
   },
 
-  async drinkEdit(_, { drinkInput }, { prisma, req: { auth } }) {
+  async drinkEdit(
+    _,
+    {
+      drinkInput: {
+        caffeine,
+        sugar,
+        servingSize,
+        coefficient,
+        ingredients: newIngredients,
+        ...drinkInput
+      },
+    }, { prisma, req: { auth } }) {
+    const hasNutrition = !!caffeine || !!sugar || !!servingSize || !!coefficient
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
     const [type,id] = fromCursorHash(drinkInput.id).split(':') as [ModelType,string]
 
     if (!drinkInput.id) throw new Error('Drink ID required')
 
-    if (!await drink.findUnique({ where: { id_userId: { id, userId } } })) throw new Error('drink not found')
+    await drink.findUniqueOrThrow({ where: { id, userId } })
 
-    if (type !== 'MixedDrink') {
-      console.log('is not mixed drink')
+    if (type === 'MixedDrink') {
+      if (hasNutrition) throw new Error('Cannot add nutrition to a Base Drink')
+      if (newIngredients) {
+        const oldIngredients = await drink
+          .findUnique({ where: { id, userId } })
+          .ingredients({ select: { ingredient: { select: { id: true } } } })
+          .then(ingredients => ingredients?.map(
+            ({ ingredient: { id }}) => id,
+          ))
+
+        await prisma.ingredient.deleteMany({
+          where: { id: { in: oldIngredients } },
+        })
+
+        return await drink.updateWithIngredients(
+          { userId, ...drinkInput },
+          newIngredients,
+          prisma,
+        )
+      } else {
+        return await drink.update({
+          where: { id, userId },
+          data: { userId, ...drinkInput },
+        })
+      }
     } else {
-      console.log('is mixed drink')
+      if (newIngredients) throw new Error('Cannot add ingredients to a Base Drink')
+      const nutrition = { caffeine, sugar, coefficient }
+
+      if (Object.values(nutrition).some(item => item) && !servingSize) {
+        throw new Error('Serving size is required when editing nutritional values')
+      }
+
+      return await drink.updateWithNutrition({
+        userId,
+        servingSize,
+        ...nutrition,
+        ...drinkInput,
+      })
     }
-    return null
   },
 }

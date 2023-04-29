@@ -15,7 +15,7 @@ import { readFileSync } from 'fs'
 const app: express.Application = express()
 
 const prisma = new PrismaClient({
-  log: [/* 'query',  */'info', 'error'],
+  log: ['query', 'info', 'error'],
 })
 
 prisma.$use(
