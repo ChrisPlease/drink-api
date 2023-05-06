@@ -35,7 +35,8 @@
     "graphql-import-node": "^0.0.5",
     "jwks-rsa": "^3.0.1",
     "pg": "^8.7.3",
-    "pg-hstore": "^2.3.4"
+    "pg-hstore": "^2.3.4",
+    "prisma-soft-delete-middleware": "^1.0.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "3.2.0",

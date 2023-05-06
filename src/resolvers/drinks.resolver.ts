@@ -6,11 +6,11 @@ import {
   DrinkResultResolvers,
   MixedDrinkResolvers,
 } from '../__generated__/graphql'
-import { fromCursorHash } from '../utils/cursorHash'
+import { deconstructId } from '../utils/cursorHash'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
   async __resolveType(parent, { prisma }) {
-    const [,id] = fromCursorHash(parent.id).split(':')
+    const [,id] = deconstructId(parent.id)
     const ingredients = await prisma.drink.findUnique({
       where: { id },
     }).ingredients()
@@ -23,7 +23,7 @@ export const drinkResolvers: DrinkResolvers = {
   ...drinkResultResolvers,
 
   async entries(parent, args, { prisma, req: { auth } }) {
-    const [,id] = fromCursorHash(parent.id).split(':')
+    const [,id] = deconstructId(parent.id)
     const entries = await prisma.drink.findUnique({
       where: { id },
     }).entries({
@@ -64,8 +64,9 @@ export const drinkResolvers: DrinkResolvers = {
   },
 
   async user(parent, args, { prisma }) {
+    const [,id] = deconstructId(parent.id)
     return await prisma.drink.findUnique({
-      where: { id: parent.id },
+      where: { id },
     }).user()
   },
 
@@ -79,10 +80,11 @@ export const mixedDrinkResolvers: MixedDrinkResolvers = {
   ...drinkResolvers,
 
   async ingredients(parent, args, { prisma }) {
-    const [,id] = fromCursorHash(parent.id).split(':')
+    const [,id] = deconstructId(parent.id)
     const ingredients = await prisma.drink.findUnique({
       where: { id },
-    }).ingredients()
+    }).ingredients({ include: { ingredient: true } })
+      .then(ingredients => ingredients?.map(({ ingredient }) => ingredient))
 
     return ingredients || []
   },

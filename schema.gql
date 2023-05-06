@@ -154,16 +154,33 @@ input IngredientInput {
 }
 
 """
-Input for Drink type
+Input for Creating a new Drink
 """
-input DrinkInput {
+input DrinkCreateInput {
   name: String!
   icon: Icon!
 
-  servingSize: String
-  caffeine: String
-  sugar: String
-  coefficient: String
+  servingSize: Float
+  caffeine: Float
+  sugar: Float
+  coefficient: Float
+
+  ingredients: [IngredientInput!]
+}
+
+"""
+Input for Editing a Drink
+"""
+input DrinkEditInput {
+  id: ID!
+
+  name: String
+  icon: Icon
+
+  servingSize: Float
+  caffeine: Float
+  sugar: Float
+  coefficient: Float
 
   ingredients: [IngredientInput!]
 }
@@ -276,6 +293,8 @@ Root Mutations
 """
 type Mutation {
   entryCreate(volume: Float!, drinkId: ID!): Entry
-  drinkCreate(drinkInput: DrinkInput!): DrinkResult
+  entryDelete(entryId: ID!): Entry
+  drinkCreate(drinkInput: DrinkCreateInput!): DrinkResult
   drinkDelete(drinkId: ID!): DrinkResult
+  drinkEdit(drinkInput: DrinkEditInput!): DrinkResult
 }
