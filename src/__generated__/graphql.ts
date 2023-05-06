@@ -205,6 +205,7 @@ export type Mutation = {
   drinkEdit?: Maybe<DrinkResult>;
   entryCreate?: Maybe<Entry>;
   entryDelete?: Maybe<Entry>;
+  userCreate?: Maybe<User>;
 };
 
 
@@ -236,6 +237,12 @@ export type MutationEntryCreateArgs = {
 /** Root Mutations */
 export type MutationEntryDeleteArgs = {
   entryId: Scalars['ID'];
+};
+
+
+/** Root Mutations */
+export type MutationUserCreateArgs = {
+  userId: Scalars['ID'];
 };
 
 /** Node interface for Paginated Queries */
@@ -605,6 +612,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   drinkEdit?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType, RequireFields<MutationDrinkEditArgs, 'drinkInput'>>;
   entryCreate?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryCreateArgs, 'drinkId' | 'volume'>>;
   entryDelete?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryDeleteArgs, 'entryId'>>;
+  userCreate?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUserCreateArgs, 'userId'>>;
 }>;
 
 export type NodeResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{

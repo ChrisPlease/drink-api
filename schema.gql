@@ -297,4 +297,5 @@ type Mutation {
   drinkCreate(drinkInput: DrinkCreateInput!): DrinkResult
   drinkDelete(drinkId: ID!): DrinkResult
   drinkEdit(drinkInput: DrinkEditInput!): DrinkResult
+  userCreate(userId: ID!): User
 }
