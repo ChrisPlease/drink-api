@@ -183,6 +183,7 @@ export const queryResolvers: QueryResolvers = {
       after,
       last,
       before,
+      hasEntries,
     }, { prisma, req: { auth } }) {
     const userId = <string>auth?.sub
 
@@ -220,7 +221,7 @@ export const queryResolvers: QueryResolvers = {
             LEFT JOIN ingredients i1 ON i1.id = di.ingredient_id
             GROUP BY d1.id
           ) d
-          LEFT JOIN (
+          ${hasEntries ? Prisma.sql`INNER` : Prisma.sql`LEFT`} JOIN (
             SELECT
               d.id AS drink_id,
               COALESCE(COUNT(e)::int,0) AS count,
@@ -228,7 +229,7 @@ export const queryResolvers: QueryResolvers = {
               COALESCE(SUM(e.volume*d.coefficient),0) AS water_volume,
               MAX(e.timestamp) AS last_entry
             FROM drinks d
-            LEFT JOIN entries e ON e.drink_id = d.id AND e.user_id = ${userId}
+            ${hasEntries ? Prisma.sql`INNER` : Prisma.sql`LEFT`} JOIN entries e ON e.drink_id = d.id AND e.user_id = ${userId}
             GROUP BY d.id
           ) e ON e.drink_id = d.id)
 

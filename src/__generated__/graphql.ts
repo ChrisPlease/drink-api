@@ -120,6 +120,11 @@ export type DrinkSort = {
   name?: InputMaybe<Sort>;
 };
 
+/** Filter for the Drinks History query */
+export type DrinksHistoryFilter = {
+  hasEntries?: InputMaybe<Scalars['Boolean']>;
+};
+
 /** Paginated Drinks History list */
 export type DrinksHistoryPaginated = PaginatedQuery & {
   __typename?: 'DrinksHistoryPaginated';
@@ -308,7 +313,9 @@ export type QueryDrinksArgs = {
 export type QueryDrinksHistoryArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
+  filter?: InputMaybe<DrinksHistoryFilter>;
   first?: InputMaybe<Scalars['Int']>;
+  hasEntries?: InputMaybe<Scalars['Boolean']>;
   last?: InputMaybe<Scalars['Int']>;
 };
 
@@ -430,6 +437,7 @@ export type ResolversTypes = ResolversObject<{
   DrinkHistoryEdge: ResolverTypeWrapper<Omit<DrinkHistoryEdge, 'node'> & { node: ResolversTypes['DrinkHistory'] }>;
   DrinkResult: ResolversTypes['BaseDrink'] | ResolversTypes['MixedDrink'];
   DrinkSort: DrinkSort;
+  DrinksHistoryFilter: DrinksHistoryFilter;
   DrinksHistoryPaginated: ResolverTypeWrapper<Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversTypes['DrinkHistoryEdge']> }>;
   DrinksPaginated: ResolverTypeWrapper<DrinksPaginated>;
   EntriesPaginated: ResolverTypeWrapper<Omit<EntriesPaginated, 'edges'> & { edges: Array<ResolversTypes['EntryEdge']> }>;
@@ -466,6 +474,7 @@ export type ResolversParentTypes = ResolversObject<{
   DrinkHistoryEdge: Omit<DrinkHistoryEdge, 'node'> & { node: ResolversParentTypes['DrinkHistory'] };
   DrinkResult: ResolversParentTypes['BaseDrink'] | ResolversParentTypes['MixedDrink'];
   DrinkSort: DrinkSort;
+  DrinksHistoryFilter: DrinksHistoryFilter;
   DrinksHistoryPaginated: Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversParentTypes['DrinkHistoryEdge']> };
   DrinksPaginated: DrinksPaginated;
   EntriesPaginated: Omit<EntriesPaginated, 'edges'> & { edges: Array<ResolversParentTypes['EntryEdge']> };
