@@ -10,11 +10,11 @@ import {
 import { ingredientResolvers } from './ingredients.resolver'
 import { entryResolvers } from './entries.resolver'
 import { historyResolvers } from './history.resolver'
-import { fromCursorHash } from '../utils/cursorHash'
+import { deconstructId } from '../utils/cursorHash'
 
 const nodeResolvers: NodeResolvers = {
   __resolveType(parent) {
-    const [__typename] = fromCursorHash(parent.id).split(':') as ['BaseDrink' | 'MixedDrink' | 'Entry']
+    const [__typename] = deconstructId(parent.id)
     return __typename
   },
 }

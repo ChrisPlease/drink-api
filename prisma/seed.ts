@@ -135,7 +135,6 @@ async function main() {
 
   for (let i = 0; i < drinks.length; i++) {
     await delay(5000).then(async () => {
-      console.log('foooo', i, new Date().toISOString())
       await prisma.drink.create({ data: drinks[i] })
     })
   }
@@ -182,10 +181,13 @@ async function main() {
       icon: 'whiskey-glass-ice',
       userId: userId,
       ingredients: {
-        create: [
-          { drinkId: sodaId, parts: 4 },
-          { drinkId: whiskeyId, parts: 1 },
-        ],
+        create:
+          [
+            { drinkId: sodaId, parts: 4 },
+            { drinkId: whiskeyId, parts: 1 },
+          ].map(ingredient => ({
+            ingredient: { create: ingredient },
+          })),
       },
     },
   })
@@ -195,13 +197,13 @@ async function main() {
     ROUND(SUM((i.parts::float/t.parts)*d.coefficient)::numeric, 2) AS coefficient,
     ROUND(SUM((i.parts::float/t.parts)*d.caffeine)::numeric, 2) AS caffeine,
     ROUND(SUM((i.parts::float/t.parts)*d.sugar)::numeric, 2) AS sugar
-  FROM _drink_ingredients di
-  INNER JOIN ingredients i ON di."B" = i.id
+  FROM drink_ingredients di
+  INNER JOIN ingredients i ON di.ingredient_id = i.id
   INNER JOIN drinks d ON i.drink_id = d.id
   INNER JOIN (
-    SELECT di."A" AS drink_id,	SUM(i.parts) AS parts FROM ingredients i INNER JOIN _drink_ingredients di ON di."B" = i.id GROUP BY di."A"
-  ) t ON t.drink_id = di."A"
-  WHERE di."A" = ${id}::uuid`
+    SELECT di.drink_id AS drink_id,	SUM(i.parts) AS parts FROM ingredients i INNER JOIN drink_ingredients di ON di.ingredient_id = i.id GROUP BY di.drink_id
+  ) t ON t.drink_id = di.drink_id
+  WHERE di.drink_id = ${id}::uuid`
 
   await prisma.drink.update({
     where: { id },
@@ -213,7 +215,7 @@ async function main() {
   })
 
   const entryData = [
-    { drinkId: sodaId, userId, volume: 12, timestamp: new Date() },
+    { drinkId: sodaId, userId, volume: 12 },
     { drinkId: sodaId, userId, volume: 12 },
     { drinkId: whiskeyId, userId, volume: 1.5 },
     { drinkId: whiskeyId, userId, volume: 1.5 },

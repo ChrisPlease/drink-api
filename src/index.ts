@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { createSoftDeleteMiddleware } from 'prisma-soft-delete-middleware'
 import express from 'express'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -17,6 +18,17 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'error'],
 })
 
+prisma.$use(
+  createSoftDeleteMiddleware({
+    models: {
+      Drink: {
+        field: 'deleted',
+        createValue: (value) => value ? new Date() : null,
+      },
+      Entry: true,
+    },
+  }),
+)
 
 async function initServer() {
   const server = new ApolloServer<AppContext>({
@@ -27,14 +39,9 @@ async function initServer() {
   await server.start()
   console.log('Apollo server started')
   app.use(bodyParser.json())
-  app.use(
-    bodyParser.urlencoded({
-      extended: true,
-    }),
-  )
+  app.use(bodyParser.urlencoded({ extended: true }))
 
   app.use(cors())
-  app.use(jwtHandler)
   app.use(
     '/graphql',
     jwtHandler,

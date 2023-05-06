@@ -1,18 +1,25 @@
 import { roundNumber } from '../utils/roundNumber'
 import { Drinks } from '../models/Drink.model'
 import { MutationResolvers } from '../__generated__/graphql'
-import { fromCursorHash, toCursorHash } from '../utils/cursorHash'
+import { deconstructId, toCursorHash } from '../utils/cursorHash'
+import { Entries } from '../models/Entry.model'
+import { Entry } from '@prisma/client'
 
 export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, { volume, drinkId }, { prisma, req: { auth } }) {
+    const entry = Entries(prisma.entry)
     const userId = <string>auth?.sub
-    const [,id] = fromCursorHash(drinkId).split(':')
+    const [,id] = deconstructId(drinkId)
 
     const {
       id: entryId,
-      drink: { caffeine, sugar, coefficient },
-      ...entry
-    } = await prisma.entry.create({
+      drink: {
+        caffeine,
+        sugar,
+        coefficient,
+      },
+      ...rest
+    } = await entry.create({
       data: {
         volume,
         drinkId: id,
@@ -38,40 +45,118 @@ export const mutationResolvers: MutationResolvers = {
     return {
       id: toCursorHash(`Entry:${entryId}`),
       ...nutrition,
-      ...entry,
+      ...rest,
     }
+  },
+
+  async entryDelete(_, { entryId }, { prisma, req: { auth } }) {
+    const entry = Entries(prisma.entry)
+    const userId = <string>auth?.sub
+    const [,id] = deconstructId(entryId)
+
+    return await entry.delete({
+      where: {
+        id,
+        userId,
+      },
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    }).then(({ id, ...rest }) => ({ id: entryId, ...rest })) as Entry
   },
 
   async drinkCreate(_, { drinkInput }, { prisma, req: { auth } }) {
-    const drink = Drinks(prisma.drink, prisma)
+    const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
 
     const {
-      caffeine,
-      sugar,
-      servingSize,
       ingredients,
+      caffeine,
+      servingSize,
+      sugar,
+      coefficient,
       ...rest
     } = drinkInput
 
+    const nutrition = { caffeine, servingSize, sugar, coefficient }
+
     if (ingredients) {
       return await drink.createWithIngredients(
-        { userId, ...rest },
-        ingredients,
+        { userId, ingredients, ...rest },
+        prisma,
       )
     }
 
-    const nutrition = {
-      caffeine: roundNumber(+(caffeine ?? 0) / +(servingSize ?? 1)),
-      sugar: roundNumber(+(sugar ?? 0) / +(servingSize ?? 1)),
-      coefficient: roundNumber(+(drinkInput.coefficient ?? 0)),
-    }
-
-    return await drink.create({ data: { ...rest, ...nutrition, userId }})
+    return await drink.createWithNutrition({ userId, ...nutrition, ...rest })
   },
 
   async drinkDelete(_, { drinkId }, { prisma, req: { auth } }) {
+    const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
-    return await prisma.drink.delete({ where: { id_userId: { id: drinkId, userId } } })
+    const [,id] = deconstructId(drinkId)
+
+    return await drink
+      .delete({
+        where: {
+          id_userId: {
+            id,
+            userId,
+          },
+        },
+      })
+      /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+      .then(({ id, ...rest }) => ({
+        id: drinkId,
+        ...rest,
+      }))
+  },
+
+  async drinkEdit(
+    _,
+    {
+      drinkInput: {
+        caffeine,
+        sugar,
+        servingSize,
+        coefficient,
+        ingredients,
+        ...drinkInput
+      },
+    }, { prisma, req: { auth } }) {
+    const hasNutrition = !!caffeine || !!sugar || !!servingSize || !!coefficient
+    const drink = Drinks(prisma.drink)
+    const userId = <string>auth?.sub
+    const [type,id] = deconstructId(drinkInput.id)
+
+    if (!drinkInput.id) throw new Error('Drink ID required')
+
+    await drink.findUniqueOrThrow({ where: { id, userId } })
+
+    if (type === 'MixedDrink') {
+      if (hasNutrition) throw new Error('Cannot add nutrition to a Base Drink')
+      if (ingredients) {
+        return await drink.updateWithIngredients(
+          { userId, ingredients, ...drinkInput },
+          prisma,
+        )
+      } else {
+        return await drink.update({
+          where: { id, userId },
+          data: { userId, ...drinkInput },
+        })
+      }
+    } else {
+      if (ingredients) throw new Error('Cannot add ingredients to a Base Drink')
+      const nutrition = { caffeine, sugar, coefficient }
+
+      if (Object.values(nutrition).some(item => item) && !servingSize) {
+        throw new Error('Serving size is required when editing nutritional values')
+      }
+
+      return await drink.updateWithNutrition({
+        userId,
+        servingSize,
+        ...nutrition,
+        ...drinkInput,
+      })
+    }
   },
 }
