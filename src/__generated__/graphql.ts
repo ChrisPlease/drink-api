@@ -315,7 +315,6 @@ export type QueryDrinksHistoryArgs = {
   before?: InputMaybe<Scalars['String']>;
   filter?: InputMaybe<DrinksHistoryFilter>;
   first?: InputMaybe<Scalars['Int']>;
-  hasEntries?: InputMaybe<Scalars['Boolean']>;
   last?: InputMaybe<Scalars['Int']>;
 };
 

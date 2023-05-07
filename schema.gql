@@ -293,7 +293,6 @@ type Query {
     first: Int,
     last: Int,
     filter: DrinksHistoryFilter,
-    hasEntries: Boolean,
   ): DrinksHistoryPaginated
 }
 

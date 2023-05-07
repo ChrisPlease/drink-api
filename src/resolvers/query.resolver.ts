@@ -183,9 +183,10 @@ export const queryResolvers: QueryResolvers = {
       after,
       last,
       before,
-      hasEntries,
+      filter,
     }, { prisma, req: { auth } }) {
     const userId = <string>auth?.sub
+    const { hasEntries } = filter || { hasEntries: false }
 
     type RawEntry = {
       id: string,
