@@ -159,4 +159,8 @@ export const mutationResolvers: MutationResolvers = {
       })
     }
   },
+
+  async userCreate(_, { userId }, { prisma }) {
+    return await prisma.user.create({ data: { id: userId } })
+  },
 }

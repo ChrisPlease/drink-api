@@ -251,6 +251,13 @@ type DrinksHistoryPaginated implements PaginatedQuery {
 }
 
 """
+Filter for the Drinks History query
+"""
+input DrinksHistoryFilter {
+  hasEntries: Boolean
+}
+
+"""
 Root Queries
 """
 type Query {
@@ -284,7 +291,8 @@ type Query {
     before: String,
     after: String,
     first: Int,
-    last: Int
+    last: Int,
+    filter: DrinksHistoryFilter,
   ): DrinksHistoryPaginated
 }
 
@@ -297,4 +305,5 @@ type Mutation {
   drinkCreate(drinkInput: DrinkCreateInput!): DrinkResult
   drinkDelete(drinkId: ID!): DrinkResult
   drinkEdit(drinkInput: DrinkEditInput!): DrinkResult
+  userCreate(userId: ID!): User
 }

@@ -13,6 +13,11 @@ import { PrismaClient } from '@prisma/client'
 import { readFileSync } from 'fs'
 
 const app: express.Application = express()
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(cors({
+  origin: 'https://waterlog.test:8433',
+}))
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'error'],
@@ -38,10 +43,7 @@ async function initServer() {
 
   await server.start()
   console.log('Apollo server started')
-  app.use(bodyParser.json())
-  app.use(bodyParser.urlencoded({ extended: true }))
 
-  app.use(cors())
   app.use(
     '/graphql',
     jwtHandler,

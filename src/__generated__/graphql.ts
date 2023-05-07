@@ -120,6 +120,11 @@ export type DrinkSort = {
   name?: InputMaybe<Sort>;
 };
 
+/** Filter for the Drinks History query */
+export type DrinksHistoryFilter = {
+  hasEntries?: InputMaybe<Scalars['Boolean']>;
+};
+
 /** Paginated Drinks History list */
 export type DrinksHistoryPaginated = PaginatedQuery & {
   __typename?: 'DrinksHistoryPaginated';
@@ -205,6 +210,7 @@ export type Mutation = {
   drinkEdit?: Maybe<DrinkResult>;
   entryCreate?: Maybe<Entry>;
   entryDelete?: Maybe<Entry>;
+  userCreate?: Maybe<User>;
 };
 
 
@@ -236,6 +242,12 @@ export type MutationEntryCreateArgs = {
 /** Root Mutations */
 export type MutationEntryDeleteArgs = {
   entryId: Scalars['ID'];
+};
+
+
+/** Root Mutations */
+export type MutationUserCreateArgs = {
+  userId: Scalars['ID'];
 };
 
 /** Node interface for Paginated Queries */
@@ -301,6 +313,7 @@ export type QueryDrinksArgs = {
 export type QueryDrinksHistoryArgs = {
   after?: InputMaybe<Scalars['String']>;
   before?: InputMaybe<Scalars['String']>;
+  filter?: InputMaybe<DrinksHistoryFilter>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
 };
@@ -423,6 +436,7 @@ export type ResolversTypes = ResolversObject<{
   DrinkHistoryEdge: ResolverTypeWrapper<Omit<DrinkHistoryEdge, 'node'> & { node: ResolversTypes['DrinkHistory'] }>;
   DrinkResult: ResolversTypes['BaseDrink'] | ResolversTypes['MixedDrink'];
   DrinkSort: DrinkSort;
+  DrinksHistoryFilter: DrinksHistoryFilter;
   DrinksHistoryPaginated: ResolverTypeWrapper<Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversTypes['DrinkHistoryEdge']> }>;
   DrinksPaginated: ResolverTypeWrapper<DrinksPaginated>;
   EntriesPaginated: ResolverTypeWrapper<Omit<EntriesPaginated, 'edges'> & { edges: Array<ResolversTypes['EntryEdge']> }>;
@@ -459,6 +473,7 @@ export type ResolversParentTypes = ResolversObject<{
   DrinkHistoryEdge: Omit<DrinkHistoryEdge, 'node'> & { node: ResolversParentTypes['DrinkHistory'] };
   DrinkResult: ResolversParentTypes['BaseDrink'] | ResolversParentTypes['MixedDrink'];
   DrinkSort: DrinkSort;
+  DrinksHistoryFilter: DrinksHistoryFilter;
   DrinksHistoryPaginated: Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversParentTypes['DrinkHistoryEdge']> };
   DrinksPaginated: DrinksPaginated;
   EntriesPaginated: Omit<EntriesPaginated, 'edges'> & { edges: Array<ResolversParentTypes['EntryEdge']> };
@@ -605,6 +620,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   drinkEdit?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType, RequireFields<MutationDrinkEditArgs, 'drinkInput'>>;
   entryCreate?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryCreateArgs, 'drinkId' | 'volume'>>;
   entryDelete?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryDeleteArgs, 'entryId'>>;
+  userCreate?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUserCreateArgs, 'userId'>>;
 }>;
 
 export type NodeResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{
