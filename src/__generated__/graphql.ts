@@ -100,7 +100,6 @@ export type DrinkHistoryEntriesArgs = {
   drinkId?: InputMaybe<Scalars['ID']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
-  limit?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<EntrySort>;
 };
 
@@ -327,7 +326,6 @@ export type QueryEntriesArgs = {
   drinkId?: InputMaybe<Scalars['ID']>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
-  limit?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<EntrySort>;
 };
 

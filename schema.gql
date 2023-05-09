@@ -132,7 +132,6 @@ type DrinkHistory implements Node {
     after: String,
     first: Int,
     last: Int,
-    limit: Int,
     drinkId: ID
   ): EntriesPaginated
   drink: DrinkResult!
@@ -280,7 +279,6 @@ type Query {
     after: String,
     first: Int,
     last: Int,
-    limit: Int,
     drinkId: ID
   ): EntriesPaginated
   users: [User!]

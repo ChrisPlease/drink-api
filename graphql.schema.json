@@ -725,18 +725,6 @@
                 "deprecationReason": null
               },
               {
-                "name": "limit",
-                "description": null,
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
                 "name": "sort",
                 "description": null,
                 "type": {
@@ -2295,18 +2283,6 @@
               },
               {
                 "name": "last",
-                "description": null,
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "Int",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "limit",
                 "description": null,
                 "type": {
                   "kind": "SCALAR",
