@@ -23,10 +23,15 @@ export const queryResolvers: QueryResolvers = {
     switch (__typename) {
       case 'MixedDrink':
       case 'BaseDrink':
-        res = <Drink>await Drinks(prisma.drink).findUnique({ where: { id } })
+        res = <Drink>await Drinks(prisma.drink).findUnique({
+          where: { id },
+        })
         break
       case 'DrinkHistory':
-        res = <DrinkHistory>await DrinkHistoryModel(prisma).findDrinkHistory({ drinkId: id, userId })
+        res = <DrinkHistory>await DrinkHistoryModel(prisma).findDrinkHistory({
+          drinkId: id,
+          userId,
+        })
         break
       case 'Entry':
         res = <Entry>await Entries(prisma.entry).findUniqueWithNutrition({ where: { id } })

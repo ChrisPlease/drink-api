@@ -1,13 +1,13 @@
-import { PrismaClient, Drink } from '@prisma/client'
+import { PrismaClient, Drink, Prisma } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
 import { toCursorHash } from '../utils/cursorHash'
 
 export function DrinkHistory(client: PrismaClient) {
   return Object.assign({}, {
     async findDrinkHistory(
-      { drinkId, userId }: { drinkId: string; userId: string }) {
+      args: Pick<Prisma.EntryAggregateArgs, 'where'>) {
       const [{ _count: count, _max, _sum }] = await client.entry.groupBy({
-        where: { drinkId, userId },
+        ...args,
         by: ['drinkId', 'userId'],
         _max: {
           timestamp: true,
@@ -24,7 +24,7 @@ export function DrinkHistory(client: PrismaClient) {
         _count: { ingredients },
         ...drink
       } = <Drink & { _count: { ingredients: number } }>await client.drink.findUnique({
-        where: { id: drinkId },
+        where: { id: <string>args.where?.drinkId },
         include: {
           _count: { select: { ingredients: true } },
         },
@@ -35,7 +35,9 @@ export function DrinkHistory(client: PrismaClient) {
 
       return {
         id,
-        drink: { id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${id}`), ...drink },
+        drink: { id: toCursorHash(`${
+          ingredients > 0 ? 'Mixed' : 'Base'
+        }Drink:${id}`), ...drink },
         count,
         totalVolume,
         waterVolume: roundNumber(totalVolume * (drink?.coefficient || 0)),
