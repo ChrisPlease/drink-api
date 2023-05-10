@@ -360,11 +360,7 @@ export type ResolversObject<TObject> = WithIndex<TObject>;
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
 
-
-export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
-  resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
-};
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -423,6 +419,16 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes = ResolversObject<{
+  DrinkResult: ( BaseDrinkModel ) | ( MixedDrinkModel );
+}>;
+
+/** Mapping of union parent types */
+export type ResolversUnionParentTypes = ResolversObject<{
+  DrinkResult: ( BaseDrinkModel ) | ( MixedDrinkModel );
+}>;
+
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
   BaseDrink: ResolverTypeWrapper<BaseDrinkModel>;
@@ -434,7 +440,7 @@ export type ResolversTypes = ResolversObject<{
   DrinkEditInput: DrinkEditInput;
   DrinkHistory: ResolverTypeWrapper<DrinkHistoryModel>;
   DrinkHistoryEdge: ResolverTypeWrapper<Omit<DrinkHistoryEdge, 'node'> & { node: ResolversTypes['DrinkHistory'] }>;
-  DrinkResult: ResolversTypes['BaseDrink'] | ResolversTypes['MixedDrink'];
+  DrinkResult: ResolverTypeWrapper<ResolversUnionTypes['DrinkResult']>;
   DrinkSort: DrinkSort;
   DrinksHistoryFilter: DrinksHistoryFilter;
   DrinksHistoryPaginated: ResolverTypeWrapper<Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversTypes['DrinkHistoryEdge']> }>;
@@ -471,7 +477,7 @@ export type ResolversParentTypes = ResolversObject<{
   DrinkEditInput: DrinkEditInput;
   DrinkHistory: DrinkHistoryModel;
   DrinkHistoryEdge: Omit<DrinkHistoryEdge, 'node'> & { node: ResolversParentTypes['DrinkHistory'] };
-  DrinkResult: ResolversParentTypes['BaseDrink'] | ResolversParentTypes['MixedDrink'];
+  DrinkResult: ResolversUnionParentTypes['DrinkResult'];
   DrinkSort: DrinkSort;
   DrinksHistoryFilter: DrinksHistoryFilter;
   DrinksHistoryPaginated: Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversParentTypes['DrinkHistoryEdge']> };
