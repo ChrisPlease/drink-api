@@ -8,6 +8,7 @@
     "build:dev": "tsc --watch --preserveWatchOutput",
     "prebuild": "rimraf dist",
     "start": "NODE_ENV=develop concurrently \"npm:build:dev\" \"npm:start:dev\"",
+    "test": "echo 'No tests added'",
     "deploy": "npx prisma migrate deploy",
     "build": "NODE_ENV=production tsc",
     "generate": "graphql-codegen --config codegen.yml",
