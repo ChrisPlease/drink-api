@@ -1,3 +1,3 @@
-export function roundNumber(number: number): number {
-  return Math.round(number * 100) / 100
+export function roundNumber(number: number, place = 100): number {
+  return Math.round(number * place) / place
 }
