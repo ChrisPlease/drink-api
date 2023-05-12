@@ -53,7 +53,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         coefficient: roundNumber(+(coefficient ?? 0)),
       }
 
-      return await prismaDrink.create({ data: { ...rest, ...nutrition, userId }})
+      return await prismaDrink.create({
+        data: { ...rest, ...nutrition, userId },
+      })
         .then(({ id, ...rest }) => ({
           id: toCursorHash(`BaseDrink:${id}`),
           ...rest,
