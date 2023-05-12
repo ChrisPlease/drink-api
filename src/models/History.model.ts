@@ -5,8 +5,13 @@ import { toCursorHash } from '../utils/cursorHash'
 export function DrinkHistory(client: PrismaClient) {
   return Object.assign({}, {
     async findDrinkHistory(
-      args: Pick<Prisma.EntryAggregateArgs, 'where'>) {
-      const [{ _count: count, _max, _sum }] = await client.entry.groupBy({
+      args: Pick<Prisma.EntryAggregateArgs, 'where'>,
+    ) {
+      const [{
+        _count: count,
+        _max: max,
+        _sum: sum,
+      }] = await client.entry.groupBy({
         ...args,
         by: ['drinkId', 'userId'],
         _max: {
@@ -30,8 +35,8 @@ export function DrinkHistory(client: PrismaClient) {
         },
       })
 
-      const totalVolume = _sum.volume || 0
-      const lastEntry = _max.timestamp
+      const totalVolume = sum.volume || 0
+      const lastEntry = max.timestamp
 
       return {
         id,
