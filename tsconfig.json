@@ -13,6 +13,6 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true
   },
-  "include": ["./src/*"],
+  "include": ["./src/*", "__mocks__"],
   "exclude": ["./prisma"]
 }
