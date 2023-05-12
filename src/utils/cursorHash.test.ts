@@ -22,20 +22,28 @@ describe('cursorHash', () => {
     })
   })
   describe('encodeCursor', () => {
-    test('takes an object and decodes keys', () => {
+    test('takes an object and decodes given keys', () => {
       const obj = {
         foo: 'foo',
         bar: toCursorHash('key:bar'),
         bat: toCursorHash('key:bat'),
+        nest: {
+          key: toCursorHash('key:val'),
+          arr: ['foo', 'bar'],
+        },
       }
 
       const res = {
         foo: 'foo',
         bar: 'bar',
         bat: 'bat',
+        nest: {
+          key: 'val',
+          arr: ['foo', 'bar'],
+        },
       }
 
-      expect(encodeCursor(obj, ['bar', 'bat'])).toStrictEqual(res)
+      expect(encodeCursor(obj, ['bar', 'bat', 'key'])).toStrictEqual(res)
     })
   })
   describe('deconstructId', () => {
