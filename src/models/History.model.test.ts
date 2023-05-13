@@ -3,18 +3,11 @@ import {
   beforeEach,
   test,
   expect,
-  vi,
 } from 'vitest'
 import prisma from '../../__mocks__/prisma'
 import { DrinkHistory } from './History.model'
 import { Prisma } from '@prisma/client'
-
-vi.mock('../../__mocks__/prisma', () => ({
-  default: () => ({
-    ...prisma,
-    groupBy: vi.fn(),
-  }),
-}))
+import { toCursorHash } from '../utils/cursorHash'
 
 describe('DrinkHistory', () => {
   const history = DrinkHistory(prisma)
@@ -24,23 +17,25 @@ describe('DrinkHistory', () => {
     let mockResponse: any
 
     beforeEach(() => {
+      mockArgs = {
+        where: {
+          drinkId: 'drink-123',
+          userId: 'user-123',
+        },
+      }
 
-      // vi.spyOn((prisma.entry as any), 'groupBy').mockResolvedValue([{
-      //   _count: 1,
-      //   _max: 1,
-      //   _sum: 1,
-      // }])
+      mockResponse = {
+        id: toCursorHash('DrinkHistory:drink-123'),
+      }
+
+      prisma.$transaction.mockResolvedValue(mockResponse)
     })
 
-    test('is true', () => {
-      expect(true).toBeTruthy()
-    })
-    // test('foo', async () => {
-    //   const foo = await history.findDrinkHistory({
-    //     where: { userId: '123', drinkId: '123' },
-    //   })
 
-    //   console.log(foo)
-    // })
+    test('makes a transaction to retrieve drink history', async () => {
+      await history.findDrinkHistory(mockArgs)
+
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
   })
 })
