@@ -6,13 +6,15 @@ import { deconstructId, toCursorHash } from '../utils/cursorHash'
 export const entryResolvers: EntryResolvers = {
   async drink({ id: argId }, _, { prisma }) {
     const [,id] = deconstructId(argId)
-    const drink = <Drink>await prisma.entry.findUnique({
+    const {
+      _count: { ingredients },
+      ...drink
+    } = <Drink & { _count: { ingredients: number } }>await prisma.entry.findUnique({
       where: { id },
     }).drink({ include: { _count: { select: { ingredients: true } } } })
-
     return {
       ...drink,
-      id: toCursorHash(`DrinkResult:${drink.id}`),
+      id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drink.id}`),
     }
   },
 

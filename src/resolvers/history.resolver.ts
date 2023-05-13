@@ -32,9 +32,9 @@ export const historyResolvers: DrinkHistoryResolvers = {
     },
   ) {
     const [,id] = deconstructId(parent.id)
-    const entries = Entries(prisma.entry)
+    const entry = Entries(prisma.entry)
 
-    return await entries.findManyPaginated(
+    return await entry.findManyPaginated(
       prisma,
       { sort, distinct, drinkId: id },
       { first, last, after, before },
