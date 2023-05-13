@@ -121,6 +121,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           AND: [
             { drinkId: <string>drinkId },
             { userId },
+            { deleted: false },
           ],
         },
         orderBy,
@@ -129,6 +130,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       if (distinct) {
         baseArgs.distinct = 'volume'
       }
+
       return await findManyCursorConnection<Entry, Prisma.EntryWhereUniqueInput>(
         (args) => this.findWithNutrition({
           ...args,
@@ -139,7 +141,9 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           let count = 0
           if (distinct) {
             ([{ count }] = await client.$queryRaw<{ count: number }[]>`
-            SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${userId} ${
+            SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${
+              userId
+            } AND deleted = false ${
               drinkId ? Prisma.sql`AND drink_id = ${drinkId}::uuid` : Prisma.empty
             }
             `)
