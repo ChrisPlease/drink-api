@@ -10,7 +10,6 @@
     "start": "NODE_ENV=develop concurrently \"npm:build:dev\" \"npm:start:dev\"",
     "test": "echo 'No tests added'",
     "test:unit": "vitest -c ./vitest.config.unit.ts",
-    "test:unit:ui": "vitest -c ./vitest.config.unit.ts --ui",
     "deploy": "npx prisma migrate deploy",
     "build": "NODE_ENV=production tsc",
     "generate": "graphql-codegen --config codegen.yml",
