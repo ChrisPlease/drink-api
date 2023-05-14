@@ -236,7 +236,11 @@ export const queryResolvers: QueryResolvers = {
           water_volume: waterVolume,
           total_volume: totalVolume,
           last_entry: lastEntry,
-          drink: { id: drinkId, ingredients, ...drink },
+          drink: {
+            id: drinkId,
+            ingredients,
+            ...drink
+          },
           id,
           ...entry
         }) => ({
