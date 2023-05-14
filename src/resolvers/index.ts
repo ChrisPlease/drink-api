@@ -1,4 +1,4 @@
-import { NodeResolvers, Resolvers } from '../__generated__/graphql'
+import { NodeResolvers, Resolvers } from '../../__generated__/graphql'
 import { queryResolvers } from './query.resolver'
 import { mutationResolvers } from './mutation.resolver'
 import {

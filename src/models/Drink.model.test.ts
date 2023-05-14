@@ -12,7 +12,7 @@ import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import {
   DrinkCreateInput,
   DrinkEditInput,
-} from '../__generated__/graphql'
+} from '../../__generated__/graphql'
 
 describe('Drink Model', () => {
   const drink = Drinks(prisma.drink)

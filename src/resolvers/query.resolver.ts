@@ -1,4 +1,4 @@
-import { QueryResolvers } from '../__generated__/graphql'
+import { QueryResolvers } from '../../__generated__/graphql'
 import { Entries } from '../models/Entry.model'
 import { DrinkHistory as DrinkHistoryModel } from '../types/models'
 import { DrinkHistory } from '../models/History.model'
