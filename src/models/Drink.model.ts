@@ -1,5 +1,5 @@
 import { PrismaClient, Drink } from '@prisma/client'
-import { DrinkCreateInput, DrinkEditInput } from '../__generated__/graphql'
+import { DrinkCreateInput, DrinkEditInput } from '../../__generated__/graphql'
 import { roundNumber } from '../utils/roundNumber'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Nutrition, NutritionQuery } from '../types/models'
@@ -53,7 +53,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         coefficient: roundNumber(+(coefficient ?? 0)),
       }
 
-      return await prismaDrink.create({ data: { ...rest, ...nutrition, userId }})
+      return await prismaDrink.create({
+        data: { ...rest, ...nutrition, userId },
+      })
         .then(({ id, ...rest }) => ({
           id: toCursorHash(`BaseDrink:${id}`),
           ...rest,

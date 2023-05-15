@@ -5,16 +5,13 @@ import {
   DrinkResolvers,
   DrinkResultResolvers,
   MixedDrinkResolvers,
-} from '../__generated__/graphql'
+} from '../../__generated__/graphql'
 import { deconstructId } from '../utils/cursorHash'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
-  async __resolveType(parent, { prisma }) {
-    const [,id] = deconstructId(parent.id)
-    const ingredients = await prisma.drink.findUnique({
-      where: { id },
-    }).ingredients()
-    return ingredients?.length ? 'MixedDrink' : 'BaseDrink'
+  async __resolveType(parent) {
+    const [type] = deconstructId(parent.id)
+    return type as 'MixedDrink' | 'BaseDrink'
   },
 
 }
