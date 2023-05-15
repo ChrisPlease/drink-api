@@ -7,7 +7,13 @@ const prisma = new PrismaClient()
 
 async function main() {
 
-  const [user1, user2] = await seedUsers(prisma)
+  const [
+    { id: userId1 },
+    { id: userId2 },
+  ] = await seedUsers(prisma, [
+    'auth0|633cb40c15422d538368f4c6',
+    'auth0|6341da849ae95d74a374a5e1',
+  ])
   const {
     Water: waterId,
     Soda: sodaId,
@@ -19,7 +25,7 @@ async function main() {
     data: {
       name: 'Seven & Seven',
       icon: 'whiskey-glass-ice',
-      userId: user1.id,
+      userId: userId1,
       ingredients: {
         create:
           [
@@ -38,7 +44,11 @@ async function main() {
     coefficient: string,
   }
 
-  const [{ sugar, caffeine, coefficient }] = await prisma.$queryRaw<NutritionQuery[]>`
+  const [{
+    sugar,
+    caffeine,
+    coefficient,
+  }] = await prisma.$queryRaw<NutritionQuery[]>`
   SELECT
     ROUND(SUM((i.parts::float/t.parts)*d.coefficient)::numeric, 2) AS coefficient,
     ROUND(SUM((i.parts::float/t.parts)*d.caffeine)::numeric, 2) AS caffeine,
@@ -65,18 +75,18 @@ async function main() {
   })
 
   const entryData = [
-    { drinkId: sodaId, userId: user1.id, volume: 12 },
-    { drinkId: sodaId, userId: user1.id, volume: 12 },
-    { drinkId: whiskeyId, userId: user1.id, volume: 1.5 },
-    { drinkId: whiskeyId, userId: user1.id, volume: 1.5 },
-    { drinkId: id, userId: user1.id, volume: 8 },
-    { drinkId: id, userId: user1.id, volume: 8 },
+    { drinkId: sodaId, userId: userId1, volume: 12 },
+    { drinkId: sodaId, userId: userId1, volume: 12 },
+    { drinkId: whiskeyId, userId: userId1, volume: 1.5 },
+    { drinkId: whiskeyId, userId: userId1, volume: 1.5 },
+    { drinkId: id, userId: userId1, volume: 8 },
+    { drinkId: id, userId: userId1, volume: 8 },
 
-    { drinkId: waterId, userId: user2.id, volume: 28 },
-    { drinkId: waterId, userId: user2.id, volume: 32 },
-    { drinkId: coffeeId, userId: user2.id, volume: 12 },
-    { drinkId: sodaId, userId: user2.id, volume: 16 },
-    { drinkId: whiskeyId, userId: user2.id, volume: 1.5 },
+    { drinkId: waterId, userId: userId2, volume: 28 },
+    { drinkId: waterId, userId: userId2, volume: 32 },
+    { drinkId: coffeeId, userId: userId2, volume: 12 },
+    { drinkId: sodaId, userId: userId2, volume: 16 },
+    { drinkId: whiskeyId, userId: userId2, volume: 1.5 },
   ]
 
   await seedEntries(prisma, entryData)
@@ -87,11 +97,7 @@ main()
     await prisma.$disconnect()
   })
   .catch(async (e) => {
-
     console.error(e)
-
     await prisma.$disconnect()
-
     process.exit(1)
-
   })
