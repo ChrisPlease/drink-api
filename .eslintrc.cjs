@@ -1,7 +1,7 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
   root: true,
-  'ignorePatterns': ['src/__generated__/**/*'],
+  'ignorePatterns': ['__generated__/**/*'],
   'overrides': [
     {
       'files': ['*.gql'],

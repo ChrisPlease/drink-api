@@ -1,5 +1,5 @@
 import { Drink } from '@prisma/client'
-import { IngredientResolvers } from '../__generated__/graphql'
+import { IngredientResolvers } from '../../__generated__/graphql'
 import { toCursorHash } from '../utils/cursorHash'
 
 export const ingredientResolvers: IngredientResolvers = {

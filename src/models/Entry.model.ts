@@ -2,7 +2,7 @@ import { Prisma, PrismaClient, Entry } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
 import { ConnectionArguments, findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { toCursorHash, fromCursorHash, encodeCursor } from '../utils/cursorHash'
-import { QueryEntriesArgs } from '../__generated__/graphql'
+import { QueryEntriesArgs } from '../../__generated__/graphql'
 import { Nutrition } from '../types/models'
 
 type EntryNutrition = {

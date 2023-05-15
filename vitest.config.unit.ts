@@ -4,6 +4,10 @@ export default defineConfig({
   test: {
     coverage: {
       all: true,
+      include: [
+        'src/**/*.test.ts',
+        '!src/tests',
+      ],
       exclude: [
         'src/types/*',
         'src/**/*.test.ts',

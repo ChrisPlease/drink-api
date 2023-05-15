@@ -1,5 +1,5 @@
 import { PrismaClient, Drink } from '@prisma/client'
-import { DrinkCreateInput, DrinkEditInput } from '../__generated__/graphql'
+import { DrinkCreateInput, DrinkEditInput } from '../../__generated__/graphql'
 import { roundNumber } from '../utils/roundNumber'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Nutrition, NutritionQuery } from '../types/models'

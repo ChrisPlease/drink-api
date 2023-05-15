@@ -1,4 +1,4 @@
-import { QueryResolvers } from '../__generated__/graphql'
+import { QueryResolvers } from '../../__generated__/graphql'
 import { Entries } from '../models/Entry.model'
 import { DrinkHistory as DrinkHistoryModel } from '../types/models'
 import { DrinkHistory } from '../models/History.model'
@@ -236,7 +236,11 @@ export const queryResolvers: QueryResolvers = {
           water_volume: waterVolume,
           total_volume: totalVolume,
           last_entry: lastEntry,
-          drink: { id: drinkId, ingredients, ...drink },
+          drink: {
+            id: drinkId,
+            ingredients,
+            ...drink
+          },
           id,
           ...entry
         }) => ({

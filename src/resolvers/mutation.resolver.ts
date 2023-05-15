@@ -1,5 +1,5 @@
 import { Drinks } from '../models/Drink.model'
-import { MutationResolvers } from '../__generated__/graphql'
+import { MutationResolvers } from '../../__generated__/graphql'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Entries } from '../models/Entry.model'
 
@@ -178,6 +178,10 @@ export const mutationResolvers: MutationResolvers = {
   },
 
   async userCreate(_, { userId }, { prisma }) {
-    return await prisma.user.create({ data: { id: userId } })
+    try {
+      return await prisma.user.create({ data: { id: userId } })
+    } catch (err) {
+      throw new Error('User already exists')
+    }
   },
 }
