@@ -33,7 +33,9 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
             select: {
               caffeine: true,
               sugar: true,
-              coefficient: true } },
+              coefficient: true,
+            },
+          },
         },
       })
 
@@ -128,7 +130,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       }
 
       if (distinct) {
-        baseArgs.distinct = 'volume'
+        baseArgs.distinct = ['volume', 'drinkId']
       }
 
       return await findManyCursorConnection<Entry, Prisma.EntryWhereUniqueInput>(

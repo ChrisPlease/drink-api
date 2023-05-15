@@ -4,9 +4,9 @@ const prisma = new PrismaClient()
 
 export default async () => {
   await prisma.$transaction([
+    prisma.entry.deleteMany(),
     prisma.drink.deleteMany(),
     prisma.ingredient.deleteMany(),
-    prisma.entry.deleteMany(),
     prisma.user.deleteMany(),
   ])
 }

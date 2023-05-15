@@ -9,10 +9,13 @@ import prisma from './helpers/prisma'
 import { testServer } from './helpers/server'
 import { Request } from 'express-jwt'
 import { Response } from 'express'
+import { gql } from 'graphql-tag'
 import { AppContext } from '../types/context'
+import { DocumentNode } from 'graphql'
 
 describe('users', () => {
   let ctx: AppContext
+  let QUERY: DocumentNode
 
   beforeEach(async () => {
     await prisma.user.createMany({
@@ -32,14 +35,19 @@ describe('users', () => {
   })
 
   describe('createUser', () => {
-    it('creates and returns a new user', async () => {
-      expect.assertions(2)
-      const res = await testServer.executeOperation({
-        query: `mutation CreateUser($userId: ID!) {
+    beforeEach(() => {
+      QUERY = gql`
+        mutation CreateUser($userId: ID!) {
           userCreate(userId: $userId) {
             id
           }
-        }`,
+        }
+      `
+    })
+    it('creates and returns a new user', async () => {
+      expect.assertions(2)
+      const res = await testServer.executeOperation({
+        query: QUERY,
         variables: { userId: 'user-789' },
       }, {
         contextValue: ctx,
@@ -57,11 +65,7 @@ describe('users', () => {
     it('returns an error when a user already exists', async () => {
       expect.assertions(2)
       const res = await testServer.executeOperation({
-        query: `mutation CreateUser($userId: ID!) {
-          userCreate(userId: $userId) {
-            id
-          }
-        }`,
+        query: QUERY,
         variables: { userId: 'user-123' },
       }, {
         contextValue: ctx,
@@ -75,6 +79,13 @@ describe('users', () => {
 
   describe('me', () => {
     beforeEach(() => {
+      QUERY = gql`
+        query GetCurrentUser {
+          me {
+            id
+          }
+        }
+      `
       ctx = {
         ...ctx,
         req: {
@@ -85,11 +96,7 @@ describe('users', () => {
 
     it('returns the user provided by the auth token', async () => {
       const res = await testServer.executeOperation({
-        query: `query GetCurrentUser {
-          me {
-            id
-          }
-        }`,
+        query: QUERY,
       }, {
         contextValue: ctx,
       })
@@ -100,15 +107,18 @@ describe('users', () => {
   })
 
   describe('user', () => {
-    it('returns the user by given id', async () => {
-      const res = await testServer.executeOperation({
-        query: `
+    beforeEach(() => {
+      QUERY = gql`
         query GetUser($userId: ID!) {
           user(userId: $userId) {
             id
           }
         }
-        `,
+      `
+    })
+    it('returns the user by given id', async () => {
+      const res = await testServer.executeOperation({
+        query: QUERY,
         variables: { userId: 'user-123' },
       }, {
         contextValue: ctx,
@@ -124,13 +134,17 @@ describe('users', () => {
   })
 
   describe('users', () => {
-    it('retrieves a list of all users', async () => {
-      const res = await testServer.executeOperation({
-        query: `query GetUsers {
+    beforeEach(() => {
+      QUERY = gql`
+        query GetUsers {
           users {
             id
           }
-        }`,
+        }`
+    })
+    it('retrieves a list of all users', async () => {
+      const res = await testServer.executeOperation({
+        query: QUERY,
       }, {
         contextValue: ctx,
       })
