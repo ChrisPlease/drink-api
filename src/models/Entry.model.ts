@@ -2,33 +2,53 @@ import { Prisma, PrismaClient, Entry } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
 import { ConnectionArguments, findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { toCursorHash, fromCursorHash, encodeCursor } from '../utils/cursorHash'
-import { QueryEntriesArgs } from '../__generated__/graphql'
+import { QueryEntriesArgs } from '../../__generated__/graphql'
+import { Nutrition } from '../types/models'
 
-type Nutrition = {
+type EntryNutrition = {
   caffeine: number,
-  waterContent: number,
   sugar: number,
+  waterContent: number,
 }
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
+    computeNutrition(
+      { caffeine, sugar, coefficient }: Nutrition,
+      volume: number,
+    ): EntryNutrition {
+      return {
+        caffeine: roundNumber(caffeine * volume),
+        sugar: roundNumber(sugar * volume),
+        waterContent: roundNumber(coefficient * volume),
+      }
+    },
     async findUniqueWithNutrition(
       args: Prisma.EntryFindUniqueArgs,
     ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number }) | undefined> {
       const entry = await prismaEntry.findUnique({
         ...args,
         include: {
-          drink: { select: { caffeine: true, sugar: true, coefficient: true } },
+          drink: {
+            select: {
+              caffeine: true,
+              sugar: true,
+              coefficient: true,
+            },
+          },
         },
       })
 
       const drink = entry?.drink
 
-      const nutrition: Nutrition = {
-        caffeine: roundNumber((drink?.caffeine ?? 0) * (entry?.volume ?? 0)),
-        sugar: roundNumber((drink?.sugar ?? 0) * (entry?.volume ?? 0)),
-        waterContent: roundNumber((drink?.coefficient ?? 0) * (entry?.volume ?? 0)),
-      }
+      const nutrition = this.computeNutrition(
+        {
+          caffeine: drink?.caffeine ?? 0,
+          sugar: drink?.sugar ?? 0,
+          coefficient: drink?.coefficient ?? 0,
+        },
+        entry?.volume ?? 0,
+      )
 
       return entry ? {
         ...entry,
@@ -52,11 +72,14 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       })
 
       return entries.map(({ id, drink, ...entry }) => {
-        const nutrition: Nutrition = {
-          caffeine: roundNumber((drink?.caffeine ?? 0) * entry.volume),
-          sugar: roundNumber((drink?.sugar ?? 0) * entry.volume),
-          waterContent: roundNumber((drink?.coefficient ?? 0) * entry.volume),
-        }
+        const nutrition = this.computeNutrition(
+          {
+            caffeine: drink?.caffeine ?? 0,
+            sugar: drink?.sugar ?? 0,
+            coefficient: drink?.coefficient ?? 0,
+          },
+          entry.volume,
+        )
 
         return {
           id: toCursorHash(`Entry:${id}`),
@@ -100,14 +123,16 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           AND: [
             { drinkId: <string>drinkId },
             { userId },
+            { deleted: false },
           ],
         },
         orderBy,
       }
 
       if (distinct) {
-        baseArgs.distinct = 'volume'
+        baseArgs.distinct = ['volume', 'drinkId']
       }
+
       return await findManyCursorConnection<Entry, Prisma.EntryWhereUniqueInput>(
         (args) => this.findWithNutrition({
           ...args,
@@ -118,7 +143,9 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           let count = 0
           if (distinct) {
             ([{ count }] = await client.$queryRaw<{ count: number }[]>`
-            SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${userId} ${
+            SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${
+              userId
+            } AND deleted = false ${
               drinkId ? Prisma.sql`AND drink_id = ${drinkId}::uuid` : Prisma.empty
             }
             `)

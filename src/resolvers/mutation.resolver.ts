@@ -1,9 +1,7 @@
-import { roundNumber } from '../utils/roundNumber'
 import { Drinks } from '../models/Drink.model'
-import { MutationResolvers } from '../__generated__/graphql'
+import { MutationResolvers } from '../../__generated__/graphql'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Entries } from '../models/Entry.model'
-import { Entry } from '@prisma/client'
 
 export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, { volume, drinkId }, { prisma, req: { auth } }) {
@@ -36,11 +34,11 @@ export const mutationResolvers: MutationResolvers = {
       },
     })
 
-    const nutrition = {
-      sugar: roundNumber((sugar ?? 0) * volume),
-      waterContent: roundNumber((coefficient ?? 0) * volume),
-      caffeine: roundNumber((caffeine ?? 0) * volume),
-    }
+    const nutrition = entry.computeNutrition({
+      sugar: sugar ?? 0,
+      coefficient: coefficient ?? 1,
+      caffeine: caffeine ?? 0,
+    }, volume)
 
     return {
       id: toCursorHash(`Entry:${entryId}`),
@@ -54,13 +52,32 @@ export const mutationResolvers: MutationResolvers = {
     const userId = <string>auth?.sub
     const [,id] = deconstructId(entryId)
 
-    return await entry.delete({
-      where: {
+    return await prisma.$transaction(async (tx) => {
+      const { drinkId, ...deletedEntry } = await tx.entry.delete({
+        where: { id, userId },
+      })
+
+      const drink = await tx.drink.findUnique({
+        where: { id: drinkId },
+        select: {
+          caffeine: true,
+          sugar: true,
+          coefficient: true,
+        },
+      })
+
+      return {
+        ...deletedEntry,
+        drinkId,
         id,
-        userId,
-      },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    }).then(({ id, ...rest }) => ({ id: entryId, ...rest })) as Entry
+        ...entry.computeNutrition({
+          sugar: drink?.sugar ?? 0,
+          caffeine: drink?.caffeine ?? 0,
+          coefficient: drink?.coefficient ?? 0,
+        }, deletedEntry.volume),
+
+      }
+    })
   },
 
   async drinkCreate(_, { drinkInput }, { prisma, req: { auth } }) {
@@ -161,6 +178,10 @@ export const mutationResolvers: MutationResolvers = {
   },
 
   async userCreate(_, { userId }, { prisma }) {
-    return await prisma.user.create({ data: { id: userId } })
+    try {
+      return await prisma.user.create({ data: { id: userId } })
+    } catch (err) {
+      throw new Error('User already exists')
+    }
   },
 }

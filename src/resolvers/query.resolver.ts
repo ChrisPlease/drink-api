@@ -1,9 +1,8 @@
-import { QueryResolvers } from '../__generated__/graphql'
+import { QueryResolvers } from '../../__generated__/graphql'
 import { Entries } from '../models/Entry.model'
-import { DrinkHistory } from '../types/models'
-import { DrinkHistory as DrinkHistoryModel } from '../models/History.model'
+import { DrinkHistory as DrinkHistoryModel } from '../types/models'
+import { DrinkHistory } from '../models/History.model'
 import { Drink, Entry, Prisma } from '@prisma/client'
-import { roundNumber } from '../utils/roundNumber'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import {
   toCursorHash,
@@ -23,10 +22,17 @@ export const queryResolvers: QueryResolvers = {
     switch (__typename) {
       case 'MixedDrink':
       case 'BaseDrink':
-        res = <Drink>await Drinks(prisma.drink).findUnique({ where: { id } })
+        res = <Drink>await Drinks(prisma.drink).findUnique({
+          where: { id },
+        })
         break
       case 'DrinkHistory':
-        res = <DrinkHistory>await DrinkHistoryModel(prisma).findDrinkHistory({ drinkId: id, userId })
+        res = <DrinkHistoryModel>await DrinkHistory(prisma).findDrinkHistory({
+          where: {
+            drinkId: id,
+            userId,
+          },
+        })
         break
       case 'Entry':
         res = <Entry>await Entries(prisma.entry).findUniqueWithNutrition({ where: { id } })
@@ -147,33 +153,12 @@ export const queryResolvers: QueryResolvers = {
 
   async drinkHistory(_, { drinkId }, { prisma, req: { auth } }) {
     const userId = <string>auth?.sub
-    const [{ _count: count, _max, _sum }] = await prisma.entry.groupBy({
-      where: { drinkId, userId },
-      by: ['drinkId', 'userId'],
-      _max: {
-        timestamp: true,
-      },
-      _count: true,
-      _sum: {
-        volume: true,
+    return await DrinkHistory(prisma).findDrinkHistory({
+      where: {
+        drinkId,
+        userId,
       },
     })
-
-    const drink = <Drink>await prisma.drink.findUnique({
-      where: { id: drinkId },
-    })
-
-    const totalVolume = _sum.volume || 0
-    const lastEntry = _max.timestamp
-
-    return {
-      id: drinkId,
-      drink,
-      count,
-      totalVolume,
-      waterVolume: roundNumber(totalVolume * (drink?.coefficient || 0)),
-      lastEntry,
-    }
   },
 
   async drinksHistory(
@@ -251,7 +236,11 @@ export const queryResolvers: QueryResolvers = {
           water_volume: waterVolume,
           total_volume: totalVolume,
           last_entry: lastEntry,
-          drink: { id: drinkId, ingredients, ...drink },
+          drink: {
+            id: drinkId,
+            ingredients,
+            ...drink
+          },
           id,
           ...entry
         }) => ({
