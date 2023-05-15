@@ -124,8 +124,7 @@ export async function seedDrinks(prisma: PrismaClient) {
       },
     })
   }))
-  .then(res => res.reduce((acc, { id, name }) => {
-    acc[name] = id
-    return acc
-  }, {} as Record<string, string>))
+  .then(res => res.reduce(
+    (acc, { id, name }) => ({ [name]: id, ...acc }), {} as Record<string, string>,
+  ))
 }

@@ -4,7 +4,6 @@ import {
   it,
   expect,
 } from 'vitest'
-import { v5 as uuidv5 } from 'uuid'
 import { seedUsers } from '../../prisma/seeders/users'
 import { seedDrinks } from '../../prisma/seeders/drinks'
 import assert from 'assert'
@@ -14,8 +13,6 @@ import { Request } from 'express-jwt'
 import { Response } from 'express'
 import { AppContext } from '../types/context'
 import { DrinksPaginated } from '../../__generated__/graphql'
-import { toCursorHash } from '../utils/cursorHash'
-import { namespaceUuid } from '../../prisma/constants'
 
 describe('drinks', () => {
   let ctx: AppContext
