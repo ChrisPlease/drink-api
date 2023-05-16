@@ -7,7 +7,7 @@ docker compose -f docker-compose.test.yml up -d
 echo '🟡 - Waiting for database to be ready...'
 
 $DIR/wait-for-it.sh "${DATABASE_URL}" -- echo '🟢 - Database is ready!'
-npx prisma db push
+npx prisma migrate dev --name init
 if [ "$#" -eq  "0" ]
   then
     vitest -c ./vitest.config.integration.ts
