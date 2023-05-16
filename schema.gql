@@ -42,6 +42,7 @@ interface Drink implements Node {
   coefficient: Float
   caffeine: Float
   sugar: Float
+  servingSize: Float
   entries: [Entry!]
   user: User
   createdAt: Date!
@@ -57,6 +58,7 @@ type BaseDrink implements Drink & Node {
   coefficient: Float
   caffeine: Float
   sugar: Float
+  servingSize: Float
   entries: [Entry!]
   user: User
   createdAt: Date!
@@ -72,6 +74,7 @@ type MixedDrink implements Drink & Node {
   coefficient: Float
   caffeine: Float
   sugar: Float
+  servingSize: Float
   entries: [Entry!]
   user: User
   ingredients: [Ingredient!]!
@@ -159,7 +162,7 @@ input DrinkCreateInput {
   name: String!
   icon: Icon!
 
-  servingSize: Float
+  servingSize: Float!
   caffeine: Float
   sugar: Float
   coefficient: Float

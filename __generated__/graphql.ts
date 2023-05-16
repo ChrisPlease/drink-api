@@ -32,6 +32,7 @@ export type BaseDrink = Drink & Node & {
   icon: Scalars['Icon'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  servingSize?: Maybe<Scalars['Float']>;
   sugar?: Maybe<Scalars['Float']>;
   user?: Maybe<User>;
 };
@@ -45,6 +46,7 @@ export type Drink = {
   icon: Scalars['Icon'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  servingSize?: Maybe<Scalars['Float']>;
   sugar?: Maybe<Scalars['Float']>;
   user?: Maybe<User>;
 };
@@ -56,7 +58,7 @@ export type DrinkCreateInput = {
   icon: Scalars['Icon'];
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name: Scalars['String'];
-  servingSize?: InputMaybe<Scalars['Float']>;
+  servingSize: Scalars['Float'];
   sugar?: InputMaybe<Scalars['Float']>;
 };
 
@@ -197,6 +199,7 @@ export type MixedDrink = Drink & Node & {
   id: Scalars['ID'];
   ingredients: Array<Ingredient>;
   name: Scalars['String'];
+  servingSize?: Maybe<Scalars['Float']>;
   sugar?: Maybe<Scalars['Float']>;
   user?: Maybe<User>;
 };
@@ -508,6 +511,7 @@ export type BaseDrinkResolvers<ContextType = AppContext, ParentType extends Reso
   icon?: Resolver<ResolversTypes['Icon'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  servingSize?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -526,6 +530,7 @@ export type DrinkResolvers<ContextType = AppContext, ParentType extends Resolver
   icon?: Resolver<ResolversTypes['Icon'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  servingSize?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 }>;
@@ -613,6 +618,7 @@ export type MixedDrinkResolvers<ContextType = AppContext, ParentType extends Res
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   ingredients?: Resolver<Array<ResolversTypes['Ingredient']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  servingSize?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

@@ -26,6 +26,7 @@ async function main() {
       name: 'Seven & Seven',
       icon: 'whiskey-glass-ice',
       userId: userId1,
+      servingSize: 8,
       ingredients: {
         create:
           [
