@@ -114,6 +114,7 @@ type Entry implements Node {
   caffeine: Float!
   sugar: Float!
   waterContent: Float!
+  servings: Float!
   user: User
   drink: DrinkResult
   timestamp: Date!
