@@ -1,4 +1,4 @@
-import { QueryResolvers } from '../../__generated__/graphql'
+import { QueryResolvers } from '../__generated__/graphql'
 import { Entries } from '../models/Entry.model'
 import { DrinkHistory as DrinkHistoryModel } from '../types/models'
 import { DrinkHistory } from '../models/History.model'
@@ -22,20 +22,21 @@ export const queryResolvers: QueryResolvers = {
     switch (__typename) {
       case 'MixedDrink':
       case 'BaseDrink':
-        res = <Drink>await Drinks(prisma.drink).findUnique({
-          where: { id },
-        })
+        res = <Drink>await Drinks(prisma.drink)
+          .findUnique({ where: { id } })
         break
       case 'DrinkHistory':
-        res = <DrinkHistoryModel>await DrinkHistory(prisma).findDrinkHistory({
-          where: {
-            drinkId: id,
-            userId,
-          },
-        })
+        res = <DrinkHistoryModel>await DrinkHistory(prisma)
+          .findDrinkHistory({
+            where: {
+              drinkId: id,
+              userId,
+            },
+          })
         break
       case 'Entry':
-        res = <Entry>await Entries(prisma.entry).findUniqueWithNutrition({ where: { id } })
+        res = <Entry>await Entries(prisma.entry)
+          .findUniqueWithNutrition({ where: { id } })
         break
     }
 
@@ -129,6 +130,16 @@ export const queryResolvers: QueryResolvers = {
     )
   },
 
+  async entry(_, { entryId }, { prisma, req: { auth } }) {
+    const userId = <string>auth?.sub
+    const entries = Entries(prisma.entry)
+    const [,id] = deconstructId(entryId)
+
+    const entry = await entries.findUniqueWithNutrition({ where: { id, userId }})
+
+    return entry ? { ...entry, id: entryId } : entry
+  },
+
   async entries(
     _,
     {
@@ -140,9 +151,7 @@ export const queryResolvers: QueryResolvers = {
       drinkId,
       distinct,
     }, { prisma, req: { auth } }) {
-
     const entries = Entries(prisma.entry)
-
     return await entries.findManyPaginated(
       prisma,
       { sort, drinkId, distinct },

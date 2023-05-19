@@ -4,7 +4,7 @@ import {
   test,
   expect,
 } from 'vitest'
-import prisma from '../../__mocks__/prisma'
+import prisma from '../__mocks__/prisma'
 import { DrinkHistory } from './History.model'
 import { Prisma } from '@prisma/client'
 import { toCursorHash } from '../utils/cursorHash'

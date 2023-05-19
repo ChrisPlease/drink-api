@@ -1,7 +1,7 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { Drink as DrinkModel, Drink as BaseDrinkModel, Drink as MixedDrinkModel, Entry as EntryModel } from '.prisma/client';
-import { DrinkHistory as DrinkHistoryModel } from '../src/types/models';
-import { AppContext } from '../src/types/context';
+import { DrinkHistory as DrinkHistoryModel } from '../types/models';
+import { AppContext } from '../types/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = undefined | T;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -32,6 +32,7 @@ export type BaseDrink = Drink & Node & {
   icon: Scalars['Icon'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  servingSize?: Maybe<Scalars['Float']>;
   sugar?: Maybe<Scalars['Float']>;
   user?: Maybe<User>;
 };
@@ -45,6 +46,7 @@ export type Drink = {
   icon: Scalars['Icon'];
   id: Scalars['ID'];
   name: Scalars['String'];
+  servingSize?: Maybe<Scalars['Float']>;
   sugar?: Maybe<Scalars['Float']>;
   user?: Maybe<User>;
 };
@@ -56,7 +58,7 @@ export type DrinkCreateInput = {
   icon: Scalars['Icon'];
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name: Scalars['String'];
-  servingSize?: InputMaybe<Scalars['Float']>;
+  servingSize: Scalars['Float'];
   sugar?: InputMaybe<Scalars['Float']>;
 };
 
@@ -151,6 +153,7 @@ export type Entry = Node & {
   caffeine: Scalars['Float'];
   drink?: Maybe<DrinkResult>;
   id: Scalars['ID'];
+  servings: Scalars['Float'];
   sugar: Scalars['Float'];
   timestamp: Scalars['Date'];
   user?: Maybe<User>;
@@ -197,6 +200,7 @@ export type MixedDrink = Drink & Node & {
   id: Scalars['ID'];
   ingredients: Array<Ingredient>;
   name: Scalars['String'];
+  servingSize?: Maybe<Scalars['Float']>;
   sugar?: Maybe<Scalars['Float']>;
   user?: Maybe<User>;
 };
@@ -277,6 +281,7 @@ export type Query = {
   drinks?: Maybe<DrinksPaginated>;
   drinksHistory?: Maybe<DrinksHistoryPaginated>;
   entries?: Maybe<EntriesPaginated>;
+  entry?: Maybe<Entry>;
   me?: Maybe<User>;
   node?: Maybe<Node>;
   user?: Maybe<User>;
@@ -327,6 +332,12 @@ export type QueryEntriesArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<EntrySort>;
+};
+
+
+/** Root Queries */
+export type QueryEntryArgs = {
+  entryId: Scalars['ID'];
 };
 
 
@@ -508,6 +519,7 @@ export type BaseDrinkResolvers<ContextType = AppContext, ParentType extends Reso
   icon?: Resolver<ResolversTypes['Icon'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  servingSize?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -526,6 +538,7 @@ export type DrinkResolvers<ContextType = AppContext, ParentType extends Resolver
   icon?: Resolver<ResolversTypes['Icon'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  servingSize?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
 }>;
@@ -579,6 +592,7 @@ export type EntryResolvers<ContextType = AppContext, ParentType extends Resolver
   caffeine?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   drink?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  servings?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   sugar?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
@@ -613,6 +627,7 @@ export type MixedDrinkResolvers<ContextType = AppContext, ParentType extends Res
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   ingredients?: Resolver<Array<ResolversTypes['Ingredient']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  servingSize?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -651,6 +666,7 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   drinks?: Resolver<Maybe<ResolversTypes['DrinksPaginated']>, ParentType, ContextType, Partial<QueryDrinksArgs>>;
   drinksHistory?: Resolver<Maybe<ResolversTypes['DrinksHistoryPaginated']>, ParentType, ContextType, Partial<QueryDrinksHistoryArgs>>;
   entries?: Resolver<Maybe<ResolversTypes['EntriesPaginated']>, ParentType, ContextType, Partial<QueryEntriesArgs>>;
+  entry?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<QueryEntryArgs, 'entryId'>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'userId'>>;

@@ -1,6 +1,5 @@
 import { PrismaClient, Drink } from '@prisma/client'
-import { DrinkCreateInput, DrinkEditInput } from '../../__generated__/graphql'
-import { roundNumber } from '../utils/roundNumber'
+import { DrinkCreateInput, DrinkEditInput } from '../__generated__/graphql'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Nutrition, NutritionQuery } from '../types/models'
 
@@ -9,7 +8,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     async calculateIngredientNutrition(
       drinkId: string,
       client: PrismaClient,
-    ): Promise<Nutrition> {
+    ): Promise<Omit<Nutrition, 'servingSize'>> {
       const [{
         sugar,
         caffeine,
@@ -38,24 +37,10 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       }
     },
 
-    async createWithNutrition({
-      caffeine,
-      sugar,
-      coefficient,
-      servingSize,
-      userId,
-      ...rest
-    }: (Omit<DrinkCreateInput, 'ingredients'> & { userId: string })) {
-
-      const nutrition = {
-        caffeine: roundNumber(+(caffeine ?? 0) / +(servingSize ?? 1)),
-        sugar: roundNumber(+(sugar ?? 0) / +(servingSize ?? 1)),
-        coefficient: roundNumber(+(coefficient ?? 0)),
-      }
-
-      return await prismaDrink.create({
-        data: { ...rest, ...nutrition, userId },
-      })
+    async createWithNutrition(
+      data: (Omit<DrinkCreateInput, 'ingredients'> & { userId: string }),
+    ) {
+      return await prismaDrink.create({ data })
         .then(({ id, ...rest }) => ({
           id: toCursorHash(`BaseDrink:${id}`),
           ...rest,
@@ -141,13 +126,8 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     }: Omit<DrinkEditInput, 'ingredients'> & { userId: string }): Promise<Drink | null> {
       const [,id] = deconstructId(drinkId)
 
-      const nutrition = Object.entries({ caffeine, sugar, coefficient })
-        .reduce((acc, [key, val]) => {
-          if (val) {
-            acc[key as keyof Nutrition] = roundNumber(+val / (servingSize ?? 1))
-          }
-          return acc
-        }, {} as Nutrition)
+      const nutrition = Object.entries({ caffeine, sugar, coefficient, servingSize })
+        .reduce((acc, [key, val]) => (val ? { [key]: val, ...acc } : acc), {} as Nutrition)
 
       return await prismaDrink.update({ where: { id }, data: { ...data, ...nutrition, userId } })
         .then(({ id, ...rest }) => ({
