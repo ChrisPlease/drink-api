@@ -6,13 +6,13 @@ import {
   vi,
 } from 'vitest'
 import { Drinks } from './Drink.model'
-import prisma from '../../__mocks__/prisma'
+import prisma from '../__mocks__/prisma'
 import { Drink } from '@prisma/client'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import {
   DrinkCreateInput,
   DrinkEditInput,
-} from '../../__generated__/graphql'
+} from '../__generated__/graphql'
 
 describe('Drink Model', () => {
   const drink = Drinks(prisma.drink)

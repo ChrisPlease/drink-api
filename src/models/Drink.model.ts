@@ -1,5 +1,5 @@
 import { PrismaClient, Drink } from '@prisma/client'
-import { DrinkCreateInput, DrinkEditInput } from '../../__generated__/graphql'
+import { DrinkCreateInput, DrinkEditInput } from '../__generated__/graphql'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Nutrition, NutritionQuery } from '../types/models'
 
@@ -8,7 +8,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     async calculateIngredientNutrition(
       drinkId: string,
       client: PrismaClient,
-    ): Promise<Nutrition> {
+    ): Promise<Omit<Nutrition, 'servingSize'>> {
       const [{
         sugar,
         caffeine,

@@ -5,7 +5,7 @@ import {
   DrinkResolvers,
   DrinkResultResolvers,
   MixedDrinkResolvers,
-} from '../../__generated__/graphql'
+} from '../__generated__/graphql'
 import { deconstructId } from '../utils/cursorHash'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
