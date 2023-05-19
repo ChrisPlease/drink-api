@@ -49,9 +49,9 @@ export const drinkResolvers: DrinkResolvers = {
 
     return entries?.map(({ volume, ...entry }) => {
       const nutrition: { caffeine: number; waterContent: number; sugar: number } = {
-        caffeine: roundNumber((caffeine ?? 0) * volume),
-        waterContent: roundNumber((coefficient ?? 0) * volume),
-        sugar: roundNumber((sugar ?? 0) * volume),
+        caffeine: roundNumber((caffeine ?? 0) * (volume / servingSize)),
+        waterContent: roundNumber((coefficient ?? 0) * (volume / servingSize)),
+        sugar: roundNumber((sugar ?? 0) * (volume / servingSize)),
       }
 
       return {

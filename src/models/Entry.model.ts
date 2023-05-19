@@ -19,15 +19,15 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       volume: number,
     ): EntryNutrition {
       return {
-        caffeine: roundNumber(caffeine * volume),
-        sugar: roundNumber(sugar * volume),
-        waterContent: roundNumber(coefficient * volume),
+        caffeine: roundNumber(caffeine * (volume / servingSize)),
+        sugar: roundNumber(sugar * (volume / servingSize)),
+        waterContent: roundNumber(coefficient * (volume / servingSize)),
         servings: roundNumber(volume / servingSize) || 0,
       }
     },
     async findUniqueWithNutrition(
       args: Prisma.EntryFindUniqueArgs,
-    ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number }) | undefined> {
+    ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number }) | null> {
       const entry = await prismaEntry.findUnique({
         ...args,
         include: {
@@ -57,7 +57,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       return entry ? {
         ...entry,
         ...nutrition,
-      } : undefined
+      } : null
     },
     async findWithNutrition(
       args: Prisma.EntryFindManyArgs,
@@ -77,8 +77,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         },
       })
 
-      console.log(entries)
-
       return entries.map(({ id, drink, ...entry }) => {
         const nutrition = this.computeNutrition(
           {
@@ -89,8 +87,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           },
           entry.volume,
         )
-
-        console.log(nutrition)
 
         return {
           id: toCursorHash(`Entry:${id}`),

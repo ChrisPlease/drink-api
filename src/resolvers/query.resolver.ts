@@ -129,6 +129,16 @@ export const queryResolvers: QueryResolvers = {
     )
   },
 
+  async entry(_, { entryId }, { prisma, req: { auth } }) {
+    const userId = <string>auth?.sub
+    const entries = Entries(prisma.entry)
+    const [,id] = deconstructId(entryId)
+
+    const entry = await entries.findUniqueWithNutrition({ where: { id, userId }})
+
+    return entry ? { ...entry, id: entryId } : entry
+  },
+
   async entries(
     _,
     {
@@ -140,10 +150,7 @@ export const queryResolvers: QueryResolvers = {
       drinkId,
       distinct,
     }, { prisma, req: { auth } }) {
-    console.log('here')
-    console.log('here again')
     const entries = Entries(prisma.entry)
-    console.log('here')
     return await entries.findManyPaginated(
       prisma,
       { sort, drinkId, distinct },
