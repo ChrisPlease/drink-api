@@ -62,7 +62,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
     async findWithNutrition(
       args: Prisma.EntryFindManyArgs,
     ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number })[]> {
-      console.log('here')
       const entries = await prismaEntry.findMany({
         ...args,
         include: {
