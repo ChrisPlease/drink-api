@@ -5,7 +5,7 @@ import {
   DrinkResolvers,
   DrinkResultResolvers,
   MixedDrinkResolvers,
-} from '../../__generated__/graphql'
+} from '../__generated__/graphql'
 import { deconstructId } from '../utils/cursorHash'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
@@ -34,6 +34,7 @@ export const drinkResolvers: DrinkResolvers = {
       caffeine,
       sugar,
       coefficient,
+      servingSize,
     } = <Drink>await prisma.drink.findUnique({
       where: {
         id,
@@ -42,14 +43,15 @@ export const drinkResolvers: DrinkResolvers = {
         caffeine: true,
         sugar: true,
         coefficient: true,
+        servingSize: true,
       },
     })
 
     return entries?.map(({ volume, ...entry }) => {
       const nutrition: { caffeine: number; waterContent: number; sugar: number } = {
-        caffeine: roundNumber((caffeine ?? 0) * volume),
-        waterContent: roundNumber((coefficient ?? 0) * volume),
-        sugar: roundNumber((sugar ?? 0) * volume),
+        caffeine: roundNumber((caffeine ?? 0) * (volume / servingSize)),
+        waterContent: roundNumber((coefficient ?? 0) * (volume / servingSize)),
+        sugar: roundNumber((sugar ?? 0) * (volume / servingSize)),
       }
 
       return {

@@ -4,6 +4,7 @@ export type Nutrition = {
   caffeine: number,
   sugar: number,
   coefficient: number,
+  servingSize: number,
 }
 
 export type NutritionQuery = {

@@ -5,7 +5,7 @@ import {
   describe,
   beforeEach,
 } from 'vitest'
-import prisma from '../../__mocks__/prisma'
+import prisma from '../__mocks__/prisma'
 import {
   drinkResolvers,
 } from './drinks.resolver'
