@@ -2,25 +2,27 @@ import { Prisma, PrismaClient, Entry } from '@prisma/client'
 import { roundNumber } from '../utils/roundNumber'
 import { ConnectionArguments, findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { toCursorHash, fromCursorHash, encodeCursor } from '../utils/cursorHash'
-import { QueryEntriesArgs } from '../../__generated__/graphql'
+import { QueryEntriesArgs } from '../__generated__/graphql'
 import { Nutrition } from '../types/models'
 
 type EntryNutrition = {
   caffeine: number,
   sugar: number,
   waterContent: number,
+  servings: number,
 }
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
     computeNutrition(
-      { caffeine, sugar, coefficient }: Nutrition,
+      { caffeine, sugar, coefficient, servingSize }: Nutrition,
       volume: number,
     ): EntryNutrition {
       return {
         caffeine: roundNumber(caffeine * volume),
         sugar: roundNumber(sugar * volume),
         waterContent: roundNumber(coefficient * volume),
+        servings: roundNumber(volume / servingSize) || 0,
       }
     },
     async findUniqueWithNutrition(
@@ -34,6 +36,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
               caffeine: true,
               sugar: true,
               coefficient: true,
+              servingSize: true,
             },
           },
         },
@@ -46,6 +49,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           caffeine: drink?.caffeine ?? 0,
           sugar: drink?.sugar ?? 0,
           coefficient: drink?.coefficient ?? 0,
+          servingSize: drink?.servingSize ?? 0,
         },
         entry?.volume ?? 0,
       )
@@ -58,6 +62,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
     async findWithNutrition(
       args: Prisma.EntryFindManyArgs,
     ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number })[]> {
+      console.log('here')
       const entries = await prismaEntry.findMany({
         ...args,
         include: {
@@ -66,10 +71,13 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
               caffeine: true,
               sugar: true,
               coefficient: true,
+              servingSize: true,
             },
           },
         },
       })
+
+      console.log(entries)
 
       return entries.map(({ id, drink, ...entry }) => {
         const nutrition = this.computeNutrition(
@@ -77,9 +85,12 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
             caffeine: drink?.caffeine ?? 0,
             sugar: drink?.sugar ?? 0,
             coefficient: drink?.coefficient ?? 0,
+            servingSize: drink?.servingSize ?? 0,
           },
           entry.volume,
         )
+
+        console.log(nutrition)
 
         return {
           id: toCursorHash(`Entry:${id}`),
