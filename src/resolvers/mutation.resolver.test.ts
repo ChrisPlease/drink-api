@@ -52,6 +52,7 @@ describe('mutationResolvers', () => {
           caffeine: number,
           sugar: number,
           coefficient: number,
+          servingSize: number,
         },
       }
       beforeEach(() => {
@@ -65,6 +66,7 @@ describe('mutationResolvers', () => {
             caffeine: 1,
             sugar: 1,
             coefficient: 1,
+            servingSize: 12,
           },
           deleted: false,
         }
@@ -86,6 +88,7 @@ describe('mutationResolvers', () => {
                 caffeine: true,
                 sugar: true,
                 coefficient: true,
+                servingSize: true,
               },
             },
           },
@@ -98,9 +101,10 @@ describe('mutationResolvers', () => {
         const { drink, ...mockedRes } = resolvedValue
 
         expect(res).toStrictEqual({
-          caffeine: 12,
-          sugar: 12,
+          caffeine: 1,
+          sugar: 1,
           waterContent: 12,
+          servings: 1,
           ...mockedRes,
         })
       })

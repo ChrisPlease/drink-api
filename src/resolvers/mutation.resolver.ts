@@ -40,7 +40,7 @@ export const mutationResolvers: MutationResolvers = {
       sugar: sugar ?? 0,
       coefficient: coefficient ?? 1,
       caffeine: caffeine ?? 0,
-      servingSize: servingSize ?? 0,
+      servingSize: servingSize ?? 1,
     }, volume)
 
     return {
@@ -78,7 +78,7 @@ export const mutationResolvers: MutationResolvers = {
           sugar: drink?.sugar ?? 0,
           caffeine: drink?.caffeine ?? 0,
           coefficient: drink?.coefficient ?? 0,
-          servingSize: drink?.servingSize ?? 0,
+          servingSize: drink?.servingSize ?? 1,
         }, deletedEntry.volume),
 
       }

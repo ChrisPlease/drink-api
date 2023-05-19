@@ -47,6 +47,7 @@ describe('Entry Model', () => {
               caffeine: true,
               coefficient: true,
               sugar: true,
+              servingSize: true,
             },
           },
         },
@@ -106,7 +107,12 @@ describe('Entry Model', () => {
       expect(prisma.entry.findMany).toHaveBeenCalledWith({
         include: {
           drink: {
-            select: { caffeine: true, sugar: true, coefficient: true },
+            select: {
+              caffeine: true,
+              sugar: true,
+              coefficient: true,
+              servingSize: true,
+            },
           },
         },
         where: { userId: '123' },
