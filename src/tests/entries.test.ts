@@ -15,7 +15,7 @@ import { Response } from 'express'
 import { seedUsers } from '../../prisma/seeders/users'
 import { seedDrinks } from '../../prisma/seeders/drinks'
 import { seedEntries } from '../../prisma/seeders/entries'
-import { EntriesPaginated } from '../../__generated__/graphql'
+import { EntriesPaginated } from '../__generated__/graphql'
 
 describe('entries', () => {
   let contextValue: AppContext

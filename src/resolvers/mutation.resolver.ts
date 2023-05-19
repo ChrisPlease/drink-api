@@ -1,5 +1,5 @@
 import { Drinks } from '../models/Drink.model'
-import { MutationResolvers } from '../../__generated__/graphql'
+import { MutationResolvers } from '../__generated__/graphql'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { Entries } from '../models/Entry.model'
 
@@ -15,6 +15,7 @@ export const mutationResolvers: MutationResolvers = {
         caffeine,
         sugar,
         coefficient,
+        servingSize,
       },
       ...rest
     } = await entry.create({
@@ -29,6 +30,7 @@ export const mutationResolvers: MutationResolvers = {
             caffeine: true,
             coefficient: true,
             sugar: true,
+            servingSize: true,
           },
         },
       },
@@ -38,6 +40,7 @@ export const mutationResolvers: MutationResolvers = {
       sugar: sugar ?? 0,
       coefficient: coefficient ?? 1,
       caffeine: caffeine ?? 0,
+      servingSize: servingSize ?? 0,
     }, volume)
 
     return {
@@ -63,6 +66,7 @@ export const mutationResolvers: MutationResolvers = {
           caffeine: true,
           sugar: true,
           coefficient: true,
+          servingSize: true,
         },
       })
 
@@ -74,6 +78,7 @@ export const mutationResolvers: MutationResolvers = {
           sugar: drink?.sugar ?? 0,
           caffeine: drink?.caffeine ?? 0,
           coefficient: drink?.coefficient ?? 0,
+          servingSize: drink?.servingSize ?? 0,
         }, deletedEntry.volume),
 
       }

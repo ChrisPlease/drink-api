@@ -5,7 +5,7 @@ import {
   expect,
   vi,
 } from 'vitest'
-import prisma from '../../__mocks__/prisma'
+import prisma from '../__mocks__/prisma'
 import {
   mutationResolvers,
 } from './mutation.resolver'

@@ -4,7 +4,7 @@ import {
   describe,
   beforeEach,
 } from 'vitest'
-import prisma from '../../__mocks__/prisma'
+import prisma from '../__mocks__/prisma'
 import { queryResolvers } from './query.resolver'
 import { AppContext } from '../types/context'
 import { Request } from 'express-jwt'
