@@ -281,6 +281,7 @@ export type Query = {
   drinks?: Maybe<DrinksPaginated>;
   drinksHistory?: Maybe<DrinksHistoryPaginated>;
   entries?: Maybe<EntriesPaginated>;
+  entry?: Maybe<Entry>;
   me?: Maybe<User>;
   node?: Maybe<Node>;
   user?: Maybe<User>;
@@ -331,6 +332,12 @@ export type QueryEntriesArgs = {
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
   sort?: InputMaybe<EntrySort>;
+};
+
+
+/** Root Queries */
+export type QueryEntryArgs = {
+  entryId: Scalars['ID'];
 };
 
 
@@ -659,6 +666,7 @@ export type QueryResolvers<ContextType = AppContext, ParentType extends Resolver
   drinks?: Resolver<Maybe<ResolversTypes['DrinksPaginated']>, ParentType, ContextType, Partial<QueryDrinksArgs>>;
   drinksHistory?: Resolver<Maybe<ResolversTypes['DrinksHistoryPaginated']>, ParentType, ContextType, Partial<QueryDrinksHistoryArgs>>;
   entries?: Resolver<Maybe<ResolversTypes['EntriesPaginated']>, ParentType, ContextType, Partial<QueryEntriesArgs>>;
+  entry?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<QueryEntryArgs, 'entryId'>>;
   me?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   node?: Resolver<Maybe<ResolversTypes['Node']>, ParentType, ContextType, RequireFields<QueryNodeArgs, 'id'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'userId'>>;

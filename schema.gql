@@ -276,6 +276,7 @@ type Query {
     last: Int,
     userId: ID
   ): DrinksPaginated
+  entry(entryId: ID!): Entry
   entries(
     sort: EntrySort,
     distinct: Boolean,
