@@ -9,15 +9,16 @@ export default defineConfig({
     coverage: {
       all: true,
       include: [
-        'src/**/*.test.ts',
-        '!src/tests/**',
+        'src/**/*.ts',
+        '!src/**/*.test.ts',
+        '!coverage',
       ],
       exclude: [
-        'src/tests/**',
-        'src/types/*',
-        'src/**/*.test.ts',
-        'prisma/*',
-        '__mocks__/*',
+        'coverage/**',
+        'src/tests',
+        'src/types',
+        'prisma/**',
+        '__mocks__/**',
       ],
     },
   },
