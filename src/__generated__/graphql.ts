@@ -1,7 +1,7 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { Drink as DrinkModel, Drink as BaseDrinkModel, Drink as MixedDrinkModel, Entry as EntryModel } from '.prisma/client';
-import { DrinkHistory as DrinkHistoryModel } from '../src/types/models';
-import { AppContext } from '../src/types/context';
+import { DrinkHistory as DrinkHistoryModel } from '../types/models';
+import { AppContext } from '../types/context';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = undefined | T;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -153,6 +153,7 @@ export type Entry = Node & {
   caffeine: Scalars['Float'];
   drink?: Maybe<DrinkResult>;
   id: Scalars['ID'];
+  servings: Scalars['Float'];
   sugar: Scalars['Float'];
   timestamp: Scalars['Date'];
   user?: Maybe<User>;
@@ -584,6 +585,7 @@ export type EntryResolvers<ContextType = AppContext, ParentType extends Resolver
   caffeine?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   drink?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  servings?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   sugar?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
