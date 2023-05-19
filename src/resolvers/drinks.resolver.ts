@@ -34,6 +34,7 @@ export const drinkResolvers: DrinkResolvers = {
       caffeine,
       sugar,
       coefficient,
+      servingSize,
     } = <Drink>await prisma.drink.findUnique({
       where: {
         id,
@@ -42,6 +43,7 @@ export const drinkResolvers: DrinkResolvers = {
         caffeine: true,
         sugar: true,
         coefficient: true,
+        servingSize: true,
       },
     })
 

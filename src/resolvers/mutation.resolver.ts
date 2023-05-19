@@ -97,7 +97,7 @@ export const mutationResolvers: MutationResolvers = {
 
     if (ingredients) {
       return await drink.createWithIngredients(
-        { userId, ingredients, ...rest },
+        { userId, servingSize, ingredients, ...rest },
         prisma,
       )
     }

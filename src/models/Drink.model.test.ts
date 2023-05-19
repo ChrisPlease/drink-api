@@ -57,12 +57,16 @@ describe('Drink Model', () => {
         sugar: 0,
         userId: '456',
         deleted: null,
+        servingSize: 8,
         createdAt: new Date(2022, 1, 1, 0),
       }
       mockPayload = {
         name: 'Test Drink',
         icon: 'test-icon',
+        sugar: 0,
+        caffeine: 0,
         userId: '456',
+        servingSize: 8,
         coefficient: 1,
       }
       prisma.drink.create.mockResolvedValue(mockResponse)
@@ -75,6 +79,7 @@ describe('Drink Model', () => {
           caffeine: 0,
           sugar: 0,
           coefficient: 1,
+          servingSize: 8,
           name: 'Test Drink',
           icon: 'test-icon',
           userId: '456',
@@ -101,6 +106,7 @@ describe('Drink Model', () => {
         name: 'Test Drink',
         icon: 'test-icon',
         caffeine: 0,
+        servingSize: 8,
         coefficient: 1,
         sugar: 0,
         userId: '456',
@@ -110,6 +116,7 @@ describe('Drink Model', () => {
       mockPayload = {
         name: 'Test Drink',
         icon: 'test-icon',
+        servingSize: 8,
         userId: '456',
         ingredients: [
           { drinkId: toCursorHash('Ingredient:456'), parts: 1 },
@@ -162,6 +169,7 @@ describe('Drink Model', () => {
         icon: 'test-icon',
         caffeine: 0,
         coefficient: 1,
+        servingSize: 8,
         sugar: 0,
         userId: '456',
         deleted: null,
@@ -201,6 +209,7 @@ describe('Drink Model', () => {
         caffeine: 0,
         coefficient: 1,
         sugar: 1,
+        servingSize: 8,
         userId: '456',
         deleted: null,
         createdAt: new Date(2022, 1, 1, 0),
