@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "start:dev": "nodemon --inspect=0.0.0.0 dist/index.js",
-    "build:dev": "concurrently \"tsc --watch --preserveWatchOutput\" \"tsc-alias --watch\"",
+    "build:dev": "concurrently \"tsc-alias --watch\" \"tsc --watch --preserveWatchOutput\"",
     "prebuild": "rimraf dist",
     "start": "NODE_ENV=develop concurrently \"npm:build:dev\" \"npm:start:dev\"",
     "test": "npm run test:unit -- --run; npm run test:int -- --run",
