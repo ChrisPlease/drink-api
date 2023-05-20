@@ -1,21 +1,21 @@
+import assert from 'assert'
 import {
   describe,
   beforeEach,
   test,
   expect,
 } from 'vitest'
-import assert from 'assert'
-import { testServer } from './helpers/server'
 import { gql } from 'graphql-tag'
-import prisma from './helpers/prisma'
-import { AppContext } from '../types/context'
 import { DocumentNode } from 'graphql'
 import { Request } from 'express-jwt'
 import { Response } from 'express'
+import { AppContext } from '../types/context'
 import { seedUsers } from '../../prisma/seeders/users'
 import { seedDrinks } from '../../prisma/seeders/drinks'
 import { seedEntries } from '../../prisma/seeders/entries'
 import { EntriesPaginated } from '../__generated__/graphql'
+import { testServer } from './helpers/server'
+import prisma from './helpers/prisma'
 
 describe('entries', () => {
   let contextValue: AppContext

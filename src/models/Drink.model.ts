@@ -1,7 +1,7 @@
 import { PrismaClient, Drink } from '@prisma/client'
-import { DrinkCreateInput, DrinkEditInput } from '../__generated__/graphql'
-import { deconstructId, toCursorHash } from '../utils/cursorHash'
-import { Nutrition, NutritionQuery } from '../types/models'
+import { DrinkCreateInput, DrinkEditInput } from '@/__generated__/graphql'
+import { deconstructId, toCursorHash } from '@/utils/cursorHash'
+import { Nutrition, NutritionQuery } from '@/types/models'
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {

@@ -1,6 +1,6 @@
 import { PrismaClient, Drink, Prisma } from '@prisma/client'
-import { roundNumber } from '../utils/roundNumber'
-import { deconstructId, toCursorHash } from '../utils/cursorHash'
+import { roundNumber } from '@/utils/roundNumber'
+import { deconstructId, toCursorHash } from '@/utils/cursorHash'
 
 export function DrinkHistory(client: PrismaClient) {
   return Object.assign({}, {

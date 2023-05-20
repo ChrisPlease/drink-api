@@ -1,4 +1,4 @@
-import { ModelType } from '../types/models'
+import { ModelType } from '@/types/models'
 
 export const toCursorHash = (str: string) => Buffer.from(str).toString('base64')
 

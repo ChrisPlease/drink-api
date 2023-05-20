@@ -1,7 +1,7 @@
 /** @type {import('eslint').Linter.Config} */
 module.exports = {
   root: true,
-  'ignorePatterns': ['__generated__/**/*'],
+  'ignorePatterns': ['src/__generated__/**/*'],
   'overrides': [
     {
       'files': ['*.gql'],
@@ -21,26 +21,30 @@ module.exports = {
     {
       'files': ['*.ts'],
       'env': {
-          'es2021': true,
-          'node': true,
+        'es2021': true,
+        'node': true,
       },
       'extends': [
-          'eslint:recommended',
-          'plugin:@typescript-eslint/recommended',
-          'plugin:import/recommended',
-          'plugin:import/typescript',
+        'eslint:recommended',
+        'plugin:@typescript-eslint/recommended',
+        'plugin:import/recommended',
+        'plugin:import/typescript',
       ],
       'parser': '@typescript-eslint/parser',
       'parserOptions': {
-          'ecmaVersion': 'latest',
-          'sourceType': 'module',
+        'ecmaVersion': 'latest',
+        'sourceType': 'module',
+        'tsconfigRootDir': './'
       },
       'plugins': [
-          '@typescript-eslint',
+        '@typescript-eslint',
+        'import',
       ],
       'rules': {
+        // 'import/no-unresolved': 'error',
         'semi': 'off',
         'comma-dangle': 'off',
+        'import/order': ['error'],
 
         'quotes': ['error', 'single', { 'avoidEscape': true }],
 
@@ -68,6 +72,7 @@ module.exports = {
         'import/resolver': {
           'typescript': {
             'alwaysTryTypes': true,
+            'project': '<root>/tsconfig.json'
           },
         },
         'import/parsers': {

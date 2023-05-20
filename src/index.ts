@@ -1,23 +1,21 @@
 import 'dotenv/config'
+import { readFileSync } from 'fs'
 import { createSoftDeleteMiddleware } from 'prisma-soft-delete-middleware'
 import express from 'express'
 import { ApolloServer } from '@apollo/server'
-import prisma from './client'
 import { expressMiddleware } from '@apollo/server/express4'
 import cors from 'cors'
 import bodyParser from 'body-parser'
+import prisma from './client'
 import { errorHandler } from './middleware/errorHandler'
 import { resolvers } from './resolvers'
 import { AppContext } from './types/context'
 import { jwtHandler } from './middleware/jwtHandler'
-import { readFileSync } from 'fs'
 
 const app: express.Application = express()
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(cors({
-  origin: 'https://waterlog.test:8433',
-}))
+app.use(cors({ origin: 'https://waterlog.test:8433' }))
 
 prisma.$use(
   createSoftDeleteMiddleware({

@@ -1,12 +1,12 @@
 import { Drink } from '@prisma/client'
-import { roundNumber } from '../utils/roundNumber'
 import {
   BaseDrinkResolvers,
   DrinkResolvers,
   DrinkResultResolvers,
   MixedDrinkResolvers,
-} from '../__generated__/graphql'
-import { deconstructId } from '../utils/cursorHash'
+} from '@/__generated__/graphql'
+import { roundNumber } from '@/utils/roundNumber'
+import { deconstructId } from '@/utils/cursorHash'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
   async __resolveType(parent) {

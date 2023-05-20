@@ -1,9 +1,9 @@
 import { Prisma, PrismaClient, Entry, Drink } from '@prisma/client'
-import { roundNumber } from '../utils/roundNumber'
 import { ConnectionArguments, findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
-import { toCursorHash, fromCursorHash, encodeCursor } from '../utils/cursorHash'
-import { QueryEntriesArgs } from '../__generated__/graphql'
-import { Nutrition } from '../types/models'
+import { roundNumber } from '../utils/roundNumber'
+import { toCursorHash, fromCursorHash, encodeCursor } from '@/utils/cursorHash'
+import { QueryEntriesArgs } from '@/__generated__/graphql'
+import { Nutrition } from '@/types/models'
 
 type EntryNutrition = {
   caffeine: number,

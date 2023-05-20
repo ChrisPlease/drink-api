@@ -1,17 +1,17 @@
+import assert from 'assert'
 import {
   beforeEach,
   describe,
   it,
   expect,
 } from 'vitest'
-import assert from 'assert'
-import prisma from './helpers/prisma'
-import { testServer } from './helpers/server'
 import { Request } from 'express-jwt'
 import { Response } from 'express'
 import { gql } from 'graphql-tag'
-import { AppContext } from '../types/context'
 import { DocumentNode } from 'graphql'
+import { AppContext } from '../types/context'
+import prisma from './helpers/prisma'
+import { testServer } from './helpers/server'
 
 describe('users', () => {
   let ctx: AppContext

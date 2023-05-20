@@ -1,7 +1,7 @@
 
 import { Drink } from '@prisma/client'
-import { EntryResolvers } from '../__generated__/graphql'
-import { deconstructId, toCursorHash } from '../utils/cursorHash'
+import { EntryResolvers } from '@/__generated__/graphql'
+import { deconstructId, toCursorHash } from '@/utils/cursorHash'
 
 export const entryResolvers: EntryResolvers = {
   async drink({ id: argId }, _, { prisma }) {
