@@ -1,3 +1,4 @@
+import path from 'path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -27,7 +28,7 @@ export default defineConfig({
       provider: 'istanbul',
     },
     alias: {
-      '@': 'src',
+      '@': path.resolve(__dirname, './src'),
     },
   },
 })
