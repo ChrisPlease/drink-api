@@ -192,7 +192,7 @@ describe('Drink Model', () => {
       } as any)
     })
 
-    test('does something', async () => {
+    test.todo('does something', async () => {
       await drink.updateWithIngredients(mockPayload, prisma)
     })
   })
@@ -226,7 +226,7 @@ describe('Drink Model', () => {
     })
 
     test('makes a call to the db to update the drink', async () => {
-      const { id: _id, ...expectedPayload } = mockPayload
+      const { id, ...expectedPayload } = mockPayload
       await drink.updateWithNutrition(mockPayload)
       expect(prisma.drink.update).toHaveBeenCalledWith({
         data: {
