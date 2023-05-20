@@ -1,3 +1,6 @@
+import { Response } from 'express'
+import { Request } from 'express-jwt'
+import { GraphQLResolveInfo } from 'graphql'
 import {
   expect,
   test,
@@ -5,16 +8,13 @@ import {
   describe,
   beforeEach,
 } from 'vitest'
-import prisma from '../__mocks__/prisma'
+import { Drink } from '@prisma/client'
 import {
   drinkResolvers,
 } from './drinks.resolver'
-import { toCursorHash } from '../utils/cursorHash'
-import { Drink } from '@prisma/client'
-import { AppContext } from '../types/context'
-import { GraphQLResolveInfo } from 'graphql'
-import { Request } from 'express-jwt'
-import { Response } from 'express'
+import prisma from '@/__mocks__/prisma'
+import { toCursorHash } from '@/utils/cursorHash'
+import { AppContext } from '@/types/context'
 
 describe('drinkResolvers', () => {
   const args = {}

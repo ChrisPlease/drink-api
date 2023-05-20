@@ -30,7 +30,7 @@ services:
       - waterlog-db
   waterlog-db:
     container_name: postgres
-    image: postgres
+    image: postgres:14.1-alpine
     restart: always
     ports:
       - '${PGPORT}:${PGPORT}'

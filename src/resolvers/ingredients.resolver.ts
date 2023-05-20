@@ -1,6 +1,6 @@
 import { Drink } from '@prisma/client'
-import { IngredientResolvers } from '../__generated__/graphql'
-import { toCursorHash } from '../utils/cursorHash'
+import { IngredientResolvers } from '@/__generated__/graphql'
+import { toCursorHash } from '@/utils/cursorHash'
 
 export const ingredientResolvers: IngredientResolvers = {
   async drink(parent, _, { prisma }) {

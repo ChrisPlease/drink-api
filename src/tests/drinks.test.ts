@@ -1,20 +1,20 @@
+import assert from 'assert'
 import {
   beforeEach,
   describe,
   it,
   expect,
 } from 'vitest'
-import { seedUsers } from '../../prisma/seeders/users'
-import { seedDrinks } from '../../prisma/seeders/drinks'
-import assert from 'assert'
-import prisma from './helpers/prisma'
-import { testServer } from './helpers/server'
 import { Request } from 'express-jwt'
 import { Response } from 'express'
-import { AppContext } from '../types/context'
-import { DrinksPaginated } from '../__generated__/graphql'
 import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
+import { seedUsers } from '../../prisma/seeders/users'
+import { seedDrinks } from '../../prisma/seeders/drinks'
+import prisma from './helpers/prisma'
+import { testServer } from './helpers/server'
+import { AppContext } from '@/types/context'
+import { DrinksPaginated } from '@/__generated__/graphql'
 
 describe('drinks', () => {
   let contextValue: AppContext
