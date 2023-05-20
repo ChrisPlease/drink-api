@@ -5,9 +5,9 @@ import {
   expect,
 } from 'vitest'
 import { Entry } from '@prisma/client'
-import prisma from '../__mocks__/prisma'
-import { toCursorHash } from '../utils/cursorHash'
 import { Entries } from './Entry.model'
+import prisma from '@/__mocks__/prisma'
+import { toCursorHash } from '@/utils/cursorHash'
 
 describe('Entry Model', () => {
   const entry = Entries(prisma.entry)

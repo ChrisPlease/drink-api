@@ -124,7 +124,6 @@ export const mutationResolvers: MutationResolvers = {
           },
         },
       })
-      /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
       .then(({ id, ...rest }) => ({
         id: drinkId,
         ...rest,

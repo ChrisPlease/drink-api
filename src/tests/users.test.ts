@@ -9,9 +9,9 @@ import { Request } from 'express-jwt'
 import { Response } from 'express'
 import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
-import { AppContext } from '../types/context'
 import prisma from './helpers/prisma'
 import { testServer } from './helpers/server'
+import { AppContext } from '@/types/context'
 
 describe('users', () => {
   let ctx: AppContext

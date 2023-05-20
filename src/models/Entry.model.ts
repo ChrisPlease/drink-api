@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient, Entry, Drink } from '@prisma/client'
 import { ConnectionArguments, findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
-import { roundNumber } from '../utils/roundNumber'
+import { roundNumber } from '@/utils/roundNumber'
 import { toCursorHash, fromCursorHash, encodeCursor } from '@/utils/cursorHash'
 import { QueryEntriesArgs } from '@/__generated__/graphql'
 import { Nutrition } from '@/types/models'

@@ -9,12 +9,12 @@ import {
   beforeEach,
 } from 'vitest'
 import { Drink } from '@prisma/client'
-import prisma from '../__mocks__/prisma'
-import { toCursorHash } from '../utils/cursorHash'
-import { AppContext } from '../types/context'
 import {
   drinkResolvers,
 } from './drinks.resolver'
+import prisma from '@/__mocks__/prisma'
+import { toCursorHash } from '@/utils/cursorHash'
+import { AppContext } from '@/types/context'
 
 describe('drinkResolvers', () => {
   const args = {}

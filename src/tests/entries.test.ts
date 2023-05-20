@@ -9,13 +9,13 @@ import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
 import { Request } from 'express-jwt'
 import { Response } from 'express'
-import { AppContext } from '../types/context'
 import { seedUsers } from '../../prisma/seeders/users'
 import { seedDrinks } from '../../prisma/seeders/drinks'
 import { seedEntries } from '../../prisma/seeders/entries'
-import { EntriesPaginated } from '../__generated__/graphql'
 import { testServer } from './helpers/server'
 import prisma from './helpers/prisma'
+import { EntriesPaginated } from '@/__generated__/graphql'
+import { AppContext } from '@/types/context'
 
 describe('entries', () => {
   let contextValue: AppContext

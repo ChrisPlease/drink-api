@@ -8,11 +8,11 @@ import { Request } from 'express-jwt'
 import { Response } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
 import { Drink, Entry } from '@prisma/client'
-import prisma from '../__mocks__/prisma'
-import { AppContext } from '../types/context'
-import { toCursorHash } from '../utils/cursorHash'
-import { DrinkHistory } from '../types/models'
 import { queryResolvers } from './query.resolver'
+import prisma from '@/__mocks__/prisma'
+import { AppContext } from '@/types/context'
+import { toCursorHash } from '@/utils/cursorHash'
+import { DrinkHistory } from '@/types/models'
 
 describe('queryResolvers', () => {
   let ctx: AppContext

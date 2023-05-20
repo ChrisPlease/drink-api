@@ -11,10 +11,10 @@ import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
 import { seedUsers } from '../../prisma/seeders/users'
 import { seedDrinks } from '../../prisma/seeders/drinks'
-import { AppContext } from '../types/context'
-import { DrinksPaginated } from '../__generated__/graphql'
 import prisma from './helpers/prisma'
 import { testServer } from './helpers/server'
+import { AppContext } from '@/types/context'
+import { DrinksPaginated } from '@/__generated__/graphql'
 
 describe('drinks', () => {
   let contextValue: AppContext

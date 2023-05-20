@@ -9,12 +9,12 @@ import {
   expect,
   vi,
 } from 'vitest'
-import prisma from '../__mocks__/prisma'
-import { toCursorHash } from '../utils/cursorHash'
-import { AppContext } from '../types/context'
 import {
   mutationResolvers,
 } from './mutation.resolver'
+import { toCursorHash } from '@/utils/cursorHash'
+import { AppContext } from '@/types/context'
+import prisma from '@/__mocks__/prisma'
 
 describe('mutationResolvers', () => {
   const parent = {}
@@ -97,7 +97,6 @@ describe('mutationResolvers', () => {
 
       test('returns the new entry', async () => {
         const res = await mutationResolvers.entryCreate?.(parent, args, ctx, info)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { drink, ...mockedRes } = resolvedValue
 
         expect(res).toStrictEqual({
