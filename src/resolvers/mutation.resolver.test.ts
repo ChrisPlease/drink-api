@@ -1,3 +1,7 @@
+import { Request } from 'express-jwt'
+import { Response } from 'express'
+import { GraphQLResolveInfo } from 'graphql'
+import { Entry } from '@prisma/client'
 import {
   describe,
   beforeEach,
@@ -5,16 +9,12 @@ import {
   expect,
   vi,
 } from 'vitest'
-import prisma from '../__mocks__/prisma'
 import {
   mutationResolvers,
 } from './mutation.resolver'
-import { Entry } from '@prisma/client'
-import { toCursorHash } from '../utils/cursorHash'
-import { AppContext } from '../types/context'
-import { Request } from 'express-jwt'
-import { Response } from 'express'
-import { GraphQLResolveInfo } from 'graphql'
+import { toCursorHash } from '@/utils/cursorHash'
+import { AppContext } from '@/types/context'
+import prisma from '@/__mocks__/prisma'
 
 describe('mutationResolvers', () => {
   const parent = {}
@@ -97,7 +97,6 @@ describe('mutationResolvers', () => {
 
       test('returns the new entry', async () => {
         const res = await mutationResolvers.entryCreate?.(parent, args, ctx, info)
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { drink, ...mockedRes } = resolvedValue
 
         expect(res).toStrictEqual({

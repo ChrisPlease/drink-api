@@ -1,4 +1,4 @@
-import { NodeResolvers, Resolvers } from '../__generated__/graphql'
+import { deconstructId } from '../utils/cursorHash'
 import { queryResolvers } from './query.resolver'
 import { mutationResolvers } from './mutation.resolver'
 import {
@@ -10,7 +10,7 @@ import {
 import { ingredientResolvers } from './ingredients.resolver'
 import { entryResolvers } from './entries.resolver'
 import { historyResolvers } from './history.resolver'
-import { deconstructId } from '../utils/cursorHash'
+import { NodeResolvers, Resolvers } from '@/__generated__/graphql'
 
 const nodeResolvers: NodeResolvers = {
   __resolveType(parent) {

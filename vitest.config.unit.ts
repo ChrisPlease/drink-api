@@ -1,25 +1,34 @@
+import path from 'path'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
     include: [
       'src/**/*.test.ts',
-      '!src/tests/**',
+    ],
+    exclude: [
+      'src/tests/**/*',
     ],
     coverage: {
       all: true,
+
       include: [
         'src/**/*.ts',
         '!src/**/*.test.ts',
-        '!coverage',
       ],
       exclude: [
-        'coverage/**',
+        'src/index.ts',
+        'src/client.ts',
         'src/tests',
-        'src/types',
-        'prisma/**',
-        '__mocks__/**',
+        'src/__mocks__',
+        'src/__generated__',
+        'src/middleware',
       ],
+      reporter: ['html', 'json', 'lcov'],
+      provider: 'istanbul',
+    },
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
   },
 })

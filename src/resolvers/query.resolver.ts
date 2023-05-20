@@ -1,16 +1,16 @@
-import { QueryResolvers } from '../__generated__/graphql'
-import { Entries } from '../models/Entry.model'
-import { DrinkHistory as DrinkHistoryModel } from '../types/models'
-import { DrinkHistory } from '../models/History.model'
-import { Drink, Entry, Prisma } from '@prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
+import { Drink, Entry, Prisma } from '@prisma/client'
+import { DrinkHistory as DrinkHistoryModel } from '@/types/models'
+import { QueryResolvers } from '@/__generated__/graphql'
+import { Entries } from '@/models/Entry.model'
+import { DrinkHistory } from '@/models/History.model'
+import { Drinks } from '@/models/Drink.model'
 import {
   toCursorHash,
   fromCursorHash,
   encodeCursor,
   deconstructId,
-} from '../utils/cursorHash'
-import { Drinks } from '../models/Drink.model'
+} from '@/utils/cursorHash'
 
 export const queryResolvers: QueryResolvers = {
   async node(_, { id: argId }, { prisma, req: { auth } }) {

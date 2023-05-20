@@ -4,10 +4,10 @@ import {
   test,
   expect,
 } from 'vitest'
-import prisma from '../__mocks__/prisma'
-import { Entries } from './Entry.model'
 import { Entry } from '@prisma/client'
-import { toCursorHash } from '../utils/cursorHash'
+import { Entries } from './Entry.model'
+import prisma from '@/__mocks__/prisma'
+import { toCursorHash } from '@/utils/cursorHash'
 
 describe('Entry Model', () => {
   const entry = Entries(prisma.entry)

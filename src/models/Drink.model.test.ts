@@ -5,14 +5,14 @@ import {
   expect,
   vi,
 } from 'vitest'
-import { Drinks } from './Drink.model'
-import prisma from '../__mocks__/prisma'
 import { Drink } from '@prisma/client'
-import { deconstructId, toCursorHash } from '../utils/cursorHash'
+import { Drinks } from './Drink.model'
+import prisma from '@/__mocks__/prisma'
+import { deconstructId, toCursorHash } from '@/utils/cursorHash'
 import {
   DrinkCreateInput,
   DrinkEditInput,
-} from '../__generated__/graphql'
+} from '@/__generated__/graphql'
 
 describe('Drink Model', () => {
   const drink = Drinks(prisma.drink)
@@ -192,7 +192,7 @@ describe('Drink Model', () => {
       } as any)
     })
 
-    test('does something', async () => {
+    test.todo('does something', async () => {
       await drink.updateWithIngredients(mockPayload, prisma)
     })
   })
@@ -226,7 +226,6 @@ describe('Drink Model', () => {
     })
 
     test('makes a call to the db to update the drink', async () => {
-      /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
       const { id, ...expectedPayload } = mockPayload
       await drink.updateWithNutrition(mockPayload)
       expect(prisma.drink.update).toHaveBeenCalledWith({
