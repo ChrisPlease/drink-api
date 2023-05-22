@@ -24,7 +24,7 @@ export default defineConfig({
         'src/__generated__',
         'src/middleware',
       ],
-      reporter: ['html', 'json', 'lcov'],
+      reporter: ['html', 'json', 'lcov', 'text', 'text-summary'],
       provider: 'istanbul',
     },
     alias: {
