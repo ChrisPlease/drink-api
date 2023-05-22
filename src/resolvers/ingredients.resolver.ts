@@ -4,7 +4,12 @@ import { toCursorHash } from '@/utils/cursorHash'
 
 export const ingredientResolvers: IngredientResolvers = {
   async drink(parent, _, { prisma }) {
-    const [{ id, ingredients, ...drink }] = <(Drink & { ingredients: number })[]>await prisma.$queryRaw`
+    const [{
+      id,
+      ingredients,
+      serving_size: servingSize,
+      ...drink
+    }] = <(Omit<Drink, 'servingSize'> & { ingredients: number; serving_size: string })[]>await prisma.$queryRaw`
       SELECT
         d.*,
         COUNT(i2) AS ingredients
@@ -17,6 +22,7 @@ export const ingredientResolvers: IngredientResolvers = {
 
     return {
       id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${id}`),
+      servingSize: +servingSize,
       ...drink,
     }
   },
