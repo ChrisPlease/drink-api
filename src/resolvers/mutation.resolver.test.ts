@@ -1,7 +1,6 @@
 import { Request } from 'express-jwt'
 import { Response } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
-import { Entry } from '@prisma/client'
 import {
   describe,
   beforeEach,
