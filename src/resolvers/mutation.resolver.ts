@@ -1,88 +1,20 @@
 import { Drinks } from '@/models/Drink.model'
 import { Entries } from '@/models/Entry.model'
 import { MutationResolvers } from '@/__generated__/graphql'
-import { deconstructId, toCursorHash } from '@/utils/cursorHash'
+import { deconstructId } from '@/utils/cursorHash'
 
 export const mutationResolvers: MutationResolvers = {
-  async entryCreate(_, { volume, drinkId }, { prisma, req: { auth } }) {
-    const entry = Entries(prisma.entry)
-    const userId = <string>auth?.sub
-    const [,id] = deconstructId(drinkId)
-
-    const {
-      id: entryId,
-      drink: {
-        caffeine,
-        sugar,
-        coefficient,
-        servingSize,
-      },
-      ...rest
-    } = await entry.create({
-      data: {
-        volume,
-        drinkId: id,
-        userId,
-      },
-      include: {
-        drink: {
-          select: {
-            caffeine: true,
-            coefficient: true,
-            sugar: true,
-            servingSize: true,
-          },
-        },
-      },
-    })
-
-    const nutrition = entry.computeNutrition({
-      sugar: sugar ?? 0,
-      coefficient: coefficient ?? 1,
-      caffeine: caffeine ?? 0,
-      servingSize: servingSize ?? 1,
-    }, volume)
-
-    return {
-      id: toCursorHash(`Entry:${entryId}`),
-      ...nutrition,
-      ...rest,
-    }
+  async entryCreate(_, args, { prisma, req: { auth } }) {
+    return await Entries(prisma.entry)
+      .createWithNutrition({
+        ...args,
+        userId: <string>auth?.sub,
+      })
   },
 
-  async entryDelete(_, { entryId }, { prisma, req: { auth } }) {
-    const entry = Entries(prisma.entry)
-    const userId = <string>auth?.sub
-    const [,id] = deconstructId(entryId)
-
-    return await prisma.$transaction(async (tx) => {
-      const { drinkId, ...deletedEntry } = await tx.entry.delete({
-        where: { id, userId },
-      })
-
-      const drink = await tx.drink.findUnique({
-        where: { id: drinkId },
-        select: {
-          caffeine: true,
-          sugar: true,
-          coefficient: true,
-          servingSize: true,
-        },
-      })
-
-      return {
-        ...deletedEntry,
-        drinkId,
-        id,
-        ...entry.computeNutrition({
-          sugar: drink?.sugar ?? 0,
-          caffeine: drink?.caffeine ?? 0,
-          coefficient: drink?.coefficient ?? 0,
-          servingSize: drink?.servingSize ?? 1,
-        }, deletedEntry.volume),
-
-      }
-    })
+  async entryDelete(_, args, { prisma, req: { auth } }) {
+    return await Entries(prisma.entry)
+      .deleteAndReturn({ ...args, userId: <string>auth?.sub }, prisma)
   },
 
   async drinkCreate(_, { drinkInput }, { prisma, req: { auth } }) {
@@ -111,23 +43,10 @@ export const mutationResolvers: MutationResolvers = {
   },
 
   async drinkDelete(_, { drinkId }, { prisma, req: { auth } }) {
-    const drink = Drinks(prisma.drink)
-    const userId = <string>auth?.sub
-    const [,id] = deconstructId(drinkId)
-
-    return await drink
-      .delete({
-        where: {
-          id_userId: {
-            id,
-            userId,
-          },
-        },
-      })
-      .then(({ id, ...rest }) => ({
-        id: drinkId,
-        ...rest,
-      }))
+    return await Drinks(prisma.drink).deleteDrink({
+      drinkId,
+      userId: <string>auth?.sub,
+    })
   },
 
   async drinkEdit(
@@ -142,29 +61,31 @@ export const mutationResolvers: MutationResolvers = {
         ...drinkInput
       },
     }, { prisma, req: { auth } }) {
-    const hasNutrition = !!caffeine || !!sugar || !!servingSize || !!coefficient
+    const hasNutrition = !!caffeine || !!sugar || !!coefficient
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
+    if (!drinkInput.id) throw new Error('Drink ID required')
     const [type,id] = deconstructId(drinkInput.id)
 
-    if (!drinkInput.id) throw new Error('Drink ID required')
-
-    await drink.findUniqueOrThrow({ where: { id, userId } })
+    await prisma.drink.findUniqueOrThrow({ where: { id, userId } })
 
     if (type === 'MixedDrink') {
-      if (hasNutrition) throw new Error('Cannot add nutrition to a Base Drink')
+      if (hasNutrition) throw new Error('Cannot add nutrition to a Mixed Drink')
       if (ingredients) {
-        return await drink.updateWithIngredients(
+        console.log('here')
+        const res = await Drinks(prisma.drink).updateWithIngredients(
           { userId, ingredients, ...drinkInput },
           prisma,
         )
+        console.log('res', res)
+        return res
       } else {
         return await drink.update({
           where: { id, userId },
           data: { userId, ...drinkInput },
         })
       }
-    } else {
+    } else if (type === 'BaseDrink') {
       if (ingredients) throw new Error('Cannot add ingredients to a Base Drink')
       const nutrition = { caffeine, sugar, coefficient }
 
@@ -178,6 +99,8 @@ export const mutationResolvers: MutationResolvers = {
         ...nutrition,
         ...drinkInput,
       })
+    } else {
+      throw new Error('Cannot recognize Drink Type')
     }
   },
 
