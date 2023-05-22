@@ -9,12 +9,12 @@ import {
   expect,
   vi,
 } from 'vitest'
+import { toCursorHash } from '../utils/cursorHash'
+import { AppContext } from '../types/context'
+import prisma from '../__mocks__/prisma'
 import {
   mutationResolvers,
 } from './mutation.resolver'
-import { toCursorHash } from '@/utils/cursorHash'
-import { AppContext } from '@/types/context'
-import prisma from '@/__mocks__/prisma'
 
 describe('mutationResolvers', () => {
   const parent = {}
