@@ -5,43 +5,25 @@ import { Entries } from '@/models/Entry.model'
 import { DrinkHistory } from '@/models/History.model'
 import { Drinks } from '@/models/Drink.model'
 import {
-  toCursorHash,
   deconstructId,
 } from '@/utils/cursorHash'
 
 export const queryResolvers: QueryResolvers = {
   async node(_, { id: argId }, { prisma, req: { auth } }) {
-    const [__typename,id] = deconstructId(argId)
+    const [__typename] = deconstructId(argId)
     const userId = <string>auth?.sub
-
-    let res
 
     switch (__typename) {
       case 'MixedDrink':
       case 'BaseDrink':
-        res = <Drink>await Drinks(prisma.drink)
-          .findUnique({ where: { id } })
-        break
+        return <Drink>await Drinks(prisma.drink)
+          .findUniqueById(argId)
       case 'DrinkHistory':
-        res = <DrinkHistoryModel>await DrinkHistory(prisma)
-          .findUniqueDrinkHistory({
-            where: {
-              drinkId: id,
-              userId,
-            },
-          })
-        break
+        return <DrinkHistoryModel>await DrinkHistory(prisma)
+          .findUniqueDrinkHistory(argId, userId)
       case 'Entry':
-        res = <Entry>await Entries(prisma.entry)
-          .findUniqueWithNutrition({ where: { id } })
-        break
-    }
-
-    const { id: resId, ...rest } = res
-
-    return {
-      id: toCursorHash(`${__typename}:${resId}`),
-      ...rest,
+        return <Entry>await Entries(prisma.entry)
+          .findUniqueWithNutrition(argId, userId)
     }
   },
 
@@ -51,16 +33,11 @@ export const queryResolvers: QueryResolvers = {
   },
 
   async drinks(_, args, { prisma, req: { auth } }) {
-    return await Drinks(prisma.drink).findManyPaginated({ ...args, userId: <string>auth?.sub })
+    return await Drinks(prisma.drink).findManyPaginated({ ...args }, <string>auth?.sub)
   },
 
   async entry(_, { entryId }, { prisma, req: { auth } }) {
-    const userId = <string>auth?.sub
-    const [,id] = deconstructId(entryId)
-
-    const entry = await Entries(prisma.entry).findUniqueWithNutrition({ where: { id, userId }})
-
-    return entry
+    return await Entries(prisma.entry).findUniqueWithNutrition(entryId, <string>auth?.sub)
   },
 
   async entries(_, args,  { prisma, req: { auth } }) {
@@ -68,23 +45,15 @@ export const queryResolvers: QueryResolvers = {
   },
 
   async drinkHistory(_, { drinkId }, { prisma, req: { auth } }) {
-    return await DrinkHistory(prisma).findUniqueDrinkHistory({
-      where: {
-        drinkId,
-        userId: <string>auth?.sub,
-      },
-    })
+    return await DrinkHistory(prisma).findUniqueDrinkHistory(drinkId, <string>auth?.sub)
   },
 
-  async drinksHistory(
-    _,
-    args, { prisma, req: { auth } }) {
+  async drinksHistory(_, args, { prisma, req: { auth } }) {
     return await DrinkHistory(prisma).findManyPaginated({ ...args, userId: <string>auth?.sub }, prisma)
   },
 
-  async me(parent, args, { prisma, req }) {
-    const userId = <string>req.auth?.sub
-    return await prisma.user.findUnique({ where: { id: userId }})
+  async me(parent, args, { prisma, req: { auth } }) {
+    return await prisma.user.findUnique({ where: { id: <string>auth?.sub }})
   },
 
   async user(parent, { userId }, { prisma }) {
