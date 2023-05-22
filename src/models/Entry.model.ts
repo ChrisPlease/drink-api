@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, Entry, Drink } from '@prisma/client'
-import { ConnectionArguments, findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { roundNumber } from '@/utils/roundNumber'
-import { toCursorHash, fromCursorHash, encodeCursor } from '@/utils/cursorHash'
+import { toCursorHash, fromCursorHash, encodeCursor, getCursor } from '@/utils/cursorHash'
 import { QueryEntriesArgs } from '@/__generated__/graphql'
 import { Nutrition } from '@/types/models'
 
@@ -98,10 +98,18 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
     async findManyPaginated(
       client: PrismaClient,
-      { sort, drinkId, distinct }: QueryEntriesArgs,
-      { first, last, before, after }: ConnectionArguments,
-      userId: string,
+      args: QueryEntriesArgs & { userId: string },
     ) {
+      const {
+        first,
+        sort,
+        last,
+        before,
+        after,
+        drinkId,
+        distinct,
+        userId,
+      } = args
       const orderBy = <Prisma.EntryOrderByWithRelationInput>(
         sort
           ? Object.keys(sort)[0] === 'drink'
@@ -165,17 +173,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         },
         { first, last, before, after },
         {
-          getCursor(record) {
-            const key = cursorKey in record ? [cursorKey] : cursorKey.split('_')
-            return (cursorKey in record
-              ? { [cursorKey]: record[cursorKey as keyof Entry] }
-              : {
-                [cursorKey]: key
-                  .reduce(
-                    (acc, item) => ({ ...acc, [item]: record?.[item as keyof Entry] }), {},
-                  ),
-                }) as Prisma.EntryWhereUniqueInput
-          },
+          getCursor: (record) => getCursor<Entry, Prisma.EntryWhereUniqueInput>(record, cursorKey),
           encodeCursor: (cursor) => {
             const dehashedCursor = encodeCursor(cursor, ['id'])
             return toCursorHash(JSON.stringify(dehashedCursor))
