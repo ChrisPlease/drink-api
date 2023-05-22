@@ -1,40 +1,89 @@
-import { PrismaClient, Drink } from '@prisma/client'
-import { DrinkCreateInput, DrinkEditInput } from '@/__generated__/graphql'
-import { deconstructId, toCursorHash } from '@/utils/cursorHash'
+import { PrismaClient, Drink, Prisma } from '@prisma/client'
+import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
+import {
+  DrinkCreateInput,
+  DrinkEditInput,
+  IngredientInput,
+  QueryDrinksArgs,
+} from '@/__generated__/graphql'
+import {
+  deconstructId,
+  toCursorHash,
+  getCursor,
+  encodeCursor,
+  fromCursorHash,
+} from '@/utils/cursorHash'
 import { Nutrition, NutritionQuery } from '@/types/models'
+
+type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {
-    async calculateIngredientNutrition(
-      drinkId: string,
-      client: PrismaClient,
-    ): Promise<Omit<Nutrition, 'servingSize'>> {
-      const [{
-        sugar,
-        caffeine,
-        coefficient,
-      }] = await client.$queryRaw<NutritionQuery[]>`
-      SELECT
-        ROUND(SUM((i.parts::float/t.parts)*d.coefficient)::numeric, 2) AS coefficient,
-        ROUND(SUM((i.parts::float/t.parts)*d.caffeine)::numeric, 2) AS caffeine,
-        ROUND(SUM((i.parts::float/t.parts)*d.sugar)::numeric, 2) AS sugar
-      FROM drink_ingredients di
-      INNER JOIN ingredients i ON di.ingredient_id = i.id
-      INNER JOIN drinks d ON i.drink_id = d.id
-      INNER JOIN (
-        SELECT
-          di.drink_id AS drink_id,
-          SUM(i.parts) AS parts
-        FROM ingredients i
-        INNER JOIN drink_ingredients di ON di.ingredient_id = i.id GROUP BY di.drink_id
-      ) t ON t.drink_id = di.drink_id
-      WHERE di.drink_id = ${drinkId}::uuid`
+    async findUniqueById(drinkId: string) {
+      const [__typename,id] = deconstructId(drinkId)
+      const res = await prismaDrink.findUnique({ where: { id } }) || null
 
-      return {
-        sugar: +sugar,
-        caffeine: +caffeine,
-        coefficient: +coefficient,
+      return res ? { ...res, id: drinkId } : null
+    },
+
+    async findManyPaginated({
+      sort,
+      userId,
+      search,
+      first,
+      last,
+      before,
+      after,
+    }: QueryDrinksArgs & { userId: string }) {
+      const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
+        sort ? sort : { name: 'asc' }
+      )
+
+      const sortKey = <keyof Prisma.DrinkOrderByWithRelationInput>Object.keys(orderBy)[0]
+      const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(
+        sortKey === 'createdAt' ? sortKey : 'id_name'
+      )
+
+      const { include, orderBy: orderByArg, ...baseArgs } = {
+        where: {
+          ...(
+            userId ? { userId } : {
+              OR: [
+                { userId },
+                { userId: null },
+              ],
+            }
+          ),
+          ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
+        },
+        include: {
+          _count: {
+            select: { ingredients: true },
+          },
+        },
+        orderBy,
       }
+
+      return await findManyCursorConnection<Drink, Prisma.DrinkWhereUniqueInput>(
+        (args) => prismaDrink
+          .findMany({ ...args, include, orderBy: orderByArg, ...baseArgs })
+          .then(drinks => drinks.map(({ _count, id, ...drink }) => ({
+            id: toCursorHash(`${
+              _count.ingredients > 0 ? 'MixedDrink' : 'BaseDrink'
+            }:${id}`),
+            ...drink,
+          }))),
+        () => prismaDrink.count(baseArgs),
+        { first, last, after, before },
+        {
+          getCursor: (record) => getCursor<Drink, Prisma.DrinkWhereUniqueInput>(record, cursorKey),
+          encodeCursor: (cursor) => {
+            const dehashedCursor = encodeCursor(cursor, ['id'])
+            return toCursorHash(JSON.stringify(dehashedCursor))
+          },
+          decodeCursor: (cursorString) => JSON.parse(fromCursorHash(cursorString)),
+        },
+      )
     },
 
     async createWithNutrition(
@@ -53,18 +102,12 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     }: Omit<DrinkCreateInput, 'caffeine' | 'sugar' | 'coefficient'> & { userId: string },
     client: PrismaClient,
     ): Promise<Drink> {
-      const ingredients = (drinkIngredients || []).map(({ drinkId, parts }) => ({
-        drinkId: deconstructId(drinkId)[1],
-        parts,
-      }))
+      const ingredients = mapToInputIngredients(drinkIngredients || [])
 
       const { id } = await prismaDrink.create({
         data: {
           ...data,
-          ingredients: {
-            create: ingredients
-              .map(ingredient => ({ ingredient: { create: ingredient } })),
-          },
+          ingredients: { create: ingredients },
         },
       })
 
@@ -93,10 +136,8 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         where: { id: { in: oldIngredients } },
       })
 
-      const ingredients = (newIngredients || []).map(({ drinkId, parts }) => ({
-        drinkId: deconstructId(drinkId)[1],
-        parts,
-      }))
+      const ingredients = mapToInputIngredients(newIngredients)
+
       await prismaDrink.update({
         where: {
           id,
@@ -104,11 +145,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         },
         data: {
           ...data,
-          ingredients: {
-            create: ingredients.map(ingredient => ({
-              ingredient: { create: ingredient },
-            })),
-          },
+          ingredients: { create: ingredients },
         },
       })
 
@@ -136,7 +173,43 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         }))
     },
 
-    async saveWithIngredientsNutrition(id: string, client: PrismaClient): Promise<Drink> {
+    async calculateIngredientNutrition(
+      drinkId: string,
+      client: TransactionClient,
+    ): Promise<Omit<Nutrition, 'servingSize'>> {
+      const [{
+        sugar,
+        caffeine,
+        coefficient,
+      }] = await client.$queryRaw<NutritionQuery[]>`
+      SELECT
+        ROUND(SUM((i.parts::float/t.parts)*d.coefficient)::numeric, 2) AS coefficient,
+        ROUND(SUM(((d2.serving_size*(i.parts::float/t.parts))/d.serving_size)*d.caffeine)::numeric, 2) AS caffeine,
+        ROUND(SUM(((d2.serving_size*(i.parts::float/t.parts))/d.serving_size)*d.sugar)::numeric, 2) AS sugar
+      FROM drink_ingredients di
+      INNER JOIN ingredients i ON di.ingredient_id = i.id
+      INNER JOIN drinks d ON i.drink_id = d.id
+      INNER JOIN drinks d2 ON d2.id = di.drink_id
+      INNER JOIN (
+        SELECT
+          di.drink_id AS drink_id,
+          SUM(i.parts) AS parts
+        FROM ingredients i
+        INNER JOIN drink_ingredients di ON di.ingredient_id = i.id GROUP BY di.drink_id
+      ) t ON t.drink_id = di.drink_id
+      WHERE di.drink_id = ${drinkId}::uuid`
+
+      return {
+        sugar: +sugar,
+        caffeine: +caffeine,
+        coefficient: +coefficient,
+      }
+    },
+
+    async saveWithIngredientsNutrition(
+      id: string,
+      client: PrismaClient,
+    ): Promise<Drink> {
       const {
         sugar,
         caffeine,
@@ -153,4 +226,12 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       }))
     },
   })
+}
+
+function mapToInputIngredients(
+  ingredients?: IngredientInput[],
+): Prisma.DrinkIngredientsCreateWithoutDrinkInput[] {
+  return (ingredients || []).map(({ drinkId, parts }) => ({
+    ingredient: { create: { drinkId, parts } },
+  }))
 }

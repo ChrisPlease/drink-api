@@ -6,13 +6,13 @@ import {
   vi,
 } from 'vitest'
 import { Drink } from '@prisma/client'
-import { Drinks } from './Drink.model'
-import prisma from '@/__mocks__/prisma'
-import { deconstructId, toCursorHash } from '@/utils/cursorHash'
+import prisma from '../__mocks__/prisma'
+import { toCursorHash } from '../utils/cursorHash'
 import {
   DrinkCreateInput,
   DrinkEditInput,
-} from '@/__generated__/graphql'
+} from '../__generated__/graphql'
+import { Drinks } from './Drink.model'
 
 describe('Drink Model', () => {
   const drink = Drinks(prisma.drink)
@@ -139,13 +139,8 @@ describe('Drink Model', () => {
         data: {
           ...mockCall,
           ingredients: {
-            create: ingredients?.map(({ drinkId, parts }) => ({
-              ingredient: {
-                create: {
-                  drinkId: deconstructId(drinkId)[1],
-                  parts,
-                },
-              },
+            create: ingredients?.map(ingredient => ({
+              ingredient: { create: ingredient },
             })),
           },
         },
