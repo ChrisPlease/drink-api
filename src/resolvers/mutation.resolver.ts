@@ -72,12 +72,10 @@ export const mutationResolvers: MutationResolvers = {
     if (type === 'MixedDrink') {
       if (hasNutrition) throw new Error('Cannot add nutrition to a Mixed Drink')
       if (ingredients) {
-        console.log('here')
         const res = await Drinks(prisma.drink).updateWithIngredients(
           { userId, ingredients, ...drinkInput },
           prisma,
         )
-        console.log('res', res)
         return res
       } else {
         return await drink.update({

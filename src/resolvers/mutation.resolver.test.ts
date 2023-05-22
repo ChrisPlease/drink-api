@@ -252,13 +252,12 @@ describe('mutationResolvers', () => {
             },
           }
 
-          const res = await mutationResolvers.drinkEdit(
+          await mutationResolvers.drinkEdit(
             {},
             {
               ...args,
               userId: '123',
             }, ctx, info)
-          console.log(res)
           expect(Drinks(prisma.drink).updateWithIngredients).toHaveBeenCalled()
         })
       })

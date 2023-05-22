@@ -2,18 +2,11 @@ import { Drink } from '@prisma/client'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistoryResolvers } from '@/__generated__/graphql'
 import { deconstructId } from '@/utils/cursorHash'
+import { Drinks } from '@/models/Drink.model'
 
 export const historyResolvers: DrinkHistoryResolvers = {
   async drink({ drink: { id: argId } }, args, { prisma }) {
-    const [,id] = deconstructId(argId)
-    const { id: _, ...drink } = <Drink>await prisma.drink.findUnique({
-      where: { id },
-    })
-
-    return {
-      id: argId,
-      ...drink,
-    }
+    return <Drink>await Drinks(prisma.drink).findUniqueById(argId)
   },
 
   async entries(
@@ -26,6 +19,12 @@ export const historyResolvers: DrinkHistoryResolvers = {
     const [,id] = deconstructId(parent.id)
 
     return await Entries(prisma.entry)
-      .findManyPaginated(prisma, { ...args, userId: <string>auth?.sub, drinkId: id })
+      .findManyPaginated(
+        prisma,
+        {
+          ...args,
+          userId: <string>auth?.sub,
+          drinkId: id,
+        })
   },
 }
