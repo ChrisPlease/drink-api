@@ -18,26 +18,14 @@ export const historyResolvers: DrinkHistoryResolvers = {
 
   async entries(
     parent,
-      {
-      sort,
-      distinct,
-      first,
-      last,
-      before,
-      after,
-    }, {
+    args, {
       prisma,
       req: { auth },
     },
   ) {
     const [,id] = deconstructId(parent.id)
-    const entry = Entries(prisma.entry)
 
-    return await entry.findManyPaginated(
-      prisma,
-      { sort, distinct, drinkId: id },
-      { first, last, after, before },
-      <string>auth?.sub,
-    )
+    return await Entries(prisma.entry)
+      .findManyPaginated(prisma, { ...args, userId: <string>auth?.sub, drinkId: id })
   },
 }

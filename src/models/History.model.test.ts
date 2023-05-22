@@ -5,9 +5,9 @@ import {
   expect,
 } from 'vitest'
 import { Prisma } from '@prisma/client'
+import prisma from '../__mocks__/prisma'
+import { toCursorHash } from '../utils/cursorHash'
 import { DrinkHistory } from './History.model'
-import prisma from '@/__mocks__/prisma'
-import { toCursorHash } from '@/utils/cursorHash'
 
 describe('DrinkHistory', () => {
   const history = DrinkHistory(prisma)
@@ -33,7 +33,7 @@ describe('DrinkHistory', () => {
 
 
     test('makes a transaction to retrieve drink history', async () => {
-      await history.findDrinkHistory(mockArgs)
+      await history.findUniqueDrinkHistory(mockArgs)
 
       expect(prisma.$transaction).toHaveBeenCalled()
     })
