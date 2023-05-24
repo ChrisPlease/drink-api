@@ -4,8 +4,10 @@ import {
   DrinkCreateInput,
   DrinkEditInput,
   IngredientInput,
+  MutationDrinkDeleteArgs,
   QueryDrinksArgs,
 } from '@/__generated__/graphql'
+import { roundNumber } from '@/utils/roundNumber'
 import {
   deconstructId,
   toCursorHash,
@@ -20,9 +22,8 @@ type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' |
 export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {
     async findUniqueById(drinkId: string) {
-      const [__typename,id] = deconstructId(drinkId)
-      const res = await prismaDrink.findUnique({ where: { id } }) || null
-
+      const [,id] = deconstructId(drinkId)
+      const res = await prismaDrink.findUnique({ where: { id } })
       return res ? { ...res, id: drinkId } : null
     },
 
@@ -34,7 +35,8 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       last,
       before,
       after,
-    }: QueryDrinksArgs & { userId: string }) {
+    }: QueryDrinksArgs,
+    reqUser: string) {
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         sort ? sort : { name: 'asc' }
       )
@@ -49,12 +51,13 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           ...(
             userId ? { userId } : {
               OR: [
-                { userId },
+                { userId: reqUser },
                 { userId: null },
               ],
             }
           ),
           ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
+          deleted: null,
         },
         include: {
           _count: {
@@ -104,14 +107,18 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     ): Promise<Drink> {
       const ingredients = mapToInputIngredients(drinkIngredients || [])
 
-      const { id } = await prismaDrink.create({
-        data: {
-          ...data,
-          ingredients: { create: ingredients },
-        },
+      return await client.$transaction(async (tx) => {
+
+        const { id } = await tx.drink.create({
+          data: {
+            ...data,
+            ingredients: { create: ingredients },
+          },
+        })
+
+        return await this.saveWithIngredientsNutrition(id, tx)
       })
 
-      return await this.saveWithIngredientsNutrition(id, client)
     },
 
     async updateWithIngredients(
@@ -125,31 +132,34 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     ): Promise<Drink | null> {
       const [,id] = deconstructId(drinkId)
 
-      const oldIngredients = await prismaDrink
-        .findUnique({ where: { id, userId } })
-        .ingredients({ select: { ingredient: { select: { id: true } } } })
-        .then(ingredients => ingredients?.map(
-          ({ ingredient: { id }}) => id,
-        ))
+      return await client.$transaction(async (tx) => {
+        const oldIngredients = await tx.drink
+          .findUnique({ where: { id, userId } })
+          .ingredients({ select: { ingredient: { select: { id: true } } } })
+          .then(ingredients => ingredients?.map(
+            ({ ingredient: { id }}) => id,
+          ))
 
-      await client.ingredient.deleteMany({
-        where: { id: { in: oldIngredients } },
+        await tx.ingredient.deleteMany({
+          where: { id: { in: oldIngredients } },
+        })
+
+        const ingredients = mapToInputIngredients(newIngredients)
+
+        await tx.drink.update({
+          where: {
+            id,
+            userId,
+          },
+          data: {
+            ...data,
+            ingredients: { create: ingredients },
+          },
+        })
+
+        return await this.saveWithIngredientsNutrition(id, tx)
       })
 
-      const ingredients = mapToInputIngredients(newIngredients)
-
-      await prismaDrink.update({
-        where: {
-          id,
-          userId,
-        },
-        data: {
-          ...data,
-          ingredients: { create: ingredients },
-        },
-      })
-
-      return await this.saveWithIngredientsNutrition(id, client)
     },
 
     async updateWithNutrition({
@@ -171,6 +181,80 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           id: toCursorHash(`BaseDrink:${id}`),
           ...rest,
         }))
+    },
+
+    async findDrinkEntries(
+      drinkId: string,
+      userId: string,
+    ) {
+      const [,id] = deconstructId(drinkId)
+      const entries = await prismaDrink.findUnique({
+        where: { id },
+      }).entries({
+        where: { userId },
+        orderBy: {
+          timestamp: 'desc',
+        },
+      })
+
+      const {
+        caffeine,
+        sugar,
+        coefficient,
+        servingSize,
+      } = <Drink>await prismaDrink.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          caffeine: true,
+          sugar: true,
+          coefficient: true,
+          servingSize: true,
+        },
+      })
+
+      return entries?.map(({ volume, ...entry }) => {
+        const nutrition: { caffeine: number; waterContent: number; sugar: number } = {
+          caffeine: roundNumber((caffeine ?? 0) * (volume / servingSize)),
+          waterContent: roundNumber((coefficient ?? 0) * (volume / servingSize)),
+          sugar: roundNumber((sugar ?? 0) * (volume / servingSize)),
+        }
+
+        return {
+          volume,
+          ...nutrition,
+          ...entry,
+        }
+      }) || []
+    },
+
+    async deleteDrink(
+      { drinkId, userId }: MutationDrinkDeleteArgs & { userId: string },
+    ) {
+      const [,id] = deconstructId(drinkId)
+      return await prismaDrink.delete({ where: { id, userId } })
+        .then(res => ({ ...res, id: drinkId }))
+    },
+
+    async findDrinkIngredients(
+      drinkId: string,
+    ) {
+
+    const [,id] = deconstructId(drinkId)
+    const ingredients = await prismaDrink.findUnique({
+      where: { id },
+    }).ingredients({ include: { ingredient: true } })
+      .then(ingredients => ingredients?.map(({ ingredient }) => ingredient))
+
+    return ingredients || []
+    },
+
+    async findDrinkUser(userId: string) {
+      const [,id] = deconstructId(userId)
+      return await prismaDrink.findUnique({
+        where: { id },
+      }).user()
     },
 
     async calculateIngredientNutrition(
@@ -208,7 +292,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
     async saveWithIngredientsNutrition(
       id: string,
-      client: PrismaClient,
+      client: TransactionClient,
     ): Promise<Drink> {
       const {
         sugar,
@@ -216,7 +300,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         coefficient,
       } = await this.calculateIngredientNutrition(id, client)
 
-      return await prismaDrink.update({
+      return await client.drink.update({
         where: { id },
         data: { caffeine, sugar, coefficient },
       })
@@ -232,6 +316,11 @@ function mapToInputIngredients(
   ingredients?: IngredientInput[],
 ): Prisma.DrinkIngredientsCreateWithoutDrinkInput[] {
   return (ingredients || []).map(({ drinkId, parts }) => ({
-    ingredient: { create: { drinkId, parts } },
+    ingredient: {
+      create: {
+        drinkId: deconstructId(drinkId || '')?.[1],
+        parts,
+      },
+    },
   }))
 }
