@@ -74,7 +74,7 @@ describe('drinks.resolver', () => {
         expect(Drinks).toHaveBeenCalledWith(prisma.drink)
         expect(
           Drinks(prisma.drink).findDrinkEntries,
-        ).toHaveBeenCalledWith(parent.id, 'mock-user')
+        ).toHaveBeenCalledWith(prisma, parent.id, 'mock-user')
         expect(res).toStrictEqual([{ id: 'mock-entry' }])
       })
     })
