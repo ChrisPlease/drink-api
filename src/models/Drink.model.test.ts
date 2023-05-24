@@ -287,32 +287,6 @@ describe('Drink Model', () => {
     })
   })
 
-  describe('calculateIngredientNutrition', () => {
-    beforeEach(() => {
-      prisma.$queryRaw.mockResolvedValue([{
-        sugar: '0',
-        caffeine: '0',
-        coefficient: '1',
-      }])
-    })
-
-    test('calls queryRaw to retrieve nutrition', () => {
-      drink.calculateIngredientNutrition('123', prisma)
-
-      expect(prisma.$queryRaw).toHaveBeenCalled()
-    })
-
-    test('returns the nutrition as an object', async () => {
-      const res = await drink.calculateIngredientNutrition('123', prisma)
-
-      expect(res).toStrictEqual({
-        sugar: 0,
-        caffeine: 0,
-        coefficient: 1,
-      })
-    })
-  })
-
   describe('updateWithNutrition', () => {
     let mockPayload: Omit<DrinkEditInput, 'ingredients'> & { userId: string }
     let mockResponse: Drink
@@ -342,13 +316,45 @@ describe('Drink Model', () => {
     })
 
     test('makes a call to the db to update the drink', async () => {
-      const { id, ...expectedPayload } = mockPayload
       await drink.updateWithNutrition(mockPayload)
+      const { id, ...expectedPayload } = mockPayload
       expect(prisma.drink.update).toHaveBeenCalledWith({
         data: {
           ...expectedPayload,
         },
         where: { id: '123' },
+      })
+    })
+
+    test('maps the id from the response', async () => {
+      const res = await drink.updateWithNutrition(mockPayload)
+
+      expect(res?.id).toEqual(toCursorHash('BaseDrink:123'))
+    })
+  })
+
+  describe('calculateIngredientNutrition', () => {
+    beforeEach(() => {
+      prisma.$queryRaw.mockResolvedValue([{
+        sugar: '0',
+        caffeine: '0',
+        coefficient: '1',
+      }])
+    })
+
+    test('calls queryRaw to retrieve nutrition', () => {
+      drink.calculateIngredientNutrition('123', prisma)
+
+      expect(prisma.$queryRaw).toHaveBeenCalled()
+    })
+
+    test('returns the nutrition as an object', async () => {
+      const res = await drink.calculateIngredientNutrition('123', prisma)
+
+      expect(res).toStrictEqual({
+        sugar: 0,
+        caffeine: 0,
+        coefficient: 1,
       })
     })
   })

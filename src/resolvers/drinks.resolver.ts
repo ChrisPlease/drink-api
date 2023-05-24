@@ -19,7 +19,8 @@ export const drinkResolvers: DrinkResolvers = {
   ...drinkResultResolvers,
 
   async entries(parent, args, { prisma, req: { auth } }) {
-    return await Drinks(prisma.drink).findDrinkEntries(parent.id, <string>auth?.sub)
+    return await Drinks(prisma.drink)
+      .findDrinkEntries(prisma, parent.id, <string>auth?.sub)
   },
 
   async user(parent, args, { prisma }) {

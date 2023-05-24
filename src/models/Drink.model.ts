@@ -184,35 +184,38 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     },
 
     async findDrinkEntries(
+      client: PrismaClient,
       drinkId: string,
       userId: string,
     ) {
       const [,id] = deconstructId(drinkId)
-      const entries = await prismaDrink.findUnique({
-        where: { id },
-      }).entries({
-        where: { userId },
-        orderBy: {
-          timestamp: 'desc',
-        },
-      })
+
+      const [entries, drink] = await client.$transaction([
+        prismaDrink.findUnique({
+          where: { id },
+        }).entries({
+          where: { userId },
+          orderBy: {
+            timestamp: 'desc',
+          },
+        }),
+        prismaDrink.findUnique({
+          where: { id },
+          select: {
+            caffeine: true,
+            sugar: true,
+            coefficient: true,
+            servingSize: true,
+          },
+        }),
+      ])
 
       const {
         caffeine,
         sugar,
         coefficient,
         servingSize,
-      } = <Drink>await prismaDrink.findUnique({
-        where: {
-          id,
-        },
-        select: {
-          caffeine: true,
-          sugar: true,
-          coefficient: true,
-          servingSize: true,
-        },
-      })
+      } = <Drink>drink
 
       return entries?.map(({ volume, ...entry }) => {
         const nutrition: { caffeine: number; waterContent: number; sugar: number } = {
