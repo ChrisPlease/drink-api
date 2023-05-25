@@ -56,6 +56,14 @@ describe('entries', () => {
               drink {
                 ... on Drink {
                   name
+                  entries {
+                    volume
+                    drink {
+                      ... on Drink {
+                        name
+                      }
+                    }
+                  }
                 }
               }
             }
