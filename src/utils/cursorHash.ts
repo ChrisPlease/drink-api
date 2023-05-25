@@ -1,3 +1,4 @@
+import { Drink, Entry } from '@prisma/client'
 import { ModelType } from '@/types/models'
 
 export const toCursorHash = (str: string) => Buffer.from(str).toString('base64')
@@ -28,4 +29,17 @@ export const encodeCursor = (cursor: Record<string, any>, hashKeys: string[]) =>
 
 export const deconstructId = (id: string): [ModelType, string] => {
   return fromCursorHash(id).split(':') as [ModelType, string]
+}
+
+type RecordType = Drink | Entry
+
+export const getCursor = <T extends RecordType, U>(record: T, cursorKey: string) => {
+  const key = cursorKey in record ? [cursorKey] : cursorKey.split('_')
+  return (cursorKey in record
+    ? { [cursorKey]: record[cursorKey as keyof T] }
+    : { [cursorKey]: key.reduce(
+      (acc, item) => ({
+        ...acc,
+        [item]: record?.[item as keyof T],
+      }), {}) }) as U
 }

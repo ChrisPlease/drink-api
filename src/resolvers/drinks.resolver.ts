@@ -1,12 +1,11 @@
-import { Drink } from '@prisma/client'
 import {
   BaseDrinkResolvers,
   DrinkResolvers,
   DrinkResultResolvers,
   MixedDrinkResolvers,
 } from '@/__generated__/graphql'
-import { roundNumber } from '@/utils/roundNumber'
 import { deconstructId } from '@/utils/cursorHash'
+import { Drinks } from '@/models/Drink.model'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
   async __resolveType(parent) {
@@ -20,53 +19,12 @@ export const drinkResolvers: DrinkResolvers = {
   ...drinkResultResolvers,
 
   async entries(parent, args, { prisma, req: { auth } }) {
-    const [,id] = deconstructId(parent.id)
-    const entries = await prisma.drink.findUnique({
-      where: { id },
-    }).entries({
-      where: { userId: auth?.sub },
-      orderBy: {
-        timestamp: 'desc',
-      },
-    })
-
-    const {
-      caffeine,
-      sugar,
-      coefficient,
-      servingSize,
-    } = <Drink>await prisma.drink.findUnique({
-      where: {
-        id,
-      },
-      select: {
-        caffeine: true,
-        sugar: true,
-        coefficient: true,
-        servingSize: true,
-      },
-    })
-
-    return entries?.map(({ volume, ...entry }) => {
-      const nutrition: { caffeine: number; waterContent: number; sugar: number } = {
-        caffeine: roundNumber((caffeine ?? 0) * (volume / servingSize)),
-        waterContent: roundNumber((coefficient ?? 0) * (volume / servingSize)),
-        sugar: roundNumber((sugar ?? 0) * (volume / servingSize)),
-      }
-
-      return {
-        volume,
-        ...nutrition,
-        ...entry,
-      }
-    }) || []
+    return await Drinks(prisma.drink)
+      .findDrinkEntries(prisma, parent.id, <string>auth?.sub)
   },
 
   async user(parent, args, { prisma }) {
-    const [,id] = deconstructId(parent.id)
-    return await prisma.drink.findUnique({
-      where: { id },
-    }).user()
+    return await Drinks(prisma.drink).findDrinkUser(parent.id)
   },
 
 }
@@ -79,12 +37,6 @@ export const mixedDrinkResolvers: MixedDrinkResolvers = {
   ...drinkResolvers,
 
   async ingredients(parent, args, { prisma }) {
-    const [,id] = deconstructId(parent.id)
-    const ingredients = await prisma.drink.findUnique({
-      where: { id },
-    }).ingredients({ include: { ingredient: true } })
-      .then(ingredients => ingredients?.map(({ ingredient }) => ingredient))
-
-    return ingredients || []
+    return await Drinks(prisma.drink).findDrinkIngredients(parent.id)
   },
 }

@@ -26,7 +26,7 @@ async function main() {
       name: 'Seven & Seven',
       icon: 'whiskey-glass-ice',
       userId: userId1,
-      servingSize: 8,
+      servingSize: 12,
       ingredients: {
         create:
           [
@@ -52,11 +52,12 @@ async function main() {
   }] = await prisma.$queryRaw<NutritionQuery[]>`
   SELECT
     ROUND(SUM((i.parts::float/t.parts)*d.coefficient)::numeric, 2) AS coefficient,
-    ROUND(SUM((i.parts::float/t.parts)*d.caffeine)::numeric, 2) AS caffeine,
-    ROUND(SUM((i.parts::float/t.parts)*d.sugar)::numeric, 2) AS sugar
+    ROUND(SUM(((d2.serving_size*(i.parts::float/t.parts))/d.serving_size)*d.caffeine)::numeric, 2) AS caffeine,
+    ROUND(SUM(((d2.serving_size*(i.parts::float/t.parts))/d.serving_size)*d.sugar)::numeric, 2) AS sugar
   FROM drink_ingredients di
   INNER JOIN ingredients i ON di.ingredient_id = i.id
   INNER JOIN drinks d ON i.drink_id = d.id
+  INNER JOIN drinks d2 ON d2.id = di.drink_id
   INNER JOIN (
     SELECT
       di.drink_id AS drink_id,
