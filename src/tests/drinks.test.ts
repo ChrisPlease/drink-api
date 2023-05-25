@@ -11,98 +11,322 @@ import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
 import { seedUsers } from '../../prisma/seeders/users'
 import { seedDrinks } from '../../prisma/seeders/drinks'
+import { AppContext } from '../types/context'
+import { DrinkResult, DrinksPaginated, MixedDrink } from '../__generated__/graphql'
+import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import prisma from './helpers/prisma'
 import { testServer } from './helpers/server'
-import { AppContext } from '@/types/context'
-import { DrinksPaginated } from '@/__generated__/graphql'
 
 describe('drinks', () => {
   let contextValue: AppContext
   let QUERY: DocumentNode
-  let result: DrinksPaginated
+  let waterId: string
+  let sodaId: string
 
-  describe('get all drinks', () => {
-    beforeEach(async () => {
-      contextValue = {
-        prisma,
-        req: {} as Request,
-        res: {} as Response,
-      }
-      await seedUsers(prisma, ['user-123'])
-      await seedDrinks(prisma)
+  beforeEach(async () => {
+    contextValue = {
+      prisma,
+      req: {} as Request,
+      res: {} as Response,
+    }
+    await seedUsers(prisma, ['user-123'])
+    const { Water, Soda } = await seedDrinks(prisma)
+    waterId = toCursorHash(`BaseDrink:${Water}`)
+    sodaId = toCursorHash(`BaseDrink:${Soda}`)
+  })
 
-      QUERY = gql`query GetDrinks($first: Int, $after: String, $search: String) {
-        drinks(first: $first, after: $after, search: $search) {
-          edges {
-            node {
-              ... on Drink {
-                id
-                name
-                coefficient
+  describe('queries', () => {
+    describe('get all drinks', () => {
+      let result: DrinksPaginated
+      beforeEach(async () => {
+        QUERY = gql`query GetDrinks($first: Int, $after: String, $search: String) {
+          drinks(first: $first, after: $after, search: $search) {
+            edges {
+              node {
+                ... on Drink {
+                  id
+                  name
+                  coefficient
+                }
+              }
+              cursor
+            }
+            pageInfo {
+              startCursor
+              endCursor
+              hasNextPage
+              hasPreviousPage
+            }
+          }
+        }`
+      })
+
+      it('retrieves a paginated list of drinks', async () => {
+        const res = await testServer.executeOperation({
+          query: QUERY,
+          variables: { first: 12 },
+        },
+        { contextValue })
+
+        assert(res.body.kind === 'single')
+        assert(res.body.singleResult.data?.drinks !== null)
+
+        const result = res.body.singleResult.data?.drinks as DrinksPaginated
+
+        expect(result.edges.length).toEqual(12)
+        expect(result.edges[0].cursor).toEqual(result.pageInfo?.startCursor)
+        expect(
+          result.edges[result.edges.length - 1].cursor,
+        ).toEqual(result.pageInfo?.endCursor)
+        expect(result.pageInfo?.hasNextPage).toBeTruthy()
+        expect(result.pageInfo?.hasPreviousPage).toBeFalsy()
+      })
+
+      it('returns an offset when a cursor is provided', async () => {
+        const cursor = 'eyJpZF9uYW1lIjp7ImlkIjoiY2UyYzc4OTktMWVkMy01OThmLWFjYjItMTkwZDY2NmYwMjdmIiwibmFtZSI6IkJlZXIifX0='
+
+        const res = await testServer.executeOperation({
+          query: QUERY,
+          variables: { first: 2, after: cursor },
+        }, { contextValue })
+
+        assert(res.body.kind === 'single')
+        assert(res.body.singleResult.data?.drinks !== null)
+
+        result = res.body.singleResult.data?.drinks as DrinksPaginated
+
+        expect(result.pageInfo?.hasPreviousPage).toBeTruthy()
+      })
+
+      it('filters results when search term is provided', async () => {
+        const res = await testServer.executeOperation({
+          query: QUERY,
+          variables: { search: 'w' },
+        }, { contextValue })
+
+        assert(res.body.kind === 'single')
+        assert(res.body.singleResult.data?.drinks !== null)
+
+        result = res.body.singleResult.data?.drinks as DrinksPaginated
+
+        const resultNames = result.edges.map(({ node: { name } }) => name)
+        expect(resultNames.every(name => name.toLowerCase().includes('w'))).toBeTruthy()
+      })
+    })
+  })
+
+  describe('mutations', () => {
+    let result: DrinkResult
+
+    describe('drinkCreate', () => {
+      beforeEach(() => {
+        QUERY = gql`
+        mutation CreateDrink($drinkInput: DrinkCreateInput!) {
+          drinkCreate(drinkInput: $drinkInput) {
+            ... on Drink {
+              id
+              name
+              icon
+            }
+            ... on MixedDrink {
+              ingredients {
+                parts
+                drink {
+                  ... on Drink {
+                    name
+                  }
+                }
               }
             }
-            cursor
           }
-          pageInfo {
-            startCursor
-            endCursor
-            hasNextPage
-            hasPreviousPage
+        }`
+      })
+
+      it('returns a base drink', async () => {
+        expect.assertions(2)
+        const res = await testServer.executeOperation({
+          query: QUERY,
+          variables: {
+            drinkInput: {
+              name: 'Test Drink',
+              icon: 'test-icon',
+              caffeine: 12,
+              sugar: 12,
+              coefficient: 1,
+              servingSize: 12,
+            },
+          },
+        }, { contextValue })
+
+        assert(res.body.kind === 'single')
+        assert(res.body.singleResult.data?.drinkCreate !== null)
+
+        result = res.body.singleResult.data?.drinkCreate as DrinkResult
+        const [type] = deconstructId(result.id)
+        expect(type).toEqual('BaseDrink')
+        expect(result).toEqual(
+          expect.objectContaining({
+            name: 'Test Drink',
+            icon: 'test-icon',
+          }),
+        )
+      })
+
+      it('returns a mixed drink', async () => {
+        const res = await testServer.executeOperation({
+          query: QUERY,
+          variables: {
+            drinkInput: {
+              name: 'Mixed drink',
+              icon: 'test-mixed',
+              servingSize: 12,
+              ingredients: [
+                { drinkId: waterId, parts: 1 },
+                { drinkId: sodaId, parts: 1 },
+              ],
+            },
+          },
+        }, { contextValue })
+
+        assert(res.body.kind === 'single')
+        assert(res.body.singleResult.data?.drinkCreate !== null)
+        result = res.body.singleResult.data?.drinkCreate as DrinkResult
+        const [type] = deconstructId(result.id)
+        expect(type).toEqual('MixedDrink')
+        expect(result).toEqual(
+          expect.objectContaining({
+            name: 'Mixed drink',
+            icon: 'test-mixed',
+          }),
+        )
+        expect((result as MixedDrink).ingredients).toHaveLength(2)
+      })
+    })
+
+    describe('drinkDelete', () => {
+      let newDrinkId: string
+
+      beforeEach(async () => {
+        QUERY = gql`
+        mutation DeleteDrink($drinkId: ID!) {
+          drinkDelete(drinkId: $drinkId) {
+            ... on Drink {
+              name
+            }
           }
-        }
-      }`
+        }`
+        const { id } = await prisma.drink.create({
+          data: {
+            name: 'New drink',
+            icon: 'new-icon',
+            caffeine: 0,
+            sugar: 0,
+            servingSize: 8,
+            coefficient: 1,
+            userId: 'user-123',
+          },
+        })
+
+        newDrinkId = toCursorHash(`BaseDrink:${id}`)
+      })
+
+      it('returns the deleted drink', async () => {
+        const res = await testServer.executeOperation({
+          query: QUERY,
+          variables: { drinkId: newDrinkId },
+        }, { contextValue })
+
+        assert(res.body.kind === 'single')
+        assert(res.body.singleResult.data?.drinkDelete !== null)
+
+        result = res.body.singleResult.data?.drinkDelete as DrinkResult
+        expect(result.name).toEqual('New drink')
+      })
+
+      it('removes the drink from the database', async () => {
+        await testServer.executeOperation({
+          query: QUERY,
+          variables: { drinkId: newDrinkId },
+        }, { contextValue })
+
+        const [,dehashedId] = deconstructId(newDrinkId)
+
+        const res = await prisma.drink.findUnique({
+          where: { id: dehashedId },
+        })
+
+        expect(res).toBeNull()
+      })
     })
 
-    it('retrieves a paginated list of drinks', async () => {
-      const res = await testServer.executeOperation({
-        query: QUERY,
-        variables: { first: 12 },
-      },
-      { contextValue })
+    describe('drinkEdit', () => {
+      let mockId: string
 
-      assert(res.body.kind === 'single')
-      assert(res.body.singleResult.data?.drinks !== null)
+      beforeEach( async () => {
+        const { id } = await prisma.drink.create({
+          data: {
+            name: 'Test Drink',
+            icon: 'test-icon',
+            caffeine: 12,
+            sugar: 12,
+            coefficient: 1,
+            servingSize: 12,
+            userId: 'user-123',
+          },
+        })
 
-      const result = res.body.singleResult.data?.drinks as DrinksPaginated
+        mockId = toCursorHash(`BaseDrink:${id}`)
 
-      expect(result.edges.length).toEqual(12)
-      expect(result.edges[0].cursor).toEqual(result.pageInfo?.startCursor)
-      expect(
-        result.edges[result.edges.length - 1].cursor,
-      ).toEqual(result.pageInfo?.endCursor)
-      expect(result.pageInfo?.hasNextPage).toBeTruthy()
-      expect(result.pageInfo?.hasPreviousPage).toBeFalsy()
-    })
+        QUERY = gql`
+        mutation EditDrink($drinkInput: DrinkEditInput!) {
+          drinkEdit(drinkInput: $drinkInput) {
+            ... on Drink {
+              id
+              name
+            }
+          }
+        }`
+      })
 
-    it('returns an offset when a cursor is provided', async () => {
-      const cursor = 'eyJpZF9uYW1lIjp7ImlkIjoiY2UyYzc4OTktMWVkMy01OThmLWFjYjItMTkwZDY2NmYwMjdmIiwibmFtZSI6IkJlZXIifX0='
+      it('edits the drink in the database', async () => {
+        const res = await testServer.executeOperation({
+          query: QUERY,
+          variables: {
+            drinkInput: {
+              id: mockId,
+              name: 'Edited drink',
+            },
+          },
+        }, { contextValue })
 
-      const res = await testServer.executeOperation({
-        query: QUERY,
-        variables: { first: 2, after: cursor },
-      }, { contextValue })
+        assert(res.body.kind === 'single')
+        assert(res.body.singleResult.data?.drinkEdit !== null)
+        const [,dehashedId] = deconstructId(mockId)
+        const drink = await prisma.drink.findUnique({
+          where: { id: dehashedId },
+        })
 
-      assert(res.body.kind === 'single')
-      assert(res.body.singleResult.data?.drinks !== null)
+        expect(drink?.name).toEqual('Edited drink')
+      })
 
-      result = res.body.singleResult.data?.drinks as DrinksPaginated
+      it('returns the edited drink', async () => {
+        const res = await testServer.executeOperation({
+          query: QUERY,
+          variables: {
+            drinkInput: {
+              id: mockId,
+              name: 'Edited drink',
+            },
+          },
+        }, { contextValue })
 
-      expect(result.pageInfo?.hasPreviousPage).toBeTruthy()
-    })
-
-    it('filters results when search term is provided', async () => {
-      const res = await testServer.executeOperation({
-        query: QUERY,
-        variables: { search: 'w' },
-      }, { contextValue })
-
-      assert(res.body.kind === 'single')
-      assert(res.body.singleResult.data?.drinks !== null)
-
-      result = res.body.singleResult.data?.drinks as DrinksPaginated
-
-      const resultNames = result.edges.map(({ node: { name } }) => name)
-      expect(resultNames.every(name => name.toLowerCase().includes('w'))).toBeTruthy()
+        assert(res.body.kind === 'single')
+        assert(res.body.singleResult.data?.drinkEdit !== null)
+        result = res.body.singleResult.data?.drinkEdit as DrinkResult
+        expect(result).toEqual(
+          expect.objectContaining({ id: mockId, name: 'Edited drink' }),
+        )
+      })
     })
   })
 })

@@ -7,12 +7,12 @@ import { QueryDrinksHistoryArgs } from '@/__generated__/graphql'
 export function DrinkHistory(client: PrismaClient) {
   return Object.assign({}, {
     async findUniqueDrinkHistory(
-      args: Pick<Prisma.EntryAggregateArgs, 'where'>,
+      drinkId: string,
+      userId: string,
     ) {
       return await client.$transaction(async (tx) => {
-        const drinkId = <string>args.where?.drinkId
-        const [,dehashedId] = deconstructId(drinkId)
-        const where = { drinkId: dehashedId, userId: args.where?.userId }
+        const [,id] = deconstructId(drinkId)
+        const where = { drinkId: id, userId }
         const [{
           _count: count,
           _max: max,
@@ -31,24 +31,18 @@ export function DrinkHistory(client: PrismaClient) {
 
 
         const {
-          id,
-          _count: { ingredients },
+          id: _,
           ...drink
         } = <Drink & { _count: { ingredients: number } }>await tx.drink.findUnique({
-          where: { id: dehashedId },
-          include: {
-            _count: { select: { ingredients: true } },
-          },
+          where: { id, userId },
         })
 
         const totalVolume = sum.volume || 0
         const lastEntry = max.timestamp
 
         return {
-          id: toCursorHash(`DrinkHistory:${dehashedId}`),
-          drink: { id: toCursorHash(`${
-            ingredients > 0 ? 'Mixed' : 'Base'
-          }Drink:${id}`), ...drink },
+          id: toCursorHash(`DrinkHistory:${id}`),
+          drink: { id: drinkId, ...drink },
           count,
           totalVolume,
           waterVolume: roundNumber(totalVolume * (drink?.coefficient || 0)),
@@ -72,9 +66,15 @@ export function DrinkHistory(client: PrismaClient) {
 
     const { hasEntries } = filter || { hasEntries: false }
 
+    type RawDrink = Omit<Drink, 'servingSize' | 'createdAt'> & {
+      ingredients: number,
+      serving_size: number,
+      created_at: Date,
+    }
+
     type RawEntry = {
       id: string,
-      drink: Drink & { ingredients: number },
+      drink: RawDrink,
       count: number,
       total_volume: number,
       water_volume: number,
@@ -138,6 +138,8 @@ export function DrinkHistory(client: PrismaClient) {
           drink: {
             id: drinkId,
             ingredients,
+            created_at: createdAt,
+            serving_size: servingSize,
             ...drink
           },
           id,
@@ -147,7 +149,12 @@ export function DrinkHistory(client: PrismaClient) {
           waterVolume,
           totalVolume,
           lastEntry,
-          drink: { id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drinkId}`), ...drink },
+          drink: {
+            id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drinkId}`),
+            servingSize,
+            createdAt,
+            ...drink,
+          },
           ...entry,
         })))
       },
