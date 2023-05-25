@@ -90,7 +90,7 @@ describe('history', () => {
     `
   })
 
-  it('does something', async () => {
+  it('limits results to entries when filter is applied', async () => {
     const res = await testServer.executeOperation({
       query: QUERY,
       variables: {
@@ -104,5 +104,7 @@ describe('history', () => {
     assert(res.body.singleResult.data?.drinksHistory !== null)
 
     result = res.body.singleResult.data?.drinksHistory as DrinksHistoryPaginated
+
+    expect(result.edges).toHaveLength(4)
   })
 })
