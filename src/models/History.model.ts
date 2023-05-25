@@ -7,11 +7,11 @@ import { QueryDrinksHistoryArgs } from '@/__generated__/graphql'
 export function DrinkHistory(client: PrismaClient) {
   return Object.assign({}, {
     async findUniqueDrinkHistory(
-      drinkId: string,
+      drinkHistoryId: string,
       userId: string,
     ) {
+      const [,id] = deconstructId(drinkHistoryId)
       return await client.$transaction(async (tx) => {
-        const [,id] = deconstructId(drinkId)
         const where = { drinkId: id, userId }
         const [{
           _count: count,
@@ -31,10 +31,14 @@ export function DrinkHistory(client: PrismaClient) {
 
 
         const {
-          id: _,
+          id: drinkId,
+          _count: { ingredients },
           ...drink
         } = <Drink & { _count: { ingredients: number } }>await tx.drink.findUnique({
-          where: { id, userId },
+          where: { id },
+          include: {
+            _count: { select: { ingredients: true } },
+          },
         })
 
         const totalVolume = sum.volume || 0
@@ -42,7 +46,9 @@ export function DrinkHistory(client: PrismaClient) {
 
         return {
           id: toCursorHash(`DrinkHistory:${id}`),
-          drink: { id: drinkId, ...drink },
+          drink: { id: toCursorHash(`${
+            ingredients > 0 ? 'Mixed' : 'Base'
+          }Drink:${drinkId}`), ...drink },
           count,
           totalVolume,
           waterVolume: roundNumber(totalVolume * (drink?.coefficient || 0)),
