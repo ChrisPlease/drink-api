@@ -228,6 +228,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           volume,
           ...nutrition,
           ...entry,
+          id: toCursorHash(`Entry:${entry.id}`),
         }
       }) || []
     },
