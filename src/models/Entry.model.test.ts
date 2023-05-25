@@ -1,16 +1,33 @@
 import {
+  vi,
   describe,
   beforeEach,
   test,
   expect,
 } from 'vitest'
 import { Entry } from '@prisma/client'
+import prisma from '../__mocks__/prisma'
+import { toCursorHash } from '../utils/cursorHash'
 import { Entries } from './Entry.model'
-import prisma from '@/__mocks__/prisma'
-import { toCursorHash } from '@/utils/cursorHash'
 
 describe('Entry Model', () => {
   const entry = Entries(prisma.entry)
+
+  describe('computeNutrition', () => {
+    test('calculates and nutritional content', () => {
+      expect(entry.computeNutrition({
+        caffeine: 12,
+        sugar: 12,
+        coefficient: 1,
+        servingSize: 12,
+      }, 12)).toEqual({
+        caffeine: 12,
+        sugar: 12,
+        waterContent: 12,
+        servings: 1,
+      })
+    })
+  })
 
   describe('findUniqueWithNutrition', () => {
     let mockResult: Entry & {
@@ -39,7 +56,7 @@ describe('Entry Model', () => {
     })
 
     test('makes a call to find the entry in the database', async () => {
-      await entry.findUniqueWithNutrition({ where: { id: '123' } })
+      await entry.findUniqueWithNutrition(mockResult.id, 'user-123')
       expect(prisma.entry.findUnique).toHaveBeenCalledWith({
         include: {
           drink: {
@@ -51,15 +68,19 @@ describe('Entry Model', () => {
             },
           },
         },
-        where: { id: '123' },
+        where: {
+          id: '123',
+          userId: 'user-123',
+        },
       })
     })
 
     test('computes the nutrition based on volume', async () => {
-      const res = await entry.findUniqueWithNutrition({
-        where: { id: '123' },
-      })
+      expect.assertions(2)
+      vi.spyOn(entry, 'computeNutrition')
+      const res = await entry.findUniqueWithNutrition(mockResult.id, 'user-123')
 
+      expect(entry.computeNutrition).toHaveBeenCalled()
       expect(res).toStrictEqual(expect.objectContaining({
         caffeine: 12,
         sugar: 12,
@@ -68,9 +89,7 @@ describe('Entry Model', () => {
     })
 
     test('base64 encodes the ID in the response', async () => {
-      const res = await entry.findUniqueWithNutrition({
-        where: { id: '123' },
-      })
+      const res = await entry.findUniqueWithNutrition(mockResult.id, 'user-123')
       expect(res?.id).toEqual(toCursorHash('Entry:123'))
     })
   })

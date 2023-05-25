@@ -1,13 +1,16 @@
 import {
   expect,
+  beforeEach,
   test,
   describe,
 } from 'vitest'
+import { Drink, Prisma } from '@prisma/client'
 import {
   toCursorHash,
   fromCursorHash,
   encodeCursor,
   deconstructId,
+  getCursor,
 } from './cursorHash'
 
 describe('cursorHash', () => {
@@ -50,6 +53,40 @@ describe('cursorHash', () => {
     test('splits an encoded string into an array', () => {
       const str = toCursorHash('foo:bar')
       expect(deconstructId(str)).toStrictEqual(['foo','bar'])
+    })
+  })
+
+  describe('getCursor', () => {
+    let cursorKey: string
+    let record: Drink
+
+    beforeEach(() => {
+      record = {
+        id: '123',
+        name: 'Test',
+        icon: 'test',
+        coefficient: 1,
+        sugar: 0,
+        caffeine: 0,
+        servingSize: 8,
+        deleted: null,
+        createdAt: new Date(2023, 0, 0, 0, 0),
+        userId: 'user-123',
+      }
+    })
+    test('creates a key from the record property when the key is a property', () => {
+      cursorKey = 'id'
+      expect(getCursor<Drink, Prisma.DrinkWhereUniqueInput>(record, cursorKey)).toStrictEqual({ id: '123' })
+    })
+
+    test('creates a nested key from the record when the key is not a property', () => {
+      cursorKey = 'id_name'
+      expect(getCursor<Drink, Prisma.DrinkWhereUniqueInput>(record, cursorKey)).toStrictEqual({
+        id_name: {
+          id: '123',
+          name: 'Test',
+        },
+      })
     })
   })
 })

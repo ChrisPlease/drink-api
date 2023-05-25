@@ -11,7 +11,7 @@ export default defineConfig({
     ],
     coverage: {
       all: true,
-
+      reportsDirectory: './coverage/unit',
       include: [
         'src/**/*.ts',
         '!src/**/*.test.ts',
@@ -24,7 +24,7 @@ export default defineConfig({
         'src/__generated__',
         'src/middleware',
       ],
-      reporter: ['html', 'json', 'lcov'],
+      reporter: ['html', 'json', 'lcov', 'text', 'text-summary'],
       provider: 'istanbul',
     },
     alias: {
