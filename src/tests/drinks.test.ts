@@ -30,9 +30,9 @@ describe('drinks', () => {
       res: {} as Response,
     }
     await seedUsers(prisma, ['user-123'])
-    const { Water, Soda } = await seedDrinks(prisma)
-    waterId = toCursorHash(`BaseDrink:${Water}`)
-    sodaId = toCursorHash(`BaseDrink:${Soda}`)
+    const { water, soda } = await seedDrinks(prisma)
+    waterId = toCursorHash(`BaseDrink:${water}`)
+    sodaId = toCursorHash(`BaseDrink:${soda}`)
   })
 
   describe('queries', () => {
