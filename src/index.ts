@@ -1,6 +1,5 @@
 import 'dotenv/config'
 import { readFileSync } from 'fs'
-import { createSoftDeleteMiddleware } from 'prisma-soft-delete-middleware'
 import express from 'express'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -13,21 +12,10 @@ import { AppContext } from './types/context'
 import { jwtHandler } from './middleware/jwtHandler'
 
 const app: express.Application = express()
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(cors({ origin: 'https://waterlog.test:8433' }))
-
-prisma.$use(
-  createSoftDeleteMiddleware({
-    models: {
-      Drink: {
-        field: 'deleted',
-        createValue: (value) => value ? new Date() : null,
-      },
-      Entry: true,
-    },
-  }),
-)
+app.use(cors({ origin: `${process.env.UI_DOMAIN}` }))
 
 async function initServer() {
   const server = new ApolloServer<AppContext>({
