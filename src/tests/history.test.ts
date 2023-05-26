@@ -25,10 +25,10 @@ describe('history', () => {
   beforeEach(async () => {
     await seedUsers(prisma, ['user-123'])
     const {
-      Water: waterId,
-      Coffee: coffeeId,
-      Whiskey: whiskeyId,
-      Soda: sodaId,
+      water: waterId,
+      coffee: coffeeId,
+      whiskey: whiskeyId,
+      soda: sodaId,
     } = await seedDrinks(prisma)
     const drinksArray = [waterId, coffeeId, whiskeyId, sodaId]
     const volumeArray = [12, 8, 16]

@@ -143,6 +143,6 @@ export async function seedDrinks(prisma: PrismaClient) {
     })
   }))
   .then(res => res.reduce(
-    (acc, { id, name }) => ({ [name]: id, ...acc }), {} as Record<string, string>,
+    (acc, { id, name }) => ({ [name.toLowerCase().replace(/\s/, '-')]: id, ...acc }), {} as Record<string, string>,
   ))
 }
