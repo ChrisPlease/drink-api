@@ -15,10 +15,10 @@ async function main() {
     'auth0|6341da849ae95d74a374a5e1',
   ])
   const {
-    Water: waterId,
-    Soda: sodaId,
-    Whiskey: whiskeyId,
-    Coffee: coffeeId,
+    water: waterId,
+    soda: sodaId,
+    whiskey: whiskeyId,
+    coffee: coffeeId,
   } = await seedDrinks(prisma)
 
   const { id } = await prisma.drink.create({
