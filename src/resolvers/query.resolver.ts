@@ -27,25 +27,59 @@ export const queryResolvers: QueryResolvers = {
     }
   },
 
-  async drink(_, { drinkId: id }, { prisma }) {
-    return await Drinks(prisma.drink)
+  async drink(_, { drinkId: id }, { prisma, redis }) {
+    const res = await redis.get(`drinks:${id}`)
+
+    if (res) {
+      return JSON.parse(res)
+    }
+
+    const drink = await Drinks(prisma.drink)
       .findUniqueById(id)
+
+    await redis.set(`drinks:${id}`, JSON.stringify(drink))
+
+    return drink
   },
 
   async drinks(_, args, { prisma, req: { auth } }) {
     return await Drinks(prisma.drink).findManyPaginated({ ...args }, <string>auth?.sub)
   },
 
-  async entry(_, { entryId }, { prisma, req: { auth } }) {
-    return await Entries(prisma.entry).findUniqueWithNutrition(entryId, <string>auth?.sub)
+  async entry(_, { entryId }, { prisma, redis, req: { auth } }) {
+    const userId = <string>auth?.sub
+    const res = await redis.get(`entries:${userId}:${entryId}`)
+
+    if (res) {
+      return JSON.parse(res)
+    }
+
+    const entry = await Entries(prisma.entry).findUniqueWithNutrition(entryId, userId)
+
+    await redis.set(`entries:${userId}:${entryId}`, JSON.stringify(entry))
+
+    return entry
   },
 
   async entries(_, args,  { prisma, req: { auth } }) {
     return await Entries(prisma.entry).findManyPaginated(prisma, { ...args, userId: <string>auth?.sub })
   },
 
-  async drinkHistory(_, { drinkId }, { prisma, req: { auth } }) {
-    return await DrinkHistory(prisma).findUniqueDrinkHistory(drinkId, <string>auth?.sub)
+  async drinkHistory(_, { drinkId }, { prisma, redis, req: { auth } }) {
+    const userId = <string>auth?.sub
+    const redisKey = `drinkHistory:${userId}:${drinkId}`
+
+    const res = await redis.get(redisKey)
+
+    if (res) {
+      return JSON.parse(res)
+    }
+
+    const drinkHistory = await DrinkHistory(prisma).findUniqueDrinkHistory(drinkId, <string>auth?.sub)
+
+    await redis.set(redisKey, JSON.stringify(drinkHistory))
+
+    return drinkHistory
   },
 
   async drinksHistory(_, args, { prisma, req: { auth } }) {

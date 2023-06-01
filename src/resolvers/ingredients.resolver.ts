@@ -4,6 +4,7 @@ import { toCursorHash } from '@/utils/cursorHash'
 
 export const ingredientResolvers: IngredientResolvers = {
   async drink(parent, _, { prisma }) {
+
     const [{
       id,
       ingredients,
