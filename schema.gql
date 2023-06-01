@@ -1,4 +1,21 @@
 """
+Cache Control Scope enum
+"""
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+"""
+Cache Control directive
+"""
+directive @cacheControl(
+  maxAge: Int
+  scope: CacheControlScope
+  inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+"""
 Date scalar used for JS Date
 """
 scalar Date
@@ -20,7 +37,7 @@ enum Sort {
 """
 Node interface for Paginated Queries
 """
-interface Node {
+interface Node @cacheControl(maxAge: 300) {
   id: ID!
 }
 
@@ -35,7 +52,7 @@ input DrinkSort {
 """
 Drink Interface for all drinks
 """
-interface Drink implements Node {
+interface Drink implements Node @cacheControl(maxAge: 240) {
   id: ID!
   name: String!
   icon: Icon!
@@ -53,10 +70,10 @@ Base Drink used for all drinks
 """
 type BaseDrink implements Drink & Node {
   id: ID!
-  name: String!
-  icon: Icon!
-  coefficient: Float
-  caffeine: Float
+  name: String! @cacheControl(maxAge: 200)
+  icon: Icon! @cacheControl(maxAge: 280)
+  coefficient: Float @cacheControl(maxAge: 300)
+  caffeine: Float @cacheControl(maxAge: 200)
   sugar: Float
   servingSize: Float
   entries: [Entry!]
@@ -216,7 +233,7 @@ type DrinkEdge {
 """
 Paginated list of drinks
 """
-type DrinksPaginated implements PaginatedQuery {
+type DrinksPaginated implements PaginatedQuery @cacheControl(maxAge: 340) {
   edges: [DrinkEdge!]!
   pageInfo: PageInfo
 }
