@@ -18,9 +18,22 @@ export const drinkResultResolvers: DrinkResultResolvers = {
 export const drinkResolvers: DrinkResolvers = {
   ...drinkResultResolvers,
 
-  async entries(parent, args, { prisma, req: { auth } }) {
-    return await Drinks(prisma.drink)
+  async entries(parent, args, { prisma, redis, req: { auth } }) {
+    const userId = <string>auth?.sub
+    const redisKey = `drinkEntries:${userId}:${parent.id}`
+
+    const res = await redis.get(redisKey)
+
+    if (res) {
+      return JSON.parse(res)
+    }
+
+    const entries = await Drinks(prisma.drink)
       .findDrinkEntries(prisma, parent.id, <string>auth?.sub)
+
+    await redis.set(redisKey, JSON.stringify(entries))
+
+    return entries
   },
 
   async user(parent, args, { prisma }) {
