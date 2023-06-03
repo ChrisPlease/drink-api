@@ -37,7 +37,7 @@ enum Sort {
 """
 Node interface for Paginated Queries
 """
-interface Node @cacheControl(maxAge: 300) {
+interface Node {
   id: ID!
 }
 
@@ -52,7 +52,7 @@ input DrinkSort {
 """
 Drink Interface for all drinks
 """
-interface Drink implements Node @cacheControl(maxAge: 240) {
+interface Drink implements Node {
   id: ID!
   name: String!
   icon: Icon!
@@ -70,10 +70,10 @@ Base Drink used for all drinks
 """
 type BaseDrink implements Drink & Node {
   id: ID!
-  name: String! @cacheControl(maxAge: 200)
-  icon: Icon! @cacheControl(maxAge: 280)
-  coefficient: Float @cacheControl(maxAge: 300)
-  caffeine: Float @cacheControl(maxAge: 200)
+  name: String!
+  icon: Icon!
+  coefficient: Float
+  caffeine: Float
   sugar: Float
   servingSize: Float
   entries: [Entry!]
@@ -233,7 +233,7 @@ type DrinkEdge {
 """
 Paginated list of drinks
 """
-type DrinksPaginated implements PaginatedQuery @cacheControl(maxAge: 340) {
+type DrinksPaginated implements PaginatedQuery {
   edges: [DrinkEdge!]!
   pageInfo: PageInfo
 }
