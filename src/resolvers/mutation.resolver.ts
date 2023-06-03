@@ -1,4 +1,3 @@
-import { Drink } from '@prisma/client'
 import { Drinks } from '@/models/Drink.model'
 import { Entries } from '@/models/Entry.model'
 import { MutationResolvers } from '@/__generated__/graphql'
@@ -48,9 +47,10 @@ export const mutationResolvers: MutationResolvers = {
         { userId, servingSize, ingredients, ...rest },
         prisma,
       )
-    }
+    } else {
+      res = await drink.createWithNutrition({ userId, ...nutrition, ...rest })
 
-    res = await drink.createWithNutrition({ userId, ...nutrition, ...rest })
+    }
 
     await redis.set(`drinks:${res.id}`, JSON.stringify(res))
 
