@@ -12,12 +12,22 @@ export const mutationResolvers: MutationResolvers = {
       })
   },
 
-  async entryDelete(_, args, { prisma, req: { auth } }) {
-    return await Entries(prisma.entry)
+  async entryDelete(_, args, { prisma, redis, req: { auth } }) {
+    const userId = <string>auth?.sub
+    const redisKey = `entries:${userId}:${args.entryId}`
+
+    await redis.del(redisKey)
+
+    const res = Entries(prisma.entry)
       .deleteAndReturn({ ...args, userId: <string>auth?.sub }, prisma)
+
+    await redis.set(redisKey, JSON.stringify(res))
+
+    return res
   },
 
-  async drinkCreate(_, { drinkInput }, { prisma, req: { auth } }) {
+  async drinkCreate(_, { drinkInput }, { prisma, redis, req: { auth } }) {
+    let res: Drink | null
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
 
@@ -33,20 +43,31 @@ export const mutationResolvers: MutationResolvers = {
     const nutrition = { caffeine, servingSize, sugar, coefficient }
 
     if (ingredients) {
-      return await drink.createWithIngredients(
+      res = await drink.createWithIngredients(
         { userId, servingSize, ingredients, ...rest },
         prisma,
       )
+    } else {
+      res = await drink.createWithNutrition({ userId, ...nutrition, ...rest })
+
     }
 
-    return await drink.createWithNutrition({ userId, ...nutrition, ...rest })
+    await redis.set(`drinks:${res.id}`, JSON.stringify(res))
+
+    return res
   },
 
-  async drinkDelete(_, { drinkId }, { prisma, req: { auth } }) {
-    return await Drinks(prisma.drink).deleteDrink({
-      drinkId,
-      userId: <string>auth?.sub,
-    })
+  async drinkDelete(_, { drinkId }, { prisma, redis, req: { auth } }) {
+    const userId = <string>auth?.sub
+    const redisKey = `drinks:${drinkId}`
+
+    await redis.del(redisKey)
+
+    const res = await Drinks(prisma.drink).deleteDrink({ drinkId, userId })
+
+    await redis.set(redisKey, JSON.stringify(res))
+
+    return res
   },
 
   async drinkEdit(
@@ -60,25 +81,34 @@ export const mutationResolvers: MutationResolvers = {
         ingredients,
         ...drinkInput
       },
-    }, { prisma, req: { auth } }) {
+    }, { prisma, redis, req: { auth } }) {
+    let res: Drink | null
+
     const hasNutrition = !!caffeine || !!sugar || !!coefficient
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
-    if (!drinkInput.id) throw new Error('Drink ID required')
+    const redisKey = `drinks:${drinkInput.id}`
     const [type,id] = deconstructId(drinkInput.id)
 
-    await prisma.drink.findUniqueOrThrow({ where: { id, userId } })
+    if (!drinkInput.id) throw new Error('Drink ID required')
+
+    try {
+      await prisma.drink.findUniqueOrThrow({ where: { id, userId } })
+    } catch (err) {
+      throw new Error('Drink not found')
+    }
+
+    await redis.del(redisKey)
 
     if (type === 'MixedDrink') {
       if (hasNutrition) throw new Error('Cannot add nutrition to a Mixed Drink')
       if (ingredients) {
-        const res = await Drinks(prisma.drink).updateWithIngredients(
+        res = await Drinks(prisma.drink).updateWithIngredients(
           { userId, ingredients, ...drinkInput },
           prisma,
         )
-        return res
       } else {
-        return await drink.update({
+        res = await drink.update({
           where: { id, userId },
           data: { userId, ...drinkInput },
         })
@@ -91,7 +121,7 @@ export const mutationResolvers: MutationResolvers = {
         throw new Error('Serving size is required when editing nutritional values')
       }
 
-      return await drink.updateWithNutrition({
+      res = await drink.updateWithNutrition({
         userId,
         servingSize,
         ...nutrition,
@@ -100,6 +130,10 @@ export const mutationResolvers: MutationResolvers = {
     } else {
       throw new Error('Cannot recognize Drink Type')
     }
+
+    await redis.set(redisKey, JSON.stringify(res))
+
+    return res
   },
 
   async userCreate(_, { userId }, { prisma }) {

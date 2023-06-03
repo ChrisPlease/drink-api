@@ -15,6 +15,7 @@ import { AppContext } from '../types/context'
 import { DrinkResult, DrinksPaginated, MixedDrink } from '../__generated__/graphql'
 import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import prisma from './helpers/prisma'
+import { redis } from './helpers/redis'
 import { testServer } from './helpers/server'
 
 describe('drinks', () => {
@@ -25,6 +26,7 @@ describe('drinks', () => {
 
   beforeEach(async () => {
     contextValue = {
+      redis,
       prisma,
       req: {} as Request,
       res: {} as Response,
@@ -190,7 +192,9 @@ describe('drinks', () => {
 
         assert(res.body.kind === 'single')
         assert(res.body.singleResult.data?.drinkCreate !== null)
+
         result = res.body.singleResult.data?.drinkCreate as DrinkResult
+
         const [type] = deconstructId(result.id)
         expect(type).toEqual('MixedDrink')
         expect(result).toEqual(

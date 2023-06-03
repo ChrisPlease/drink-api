@@ -1,4 +1,21 @@
 """
+Cache Control Scope enum
+"""
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+"""
+Cache Control directive
+"""
+directive @cacheControl(
+  maxAge: Int
+  scope: CacheControlScope
+  inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+"""
 Date scalar used for JS Date
 """
 scalar Date

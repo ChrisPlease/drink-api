@@ -10,6 +10,7 @@ import { Response } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
 import { Drink, Entry } from '@prisma/client'
 import prisma from '../__mocks__/prisma'
+import redis from '../__mocks__/redis'
 import { AppContext } from '../types/context'
 import { toCursorHash } from '../utils/cursorHash'
 import { DrinkHistory as DrinkHistoryModel } from '../types/models'
@@ -48,6 +49,7 @@ describe('queryResolvers', () => {
   beforeEach(() => {
     ctx = {
       prisma,
+      redis,
       req: {
         auth: { sub: 'user-123' },
       } as Request,
@@ -139,6 +141,10 @@ describe('queryResolvers', () => {
         ctx,
         {} as GraphQLResolveInfo,
       )
+    })
+
+    test('checks if drink exists in redis', () => {
+      expect(redis.get).toHaveBeenCalledWith(`drinks:${mockId}`)
     })
 
     test('calls the Drinks model with `prisma.drink`', () => {

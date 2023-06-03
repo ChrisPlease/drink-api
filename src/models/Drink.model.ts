@@ -36,7 +36,8 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       before,
       after,
     }: QueryDrinksArgs,
-    reqUser: string) {
+    reqUser: string,
+    ) {
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         sort ? sort : { name: 'asc' }
       )
@@ -80,10 +81,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         { first, last, after, before },
         {
           getCursor: (record) => getCursor<Drink, Prisma.DrinkWhereUniqueInput>(record, cursorKey),
-          encodeCursor: (cursor) => {
-            const dehashedCursor = encodeCursor(cursor, ['id'])
-            return toCursorHash(JSON.stringify(dehashedCursor))
-          },
+          encodeCursor: (cursor) => toCursorHash(JSON.stringify(encodeCursor(cursor, ['id']))),
           decodeCursor: (cursorString) => JSON.parse(fromCursorHash(cursorString)),
         },
       )

@@ -30,6 +30,7 @@ services:
       - 9229:9229
     depends_on:
       - db
+      - cache
     volumes:
       - .:/usr/src/app
   db:
@@ -44,6 +45,16 @@ services:
       - POSTGRES_PASSWORD=${PGPASSWORD}
       - POSTGRES_DB=${PGDATABASE}
       - POSTGRES_USER=${PGUSER}
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - cache:/data
 volumes:
   data: {}
   dev_nginx_secrets: {}
+  cache:
+    driver: local

@@ -37,6 +37,12 @@ export type BaseDrink = Drink & Node & {
   user?: Maybe<User>;
 };
 
+/** Cache Control Scope enum */
+export enum CacheControlScope {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
+}
+
 /** Drink Interface for all drinks */
 export type Drink = {
   caffeine?: Maybe<Scalars['Float']>;
@@ -442,6 +448,7 @@ export type ResolversUnionParentTypes = ResolversObject<{
 export type ResolversTypes = ResolversObject<{
   BaseDrink: ResolverTypeWrapper<BaseDrinkModel>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  CacheControlScope: CacheControlScope;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   Drink: ResolverTypeWrapper<DrinkModel>;
   DrinkCreateInput: DrinkCreateInput;
@@ -510,6 +517,14 @@ export type ResolversParentTypes = ResolversObject<{
   String: Scalars['String'];
   User: User;
 }>;
+
+export type CacheControlDirectiveArgs = {
+  inheritMaxAge?: Maybe<Scalars['Boolean']>;
+  maxAge?: Maybe<Scalars['Int']>;
+  scope?: Maybe<CacheControlScope>;
+};
+
+export type CacheControlDirectiveResolver<Result, Parent, ContextType = AppContext, Args = CacheControlDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type BaseDrinkResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['BaseDrink'] = ResolversParentTypes['BaseDrink']> = ResolversObject<{
   caffeine?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
@@ -702,3 +717,6 @@ export type Resolvers<ContextType = AppContext> = ResolversObject<{
   User?: UserResolvers<ContextType>;
 }>;
 
+export type DirectiveResolvers<ContextType = AppContext> = ResolversObject<{
+  cacheControl?: CacheControlDirectiveResolver<any, any, ContextType>;
+}>;
