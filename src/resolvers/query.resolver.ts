@@ -1,19 +1,24 @@
-import { Drink, Entry } from '@prisma/client'
+import { Drink, Entry, User } from '@prisma/client'
 import { DrinkHistory as DrinkHistoryModel } from '@/types/models'
 import { QueryResolvers } from '@/__generated__/graphql'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistory } from '@/models/History.model'
 import { Drinks } from '@/models/Drink.model'
 import {
-  deconstructId,
+  deconstructId, toCursorHash,
 } from '@/utils/cursorHash'
 
 export const queryResolvers: QueryResolvers = {
   async node(_, { id: argId }, { prisma, req: { auth } }) {
-    const [__typename] = deconstructId(argId)
+    const [__typename,id] = deconstructId(argId)
     const userId = <string>auth?.sub
 
     switch (__typename) {
+      case 'User':
+        return <User>await prisma.user.findUnique({ where: { id } }).then(({ ...rest }) => ({
+          ...rest,
+          id: argId,
+        })) || null
       case 'MixedDrink':
       case 'BaseDrink':
         return <Drink>await Drinks(prisma.drink)
@@ -83,19 +88,24 @@ export const queryResolvers: QueryResolvers = {
   },
 
   async drinksHistory(_, args, { prisma, req: { auth } }) {
-    return await DrinkHistory(prisma).findManyPaginated({ ...args, userId: <string>auth?.sub }, prisma)
+    return await DrinkHistory(prisma).findManyPaginated({ ...args, userId: <string>auth?.sub })
   },
 
   async me(parent, args, { prisma, req: { auth } }) {
-    return await prisma.user.findUnique({ where: { id: <string>auth?.sub }})
+    const id = <string>auth?.sub
+    return await prisma.user.findUnique({ where: { id }})
+      .then(({ ...user }) => ({ ...user, id: toCursorHash(`User:${id}` )}))
   },
 
   async user(parent, { userId }, { prisma }) {
+    const id = toCursorHash(`User:${userId}`)
     return await prisma.user.findUnique({ where: { id: userId } })
+      .then(({ ...user }) => ({ ...user, id }))
   },
 
   async users(parent, args, { prisma }) {
     return await prisma.user.findMany()
+      .then(users => users.map(({ ...user }) => ({ ...user, id: toCursorHash(`User:${user.id}` )})))
   },
 }
 

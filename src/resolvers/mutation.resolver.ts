@@ -1,3 +1,4 @@
+import { Drink } from '@prisma/client'
 import { Drinks } from '@/models/Drink.model'
 import { Entries } from '@/models/Entry.model'
 import { MutationResolvers } from '@/__generated__/graphql'
