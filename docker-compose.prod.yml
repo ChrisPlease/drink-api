@@ -17,7 +17,7 @@ services:
     depends_on:
       - api
   api:
-    container_name: api
+    container_name: waterlog
     restart: always
     build:
       context: .
@@ -27,8 +27,9 @@ services:
     ports:
       - ${PORT}:${PORT}
     depends_on:
-      - waterlog-db
-  waterlog-db:
+      - cache
+      - db
+  db:
     container_name: postgres
     image: postgres:14.1-alpine
     restart: always
@@ -40,6 +41,17 @@ services:
       - POSTGRES_PASSWORD=${PGPASSWORD}
       - POSTGRES_DB=${PGDATABASE}
       - POSTGRES_USER=${PGUSER}
+  cache:
+    container_name: redis
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - '${REDIS_PORT}:${REDIS_PORT}'
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - cache:/data
 volumes:
+  cache:
+    driver: local
   prod_data: {}
   nginx_secrets: {}
