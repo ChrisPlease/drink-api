@@ -14,7 +14,7 @@ export type NutritionQuery = {
 }
 
 
-export type ModelType = 'MixedDrink' | 'BaseDrink' | 'Entry' | 'DrinkHistory'
+export type ModelType = 'User' | 'MixedDrink' | 'BaseDrink' | 'Entry' | 'DrinkHistory'
 
 export type DrinkHistory = {
   id: string,
