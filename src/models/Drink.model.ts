@@ -36,7 +36,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       before,
       after,
     }: QueryDrinksArgs,
-    reqUser: string,
+    reqUser?: string,
     ) {
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         sort ? sort : { name: 'asc' }
