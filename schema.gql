@@ -117,7 +117,7 @@ type Entry implements Node {
   waterContent: Float!
   servings: Float!
   user: User
-  drink: DrinkResult
+  drink: DrinkResult!
   timestamp: Date!
 }
 
