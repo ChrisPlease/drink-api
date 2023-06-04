@@ -257,6 +257,10 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       return await prismaDrink.findUnique({
         where: { id },
       }).user()
+      .then(({ ...user }) => ({
+        ...user,
+        id: toCursorHash(`User:${user.id}`),
+      }))
     },
 
     async calculateIngredientNutrition(
