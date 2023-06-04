@@ -10,6 +10,7 @@ import {
 import { ingredientResolvers } from './ingredients.resolver'
 import { entryResolvers } from './entries.resolver'
 import { historyResolvers } from './history.resolver'
+import { usersResolver } from './users.resolver'
 import { NodeResolvers, Resolvers } from '@/__generated__/graphql'
 
 const nodeResolvers: NodeResolvers = {
@@ -33,6 +34,8 @@ export const resolvers: Resolvers = {
   Ingredient: ingredientResolvers,
 
   Entry: entryResolvers,
+
+  User: usersResolver,
 
   Sort: {
     ASC: 'asc',

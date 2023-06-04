@@ -123,7 +123,17 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
     },
 
     async findUserByEntryId(parentId: string) {
-      return await prismaEntry.findUnique({ where: { id: parentId } }).user()
+      const [,id] = deconstructId(parentId)
+      return await prismaEntry
+        .findUnique({
+          where: {
+            id,
+          },
+        }).user()
+        .then(({ ...user }) => ({
+          ...user,
+          id: toCursorHash(`User:${user.id}`),
+        }))
     },
 
     async findManyPaginated(

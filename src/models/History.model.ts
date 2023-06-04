@@ -59,7 +59,6 @@ export function DrinkHistory(client: PrismaClient) {
 
     async findManyPaginated(
       baseArgs: QueryDrinksHistoryArgs & { userId: string },
-      client: PrismaClient,
     ) {
       const {
         first,

@@ -36,7 +36,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       before,
       after,
     }: QueryDrinksArgs,
-    reqUser: string,
+    reqUser?: string,
     ) {
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         sort ? sort : { name: 'asc' }
@@ -257,6 +257,10 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       return await prismaDrink.findUnique({
         where: { id },
       }).user()
+      .then(({ ...user }) => ({
+        ...user,
+        id: toCursorHash(`User:${user.id}`),
+      }))
     },
 
     async calculateIngredientNutrition(
