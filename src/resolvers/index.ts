@@ -1,3 +1,5 @@
+import { GraphQLScalarType, Kind } from 'graphql'
+import { isIsoDate } from '../utils/datetime'
 import { deconstructId } from '../utils/cursorHash'
 import { queryResolvers } from './query.resolver'
 import { mutationResolvers } from './mutation.resolver'
@@ -20,7 +22,33 @@ const nodeResolvers: NodeResolvers = {
   },
 }
 
+const dateScalar = new GraphQLScalarType({
+  name: 'Date',
+  description: 'Date scalar type',
+  serialize(value) {
+    if (value instanceof Date) {
+      return value.getTime()
+    }
+
+    throw Error('GraphQL Date Scalar serializer expected a `Date`')
+  },
+  parseValue(value) {
+    if (typeof value === 'number') {
+      return new Date(value)
+    }
+    throw new Error('GraphQL Date Scalar parser expected a `number`')
+  },
+  parseLiteral(ast) {
+    if (ast.kind === Kind.INT) {
+      return new Date(ast.value)
+    }
+    return null
+  },
+})
+
 export const resolvers: Resolvers = {
+  Date: dateScalar,
+
   Query: queryResolvers,
 
   Node: nodeResolvers,

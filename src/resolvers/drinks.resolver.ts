@@ -4,8 +4,9 @@ import {
   DrinkResultResolvers,
   MixedDrinkResolvers,
 } from '@/__generated__/graphql'
-import { deconstructId } from '@/utils/cursorHash'
+import { deconstructId, fromCursorHash } from '@/utils/cursorHash'
 import { Drinks } from '@/models/Drink.model'
+import { Entries } from '@/models/Entry.model'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
   async __resolveType(parent) {
@@ -18,25 +19,16 @@ export const drinkResultResolvers: DrinkResultResolvers = {
 export const drinkResolvers: DrinkResolvers = {
   ...drinkResultResolvers,
 
-  async entries(parent, args, { prisma, redis, req: { auth } }) {
+  async entries(parent, args, { prisma, req: { auth } }) {
     const userId = <string>auth?.sub
-    const redisKey = `drinkEntries:${userId}:${parent.id}`
-
-    const res = await redis.get(redisKey)
-
-    if (res) {
-      return JSON.parse(res)
-    }
-
-    const entries = await Drinks(prisma.drink)
-      .findDrinkEntries(prisma, parent.id, <string>auth?.sub)
-
-    await redis.set(redisKey, JSON.stringify(entries))
+    const entries = await Entries(prisma.entry)
+      .findManyPaginated(prisma, { ...args, drinkId: parent.id, userId })
 
     return entries
   },
 
   async user(parent, args, { prisma }) {
+    console.log('here', parent.id, fromCursorHash(parent.id))
     return await Drinks(prisma.drink).findDrinkUser(parent.id)
   },
 

@@ -31,6 +31,8 @@ Sorting input for Drinks
 input DrinkSort {
   name: Sort
   createdAt: Sort
+  coefficient: Sort
+  sugar: Sort
 }
 
 """
@@ -44,7 +46,14 @@ interface Drink implements Node {
   caffeine: Float
   sugar: Float
   servingSize: Float
-  entries: [Entry!]
+  entries(
+    sort: EntrySort,
+    distinct: Boolean,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
+  ): EntriesPaginated
   user: User
   createdAt: Date!
 }
@@ -60,7 +69,14 @@ type BaseDrink implements Drink & Node {
   caffeine: Float
   sugar: Float
   servingSize: Float
-  entries: [Entry!]
+  entries(
+    sort: EntrySort,
+    distinct: Boolean,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
+  ): EntriesPaginated
   user: User
   createdAt: Date!
 }
@@ -76,7 +92,14 @@ type MixedDrink implements Drink & Node {
   caffeine: Float
   sugar: Float
   servingSize: Float
-  entries: [Entry!]
+  entries(
+    sort: EntrySort,
+    distinct: Boolean,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
+  ): EntriesPaginated
   user: User
   ingredients: [Ingredient!]!
   createdAt: Date!
@@ -129,7 +152,6 @@ type DrinkHistory implements Node {
   count: Int!
   totalVolume: Float!
   waterVolume: Float!
-  lastEntry: Date
   entries(
     sort: EntrySort,
     distinct: Boolean,
@@ -283,6 +305,7 @@ Filter for the Drinks History query
 """
 input DrinksHistoryFilter {
   hasEntries: Boolean
+  limit: Date
 }
 
 """

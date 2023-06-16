@@ -44,7 +44,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
       const sortKey = <keyof Prisma.DrinkOrderByWithRelationInput>Object.keys(orderBy)[0]
       const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(
-        sortKey === 'createdAt' ? sortKey : 'id_name'
+        sortKey === 'name' ? 'id_name' : sortKey
       )
 
       const { include, orderBy: orderByArg, ...baseArgs } = {
@@ -254,13 +254,11 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
     async findDrinkUser(userId: string) {
       const [,id] = deconstructId(userId)
-      return await prismaDrink.findUnique({
+      console.log(id)
+      const user = await prismaDrink.findUnique({
         where: { id },
       }).user()
-      .then(({ ...user }) => ({
-        ...user,
-        id: toCursorHash(`User:${user.id}`),
-      }))
+      return user ? { ...user, id: toCursorHash(`User:${user.id}`) } : null
     },
 
     async calculateIngredientNutrition(
