@@ -8,6 +8,7 @@
     "build:dev": "concurrently \"tsc-alias --watch\" \"tsc --watch --preserveWatchOutput\"",
     "prebuild": "rimraf dist",
     "start": "NODE_ENV=develop concurrently \"npm:build:dev\" \"npm:start:dev\"",
+    "start:prod": "prisma migrate deploy && node dist/index.js",
     "test": "npm run test:unit -- --run; npm run test:int -- --run",
     "test:unit": "vitest -c ./vitest.config.unit.ts",
     "test:int": "./scripts/run-integration.sh",

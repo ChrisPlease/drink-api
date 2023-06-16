@@ -9,7 +9,6 @@ services:
       - CERTBOT_EMAIL=${CERTBOT_EMAIL}
       - DEBUG=${DEBUG}
       - USE_LOCAL_CA=${USE_LOCAL_CA}
-      # - HOST=${HOST:-api.waterlog.test}
     ports:
       - 80:80
       - 443:443

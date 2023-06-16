@@ -133,7 +133,7 @@ export function DrinkHistory(client: PrismaClient) {
           FROM cte c ${cursor
             ? Prisma.sql`INNER JOIN cte AS c2 ON (c2.id = ${id}::uuid AND c.row_idx > c2.row_idx)`
             : Prisma.empty
-          } ORDER BY CASE WHEN c.last_entry IS NULL THEN 1 ELSE 0 END, c.last_entry DESC  ${
+          } ORDER BY c.row_idx ASC ${
             take ? Prisma.sql`LIMIT ${take}` : Prisma.empty
           };`
         .then(query => query.map(({
