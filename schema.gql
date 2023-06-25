@@ -31,6 +31,7 @@ Sorting input for Drinks
 input DrinkSort {
   name: Sort
   createdAt: Sort
+  entries: Sort
   coefficient: Sort
   sugar: Sort
 }
@@ -47,8 +48,8 @@ interface Drink implements Node {
   sugar: Float
   servingSize: Float
   entries(
-    sort: EntrySort,
-    distinct: Boolean,
+    sort: EntriesSort,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,
@@ -70,8 +71,8 @@ type BaseDrink implements Drink & Node {
   sugar: Float
   servingSize: Float
   entries(
-    sort: EntrySort,
-    distinct: Boolean,
+    sort: EntriesSort,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,
@@ -93,8 +94,8 @@ type MixedDrink implements Drink & Node {
   sugar: Float
   servingSize: Float
   entries(
-    sort: EntrySort,
-    distinct: Boolean,
+    sort: EntriesSort,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,
@@ -123,7 +124,7 @@ type Ingredient {
 """
 Sorting input for Entries
 """
-input EntrySort {
+input EntriesSort {
   timestamp: Sort
   drink: Sort
   volume: Sort
@@ -153,8 +154,8 @@ type DrinkHistory implements Node {
   totalVolume: Float!
   waterVolume: Float!
   entries(
-    sort: EntrySort,
-    distinct: Boolean,
+    sort: EntriesSort,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,
@@ -170,7 +171,7 @@ Base user type
 type User implements Node {
   id: ID!
   entries(
-    sort: EntrySort,
+    sort: EntriesSort,
     distinct: Boolean,
     before: String,
     after: String,
@@ -304,8 +305,17 @@ type DrinksHistoryPaginated implements PaginatedQuery {
 Filter for the Drinks History query
 """
 input DrinksHistoryFilter {
+  search: String
   hasEntries: Boolean
   limit: Date
+}
+
+"""
+Filter for the Entries query
+"""
+input EntriesFilter {
+  limit: Date
+  distinct: Boolean
 }
 
 """
@@ -326,8 +336,8 @@ type Query {
   ): DrinksPaginated
   entry(entryId: ID!): Entry
   entries(
-    sort: EntrySort,
-    distinct: Boolean,
+    sort: EntriesSort,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,

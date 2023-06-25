@@ -38,13 +38,21 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     }: QueryDrinksArgs,
     reqUser?: string,
     ) {
+      const [
+        sortKey,
+        sortValue,
+      ] = <[keyof Prisma.DrinkOrderByWithRelationInput, string]>Object.entries(sort || {})[0]
+
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
-        sort ? sort : { name: 'asc' }
+        sortKey
+          ? { [sortKey]: sortKey === 'entries' ? { _count: sortValue } : sortValue }
+          : { name: 'asc' }
       )
 
-      const sortKey = <keyof Prisma.DrinkOrderByWithRelationInput>Object.keys(orderBy)[0]
       const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(
-        sortKey === 'name' ? 'id_name' : sortKey
+        sortKey !== 'name'
+          ? sortKey === 'entries' ? 'id' : sortKey
+          : 'id_name'
       )
 
       const { include, orderBy: orderByArg, ...baseArgs } = {
@@ -254,7 +262,6 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
     async findDrinkUser(userId: string) {
       const [,id] = deconstructId(userId)
-      console.log(id)
       const user = await prismaDrink.findUnique({
         where: { id },
       }).user()

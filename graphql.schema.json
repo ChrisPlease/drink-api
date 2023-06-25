@@ -82,11 +82,11 @@
                 "deprecationReason": null
               },
               {
-                "name": "distinct",
+                "name": "filter",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
+                  "kind": "INPUT_OBJECT",
+                  "name": "EntriesFilter",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -122,7 +122,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "EntrySort",
+                  "name": "EntriesSort",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -333,11 +333,11 @@
                 "deprecationReason": null
               },
               {
-                "name": "distinct",
+                "name": "filter",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
+                  "kind": "INPUT_OBJECT",
+                  "name": "EntriesFilter",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -373,7 +373,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "EntrySort",
+                  "name": "EntriesSort",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -835,11 +835,11 @@
                 "deprecationReason": null
               },
               {
-                "name": "distinct",
+                "name": "drinkId",
                 "description": null,
                 "type": {
                   "kind": "SCALAR",
-                  "name": "Boolean",
+                  "name": "ID",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -847,11 +847,11 @@
                 "deprecationReason": null
               },
               {
-                "name": "drinkId",
+                "name": "filter",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "ID",
+                  "kind": "INPUT_OBJECT",
+                  "name": "EntriesFilter",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -887,7 +887,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "EntrySort",
+                  "name": "EntriesSort",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -1058,6 +1058,18 @@
             "deprecationReason": null
           },
           {
+            "name": "entries",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "Sort",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "name",
             "description": null,
             "type": {
@@ -1110,6 +1122,18 @@
             "type": {
               "kind": "SCALAR",
               "name": "Date",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "search",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
               "ofType": null
             },
             "defaultValue": null,
@@ -1228,6 +1252,41 @@
         "possibleTypes": null
       },
       {
+        "kind": "INPUT_OBJECT",
+        "name": "EntriesFilter",
+        "description": "Filter for the Entries query",
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "distinct",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "limit",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Date",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "OBJECT",
         "name": "EntriesPaginated",
         "description": "Paginated list of entries",
@@ -1277,6 +1336,53 @@
             "ofType": null
           }
         ],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "EntriesSort",
+        "description": "Sorting input for Entries",
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "drink",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "Sort",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "timestamp",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "Sort",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "volume",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "Sort",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
         "enumValues": null,
         "possibleTypes": null
       },
@@ -1473,53 +1579,6 @@
         ],
         "inputFields": null,
         "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "INPUT_OBJECT",
-        "name": "EntrySort",
-        "description": "Sorting input for Entries",
-        "fields": null,
-        "inputFields": [
-          {
-            "name": "drink",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "Sort",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "timestamp",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "Sort",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "volume",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "Sort",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "interfaces": null,
         "enumValues": null,
         "possibleTypes": null
       },
@@ -1735,11 +1794,11 @@
                 "deprecationReason": null
               },
               {
-                "name": "distinct",
+                "name": "filter",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
+                  "kind": "INPUT_OBJECT",
+                  "name": "EntriesFilter",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -1775,7 +1834,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "EntrySort",
+                  "name": "EntriesSort",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -2530,11 +2589,11 @@
                 "deprecationReason": null
               },
               {
-                "name": "distinct",
+                "name": "drinkId",
                 "description": null,
                 "type": {
                   "kind": "SCALAR",
-                  "name": "Boolean",
+                  "name": "ID",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -2542,11 +2601,11 @@
                 "deprecationReason": null
               },
               {
-                "name": "drinkId",
+                "name": "filter",
                 "description": null,
                 "type": {
-                  "kind": "SCALAR",
-                  "name": "ID",
+                  "kind": "INPUT_OBJECT",
+                  "name": "EntriesFilter",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -2582,7 +2641,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "EntrySort",
+                  "name": "EntriesSort",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -3000,7 +3059,7 @@
                 "description": null,
                 "type": {
                   "kind": "INPUT_OBJECT",
-                  "name": "EntrySort",
+                  "name": "EntriesSort",
                   "ofType": null
                 },
                 "defaultValue": null,

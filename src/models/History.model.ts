@@ -72,7 +72,8 @@ export function DrinkHistory(client: PrismaClient) {
     const {
       hasEntries,
       limit,
-    } = filter || { hasEntries: false, limit: null }
+      search,
+    } = filter || { hasEntries: false, limit: null, search: undefined }
 
     type RawDrink = Pick<Drink, 'id'> & {
       ingredients: number,
@@ -85,6 +86,8 @@ export function DrinkHistory(client: PrismaClient) {
       total_volume: number,
       water_volume: number,
     }
+
+    const rawSearch = search ? `%${search}%` : ''
 
     return await findManyCursorConnection(
       async (args) => {
@@ -105,11 +108,12 @@ export function DrinkHistory(client: PrismaClient) {
             e.timestamp
           FROM (
             SELECT
-              d1.id,
+              drinks.name,
+              drinks.id,
               COUNT(di) AS ingredients
-            FROM drinks d1
-            LEFT JOIN drink_ingredients di ON d1.id = di.drink_id
-            GROUP BY d1.id
+            FROM drinks
+            LEFT JOIN drink_ingredients di ON drinks.id = di.drink_id
+            GROUP BY drinks.id
           ) d
           ${
             hasEntries
@@ -134,7 +138,9 @@ export function DrinkHistory(client: PrismaClient) {
                 : Prisma.empty
             }
             GROUP BY d.id
-          ) e ON e.drink_id = d.id)
+          ) e ON e.drink_id = d.id
+          ${search ? Prisma.sql`WHERE d.name ILIKE ${rawSearch}` : Prisma.empty}
+          )
 
           SELECT
             c.id,
@@ -169,7 +175,7 @@ export function DrinkHistory(client: PrismaClient) {
           totalVolume,
           drink: {
             id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drinkId}`),
-          },
+          } as Drink,
           ...entry,
         })))
       },

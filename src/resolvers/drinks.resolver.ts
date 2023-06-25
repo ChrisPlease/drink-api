@@ -28,7 +28,6 @@ export const drinkResolvers: DrinkResolvers = {
   },
 
   async user(parent, args, { prisma }) {
-    console.log('here', parent.id, fromCursorHash(parent.id))
     return await Drinks(prisma.drink).findDrinkUser(parent.id)
   },
 

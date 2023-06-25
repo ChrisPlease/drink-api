@@ -143,13 +143,14 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       const {
         first,
         sort,
+        filter,
         last,
         before,
         after,
         drinkId: hashedDrinkId,
-        distinct,
         userId,
       } = args
+      const { limit, distinct } = filter || { limit: null, distinct: false }
       const [,drinkId] = hashedDrinkId ? deconstructId(hashedDrinkId) : ''
       const orderBy = <Prisma.EntryOrderByWithRelationInput>(
         sort
@@ -178,6 +179,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
             { userId },
             { deleted: false },
             ...(hashedDrinkId ? [{ drinkId }] : []),
+            ...(limit ? [{ timestamp: { gt: limit } }] : []),
           ],
         },
         orderBy,

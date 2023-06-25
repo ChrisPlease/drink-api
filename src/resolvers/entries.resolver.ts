@@ -4,6 +4,7 @@ import { Entries } from '@/models/Entry.model'
 
 export const entryResolvers: EntryResolvers = {
   async drink({ id }, _, { prisma }) {
+    console.log('here', id)
     return await Entries(prisma.entry).findDrinkByEntryId(id)
   },
 
