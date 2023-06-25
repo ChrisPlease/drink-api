@@ -1,5 +1,4 @@
 import { GraphQLScalarType, Kind } from 'graphql'
-import { isIsoDate } from '../utils/datetime'
 import { deconstructId } from '../utils/cursorHash'
 import { queryResolvers } from './query.resolver'
 import { mutationResolvers } from './mutation.resolver'
@@ -64,6 +63,13 @@ export const resolvers: Resolvers = {
   Entry: entryResolvers,
 
   User: usersResolver,
+
+  Comparison: {
+    LT: 'lt',
+    GT: 'gt',
+    LTE: 'lte',
+    GTE: 'gte',
+  },
 
   Sort: {
     ASC: 'asc',

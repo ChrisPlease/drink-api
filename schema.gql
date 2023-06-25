@@ -19,6 +19,24 @@ enum Sort {
 }
 
 """
+Comparison Enum
+"""
+enum Comparison {
+  GT
+  GTE
+  LT
+  LTE
+}
+
+"""
+Number filter to allow gte, or lte comparison
+"""
+input NumberFilter {
+  value: Float
+  comparison: Comparison
+}
+
+"""
 Node interface for Paginated Queries
 """
 interface Node {
@@ -172,7 +190,7 @@ type User implements Node {
   id: ID!
   entries(
     sort: EntriesSort,
-    distinct: Boolean,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,
@@ -181,7 +199,7 @@ type User implements Node {
   ): EntriesPaginated
   drinks(
     sort: DrinkSort,
-    search: String,
+    filter: DrinksFilter,
     before: String,
     after: String,
     first: Int,
@@ -302,6 +320,15 @@ type DrinksHistoryPaginated implements PaginatedQuery {
 }
 
 """
+Filter for the Drinks query
+"""
+input DrinksFilter {
+  search: String
+  coefficient: NumberFilter
+  isMixedDrink: Boolean
+}
+
+"""
 Filter for the Drinks History query
 """
 input DrinksHistoryFilter {
@@ -314,6 +341,7 @@ input DrinksHistoryFilter {
 Filter for the Entries query
 """
 input EntriesFilter {
+  search: String
   limit: Date
   distinct: Boolean
 }
@@ -327,6 +355,7 @@ type Query {
   drink(drinkId: ID!): DrinkResult
   drinks(
     sort: DrinkSort,
+    filter: DrinksFilter,
     search: String,
     before: String,
     after: String,

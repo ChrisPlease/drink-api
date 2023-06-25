@@ -28,9 +28,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     },
 
     async findManyPaginated({
+      filter: filterInput,
       sort,
       userId,
-      search,
       first,
       last,
       before,
@@ -38,6 +38,32 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     }: QueryDrinksArgs,
     reqUser?: string,
     ) {
+
+      const {
+        search,
+        coefficient,
+        isMixedDrink,
+      } = filterInput || {}
+
+      const filter = {
+        ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
+        ...(coefficient ? { coefficient: { [coefficient.comparison || '']: coefficient.value } } : {}),
+        ...(isMixedDrink ? { ingredients: { some: {} } } : {}),
+      }
+
+      const where: Prisma.DrinkWhereInput = {
+        ...(
+          userId ? { userId } : {
+            OR: [
+              { userId: reqUser },
+              { userId: null },
+            ],
+          }
+        ),
+        ...filter,
+        deleted: null,
+      }
+
       const [
         sortKey,
         sortValue,
@@ -56,18 +82,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       )
 
       const { include, orderBy: orderByArg, ...baseArgs } = {
-        where: {
-          ...(
-            userId ? { userId } : {
-              OR: [
-                { userId: reqUser },
-                { userId: null },
-              ],
-            }
-          ),
-          ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
-          deleted: null,
-        },
+        where,
         include: {
           _count: {
             select: { ingredients: true },
