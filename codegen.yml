@@ -9,6 +9,8 @@ generates:
       useIndexSignature: true
       makeResolverTypeCallable: true
       contextType: "../types/context#AppContext"
+      scalars:
+        Date: Date
       mappers:
         Drink: .prisma/client#Drink as DrinkModel
         BaseDrink: .prisma/client#Drink as BaseDrinkModel
