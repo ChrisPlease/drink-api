@@ -143,21 +143,25 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       const {
         first,
         sort,
+        filter,
         last,
         before,
         after,
-        drinkId,
-        distinct,
+        drinkId: hashedDrinkId,
         userId,
       } = args
+      const {
+        limit,
+        distinct,
+        search,
+      } = filter || { limit: null, distinct: false, search: undefined }
+      const [,drinkId] = hashedDrinkId ? deconstructId(hashedDrinkId) : ''
       const orderBy = <Prisma.EntryOrderByWithRelationInput>(
         sort
           ? Object.keys(sort)[0] === 'drink'
             ? { drink: { name: sort.drink } } : sort
           : { drink: { name: 'desc' } }
       )
-
-
 
       const sortKey = Object.keys(orderBy)[0]
       let cursorKey = sortKey as keyof Prisma.EntryWhereUniqueInput
@@ -176,9 +180,11 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       const { orderBy: orderByArg, ...baseArgs }: Prisma.EntryFindManyArgs = {
         where: {
           AND: [
-            { drinkId: <string>drinkId },
             { userId },
             { deleted: false },
+            ...(hashedDrinkId ? [{ drinkId }] : []),
+            ...(limit ? [{ timestamp: { gt: limit } }] : []),
+            ...(search ? [{ drink: { name: { contains: search, mode: 'insensitive' as const } }}] : []),
           ],
         },
         orderBy,

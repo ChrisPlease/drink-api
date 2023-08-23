@@ -19,6 +19,24 @@ enum Sort {
 }
 
 """
+Comparison Enum
+"""
+enum Comparison {
+  GT
+  GTE
+  LT
+  LTE
+}
+
+"""
+Number filter to allow gte, or lte comparison
+"""
+input NumberFilter {
+  value: Float
+  comparison: Comparison
+}
+
+"""
 Node interface for Paginated Queries
 """
 interface Node {
@@ -31,6 +49,9 @@ Sorting input for Drinks
 input DrinkSort {
   name: Sort
   createdAt: Sort
+  entries: Sort
+  coefficient: Sort
+  sugar: Sort
 }
 
 """
@@ -44,7 +65,14 @@ interface Drink implements Node {
   caffeine: Float
   sugar: Float
   servingSize: Float
-  entries: [Entry!]
+  entries(
+    sort: EntriesSort,
+    filter: EntriesFilter,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
+  ): EntriesPaginated
   user: User
   createdAt: Date!
 }
@@ -60,7 +88,14 @@ type BaseDrink implements Drink & Node {
   caffeine: Float
   sugar: Float
   servingSize: Float
-  entries: [Entry!]
+  entries(
+    sort: EntriesSort,
+    filter: EntriesFilter,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
+  ): EntriesPaginated
   user: User
   createdAt: Date!
 }
@@ -76,7 +111,14 @@ type MixedDrink implements Drink & Node {
   caffeine: Float
   sugar: Float
   servingSize: Float
-  entries: [Entry!]
+  entries(
+    sort: EntriesSort,
+    filter: EntriesFilter,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
+  ): EntriesPaginated
   user: User
   ingredients: [Ingredient!]!
   createdAt: Date!
@@ -100,7 +142,7 @@ type Ingredient {
 """
 Sorting input for Entries
 """
-input EntrySort {
+input EntriesSort {
   timestamp: Sort
   drink: Sort
   volume: Sort
@@ -129,10 +171,9 @@ type DrinkHistory implements Node {
   count: Int!
   totalVolume: Float!
   waterVolume: Float!
-  lastEntry: Date
   entries(
-    sort: EntrySort,
-    distinct: Boolean,
+    sort: EntriesSort,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,
@@ -148,8 +189,8 @@ Base user type
 type User implements Node {
   id: ID!
   entries(
-    sort: EntrySort,
-    distinct: Boolean,
+    sort: EntriesSort,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,
@@ -158,7 +199,7 @@ type User implements Node {
   ): EntriesPaginated
   drinks(
     sort: DrinkSort,
-    search: String,
+    filter: DrinksFilter,
     before: String,
     after: String,
     first: Int,
@@ -279,10 +320,30 @@ type DrinksHistoryPaginated implements PaginatedQuery {
 }
 
 """
+Filter for the Drinks query
+"""
+input DrinksFilter {
+  search: String
+  coefficient: NumberFilter
+  isMixedDrink: Boolean
+}
+
+"""
 Filter for the Drinks History query
 """
 input DrinksHistoryFilter {
+  search: String
   hasEntries: Boolean
+  limit: Date
+}
+
+"""
+Filter for the Entries query
+"""
+input EntriesFilter {
+  search: String
+  limit: Date
+  distinct: Boolean
 }
 
 """
@@ -294,7 +355,7 @@ type Query {
   drink(drinkId: ID!): DrinkResult
   drinks(
     sort: DrinkSort,
-    search: String,
+    filter: DrinksFilter,
     before: String,
     after: String,
     first: Int,
@@ -303,8 +364,8 @@ type Query {
   ): DrinksPaginated
   entry(entryId: ID!): Entry
   entries(
-    sort: EntrySort,
-    distinct: Boolean,
+    sort: EntriesSort,
+    filter: EntriesFilter,
     before: String,
     after: String,
     first: Int,

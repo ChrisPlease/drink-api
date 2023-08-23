@@ -28,9 +28,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     },
 
     async findManyPaginated({
+      filter: filterInput,
       sort,
       userId,
-      search,
       first,
       last,
       before,
@@ -38,28 +38,53 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     }: QueryDrinksArgs,
     reqUser?: string,
     ) {
+
+      const {
+        search,
+        coefficient,
+        isMixedDrink,
+      } = filterInput || {}
+
+      const filter = {
+        ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
+        ...(coefficient ? { coefficient: { [coefficient.comparison || '']: coefficient.value } } : {}),
+        ...(isMixedDrink ? { ingredients: { some: {} } } : {}),
+      }
+
+      const where: Prisma.DrinkWhereInput = {
+        ...(
+          userId ? { userId } : {
+            OR: [
+              { userId: reqUser },
+              { userId: null },
+            ],
+          }
+        ),
+        ...filter,
+        deleted: null,
+      }
+
+      const [
+        sortKey,
+        sortValue,
+      ] = <[keyof Prisma.DrinkOrderByWithRelationInput, string]>Object.entries(sort || {
+        name: 'asc',
+      })[0]
+
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
-        sort ? sort : { name: 'asc' }
+        sortKey
+          ? { [sortKey]: sortKey === 'entries' ? { _count: sortValue } : sortValue }
+          : { name: 'asc' }
       )
 
-      const sortKey = <keyof Prisma.DrinkOrderByWithRelationInput>Object.keys(orderBy)[0]
       const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(
-        sortKey === 'createdAt' ? sortKey : 'id_name'
+        sortKey !== 'name'
+          ? sortKey === 'entries' ? 'id' : sortKey
+          : 'id_name'
       )
 
       const { include, orderBy: orderByArg, ...baseArgs } = {
-        where: {
-          ...(
-            userId ? { userId } : {
-              OR: [
-                { userId: reqUser },
-                { userId: null },
-              ],
-            }
-          ),
-          ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
-          deleted: null,
-        },
+        where,
         include: {
           _count: {
             select: { ingredients: true },
@@ -254,13 +279,10 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
     async findDrinkUser(userId: string) {
       const [,id] = deconstructId(userId)
-      return await prismaDrink.findUnique({
+      const user = await prismaDrink.findUnique({
         where: { id },
       }).user()
-      .then(({ ...user }) => ({
-        ...user,
-        id: toCursorHash(`User:${user.id}`),
-      }))
+      return user ? { ...user, id: toCursorHash(`User:${user.id}`) } : null
     },
 
     async calculateIngredientNutrition(
