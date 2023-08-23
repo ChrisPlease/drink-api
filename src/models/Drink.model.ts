@@ -67,7 +67,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       const [
         sortKey,
         sortValue,
-      ] = <[keyof Prisma.DrinkOrderByWithRelationInput, string]>Object.entries(sort || {})[0]
+      ] = <[keyof Prisma.DrinkOrderByWithRelationInput, string]>Object.entries(sort || {
+        name: 'asc',
+      })[0]
 
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         sortKey

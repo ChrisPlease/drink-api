@@ -1140,18 +1140,6 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "caffeine",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "NumberFilter",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "coefficient",
             "description": null,
             "type": {
@@ -1181,30 +1169,6 @@
             "type": {
               "kind": "SCALAR",
               "name": "String",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "servingSize",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "NumberFilter",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "sugar",
-            "description": null,
-            "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "NumberFilter",
               "ofType": null
             },
             "defaultValue": null,
@@ -2613,18 +2577,6 @@
                 "type": {
                   "kind": "SCALAR",
                   "name": "Int",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
-                "name": "search",
-                "description": null,
-                "type": {
-                  "kind": "SCALAR",
-                  "name": "String",
                   "ofType": null
                 },
                 "defaultValue": null,

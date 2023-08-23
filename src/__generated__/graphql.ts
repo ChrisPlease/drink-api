@@ -155,12 +155,9 @@ export type DrinkSort = {
 
 /** Filter for the Drinks query */
 export type DrinksFilter = {
-  caffeine?: InputMaybe<NumberFilter>;
   coefficient?: InputMaybe<NumberFilter>;
   isMixedDrink?: InputMaybe<Scalars['Boolean']>;
   search?: InputMaybe<Scalars['String']>;
-  servingSize?: InputMaybe<NumberFilter>;
-  sugar?: InputMaybe<NumberFilter>;
 };
 
 /** Filter for the Drinks History query */
@@ -376,7 +373,6 @@ export type QueryDrinksArgs = {
   filter?: InputMaybe<DrinksFilter>;
   first?: InputMaybe<Scalars['Int']>;
   last?: InputMaybe<Scalars['Int']>;
-  search?: InputMaybe<Scalars['String']>;
   sort?: InputMaybe<DrinkSort>;
   userId?: InputMaybe<Scalars['ID']>;
 };

@@ -356,7 +356,6 @@ type Query {
   drinks(
     sort: DrinkSort,
     filter: DrinksFilter,
-    search: String,
     before: String,
     after: String,
     first: Int,
