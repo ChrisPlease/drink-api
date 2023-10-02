@@ -28,7 +28,11 @@ describe('drinks', () => {
     contextValue = {
       redis,
       prisma,
-      req: {} as Request,
+      req: {
+        auth: {
+          sub: 'user-123',
+        },
+      } as Request,
       res: {} as Response,
     }
     await seedUsers(prisma, ['user-123'])
@@ -42,7 +46,7 @@ describe('drinks', () => {
       let result: DrinksPaginated
       beforeEach(async () => {
         QUERY = gql`query GetDrinks($first: Int, $after: String, $search: String) {
-          drinks(first: $first, after: $after, search: $search) {
+          drinks(first: $first, after: $after, filter: { search: $search }) {
             edges {
               node {
                 ... on Drink {
@@ -69,6 +73,7 @@ describe('drinks', () => {
           variables: { first: 12 },
         },
         { contextValue })
+
 
         assert(res.body.kind === 'single')
         assert(res.body.singleResult.data?.drinks !== null)

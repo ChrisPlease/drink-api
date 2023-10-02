@@ -38,6 +38,7 @@ describe('historyResolvers', () => {
   beforeEach(() => {
     ctx = {
       prisma,
+      redis: {} as any,
       req: {} as Request,
       res: {} as Response,
     }
@@ -54,10 +55,11 @@ describe('historyResolvers', () => {
     test('calls the EntriesModel.findManyPaginated', async () => {
       await historyResolvers.entries({
         id: toCursorHash('123'),
+        userId: '123',
       }, {}, ctx)
       expect(
         Entries(prisma.entry).findManyPaginated,
-      ).toHaveBeenCalledWith(prisma, { })
+      ).toHaveBeenCalledWith(prisma, expect.any(Object))
     })
   })
 })

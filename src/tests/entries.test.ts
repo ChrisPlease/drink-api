@@ -14,6 +14,7 @@ import { seedDrinks } from '../../prisma/seeders/drinks'
 import { seedEntries } from '../../prisma/seeders/entries'
 import { EntriesPaginated } from '../__generated__/graphql'
 import { AppContext } from '../types/context'
+import redis from '../__mocks__/redis'
 import { testServer } from './helpers/server'
 import prisma from './helpers/prisma'
 
@@ -40,6 +41,7 @@ describe('entries', () => {
     })))
 
     contextValue = {
+      redis,
       prisma,
       req: {
         auth: { sub: 'user-123' },
@@ -49,7 +51,7 @@ describe('entries', () => {
 
     QUERY = gql`
       query GetEntries($first: Int, $after: String, $distinct: Boolean) {
-        entries(first: $first, after: $after, distinct: $distinct) {
+        entries(first: $first, after: $after, filter: { distinct: $distinct }) {
           edges {
             node {
               volume
@@ -57,10 +59,14 @@ describe('entries', () => {
                 ... on Drink {
                   name
                   entries {
-                    volume
-                    drink {
-                      ... on Drink {
-                        name
+                    edges {
+                      node {
+                        volume
+                        drink {
+                          ... on Drink {
+                            name
+                          }
+                        }
                       }
                     }
                   }

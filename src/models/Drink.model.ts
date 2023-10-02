@@ -17,7 +17,7 @@ import {
 } from '@/utils/cursorHash'
 import { Nutrition, NutritionQuery } from '@/types/models'
 
-type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use'>
+type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {
@@ -157,7 +157,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
       return await client.$transaction(async (tx) => {
         const oldIngredients = await tx.drink
-          .findUnique({ where: { id, userId } })
+          .findUnique({ where: { id_userId: { id, userId } } })
           .ingredients({ select: { ingredient: { select: { id: true } } } })
           .then(ingredients => ingredients?.map(
             ({ ingredient: { id }}) => id,
@@ -171,8 +171,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
         await tx.drink.update({
           where: {
-            id,
-            userId,
+            id_userId: { id, userId },
           },
           data: {
             ...data,
@@ -260,7 +259,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       { drinkId, userId }: MutationDrinkDeleteArgs & { userId: string },
     ) {
       const [,id] = deconstructId(drinkId)
-      return await prismaDrink.delete({ where: { id, userId } })
+      return await prismaDrink.delete({ where: { id_userId: { id, userId } } })
         .then(res => ({ ...res, id: drinkId }))
     },
 

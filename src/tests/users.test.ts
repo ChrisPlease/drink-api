@@ -10,7 +10,9 @@ import { Response } from 'express'
 import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
 import { AppContext } from '../types/context'
+import { toCursorHash } from '../utils/cursorHash'
 import prisma from './helpers/prisma'
+import { redis } from './helpers/redis'
 import { testServer } from './helpers/server'
 
 describe('users', () => {
@@ -28,6 +30,7 @@ describe('users', () => {
 
   beforeEach(() => {
     ctx = {
+      redis,
       prisma,
       req: {} as Request,
       res: {} as Response,
@@ -102,7 +105,7 @@ describe('users', () => {
       })
 
       assert(res.body.kind === 'single')
-      expect({ id: 'user-123' }).toEqual(res.body.singleResult.data?.me)
+      expect({ id: toCursorHash('User:user-123') }).toEqual(res.body.singleResult.data?.me)
     })
   })
 
@@ -127,7 +130,7 @@ describe('users', () => {
       assert(res.body.kind === 'single')
       expect(res.body.singleResult.data).toEqual({
         user: {
-          id: 'user-123',
+          id: toCursorHash('User:user-123'),
         },
       })
     })
@@ -152,8 +155,8 @@ describe('users', () => {
       assert(res.body.kind === 'single')
       expect(res.body.singleResult.data).toEqual({
         users: [
-          { id: 'user-123' },
-          { id: 'user-456' },
+          { id: toCursorHash('User:user-123') },
+          { id: toCursorHash('User:user-456') },
         ],
       })
     })
