@@ -9,6 +9,7 @@ import {
   vi,
   afterEach,
 } from 'vitest'
+import redis from '../__mocks__/redis'
 import {
   MutationDrinkCreateArgs,
   MutationDrinkDeleteArgs,
@@ -46,6 +47,7 @@ vi.mock('../models/Entry.model', () => ({
 describe('mutationResolvers', () => {
   const parent = {}
   const ctx: AppContext = {
+    redis,
     prisma,
     req: {
       auth: {
@@ -105,6 +107,12 @@ describe('mutationResolvers', () => {
         }
       })
 
+      afterEach(() => {
+        vi.mocked(Drinks(prisma.drink).createWithNutrition).mockReset()
+        vi.mocked(Drinks(prisma.drink).updateWithIngredients).mockReset()
+      })
+
+
       test('calls Drinks model', async () => {
         await mutationResolvers.drinkCreate({}, { userId: 'user-123', ...args }, ctx, info)
         expect(Drinks).toHaveBeenCalledWith(prisma.drink)
@@ -120,6 +128,7 @@ describe('mutationResolvers', () => {
             coefficient: 1,
           },
         }
+
         await mutationResolvers.drinkCreate({}, { ...args }, ctx, info)
         expect(Drinks(prisma.drink).createWithNutrition).toHaveBeenCalledWith({
           ...args.drinkInput,
@@ -137,7 +146,7 @@ describe('mutationResolvers', () => {
           },
         }
 
-        await mutationResolvers.drinkCreate({}, args, ctx, info)
+        await mutationResolvers.drinkCreate({}, { ...args }, ctx, info)
         expect(Drinks(prisma.drink).createWithNutrition).not.toHaveBeenCalled()
         expect(Drinks(prisma.drink).createWithIngredients).toHaveBeenCalledWith({
           ...args.drinkInput,
@@ -166,7 +175,7 @@ describe('mutationResolvers', () => {
       beforeEach(() => {
         args = {
           drinkInput: {
-            id: '123',
+            id: toCursorHash('foo:123'),
             name: 'Test',
             icon: 'test',
           },
@@ -195,7 +204,7 @@ describe('mutationResolvers', () => {
           await mutationResolvers.drinkEdit({}, args, ctx, info)
         } catch (err) {
           expect(err).toBeInstanceOf(Error)
-          expect(err.message).toEqual('not found')
+          expect(err.message).toEqual('Drink not found')
         }
       })
 

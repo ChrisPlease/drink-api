@@ -14,6 +14,7 @@ prisma.$use(
       Drink: {
         field: 'deleted',
         createValue: (value) => value ? new Date() : null,
+        allowCompoundUniqueIndexWhere: true,
       },
       Entry: true,
     },

@@ -42,7 +42,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         drink,
         ...entry
       } = await prismaEntry.findUnique({
-        where: { userId, id },
+        where: { id_userId: { userId, id } },
         include: {
           drink: {
             select: {
@@ -285,7 +285,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
       return await client.$transaction(async (tx) => {
         const { drinkId, ...deletedEntry } = await tx.entry.delete({
-          where: { id, userId },
+          where: { id_userId: { id, userId } },
         })
 
         const drink = await tx.drink.findUnique({
