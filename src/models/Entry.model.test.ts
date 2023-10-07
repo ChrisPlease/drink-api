@@ -69,8 +69,10 @@ describe('Entry Model', () => {
           },
         },
         where: {
-          id: '123',
-          userId: 'user-123',
+          id_userId: {
+            id: '123',
+            userId: 'user-123',
+          },
         },
       })
     })

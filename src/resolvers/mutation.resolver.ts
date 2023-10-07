@@ -50,10 +50,9 @@ export const mutationResolvers: MutationResolvers = {
       )
     } else {
       res = await drink.createWithNutrition({ userId, ...nutrition, ...rest })
-
     }
 
-    await redis.set(`drinks:${res.id}`, JSON.stringify(res))
+    await redis.set(`drinks:${res?.id}`, JSON.stringify(res))
 
     return res
   },
@@ -89,12 +88,12 @@ export const mutationResolvers: MutationResolvers = {
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
     const redisKey = `drinks:${drinkInput.id}`
-    const [type,id] = deconstructId(drinkInput.id)
 
     if (!drinkInput.id) throw new Error('Drink ID required')
+    const [type,id] = deconstructId(drinkInput.id)
 
     try {
-      await prisma.drink.findUniqueOrThrow({ where: { id, userId } })
+      await prisma.drink.findUniqueOrThrow({ where: { id_userId: { id, userId } } })
     } catch (err) {
       throw new Error('Drink not found')
     }
@@ -109,9 +108,10 @@ export const mutationResolvers: MutationResolvers = {
           prisma,
         )
       } else {
+        const { id: drinkId, ...rest } = drinkInput
         res = await drink.update({
-          where: { id, userId },
-          data: { userId, ...drinkInput },
+          where: { id_userId: { id, userId } },
+          data: { userId, ...rest },
         })
       }
     } else if (type === 'BaseDrink') {
@@ -132,8 +132,9 @@ export const mutationResolvers: MutationResolvers = {
       throw new Error('Cannot recognize Drink Type')
     }
 
-    await redis.set(redisKey, JSON.stringify(res))
+    res = { ...res, id: drinkInput.id } as Drink
 
+    await redis.set(redisKey, JSON.stringify(res))
     return res
   },
 

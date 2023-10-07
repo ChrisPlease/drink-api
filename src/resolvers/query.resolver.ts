@@ -93,19 +93,23 @@ export const queryResolvers: QueryResolvers = {
 
   async me(parent, args, { prisma, req: { auth } }) {
     const id = <string>auth?.sub
-    return await prisma.user.findUnique({ where: { id }})
-      .then(({ ...user }) => ({ ...user, id: toCursorHash(`User:${id}` )}))
+    const user = prisma.user.findUnique({ where: { id }})
+    return user?.then(({ ...user }) => ({ ...user, id: toCursorHash(`User:${id}` )}))
   },
 
   async user(parent, { userId }, { prisma }) {
     const id = toCursorHash(`User:${userId}`)
-    return await prisma.user.findUnique({ where: { id: userId } })
-      .then(({ ...user }) => ({ ...user, id }))
+    const user = prisma.user.findUnique({ where: { id: userId } })
+
+    return user?.then(({ ...user }) => ({ ...user, id }))
   },
 
   async users(parent, args, { prisma }) {
-    return await prisma.user.findMany()
-      .then(users => users.map(({ ...user }) => ({ ...user, id: toCursorHash(`User:${user.id}` )})))
+    const users = prisma.user.findMany()
+
+    return users?.then(users => users.map(
+      ({ ...user }) => ({ ...user, id: toCursorHash(`User:${user.id}` )})),
+    )
   },
 }
 

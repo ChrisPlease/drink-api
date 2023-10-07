@@ -10,9 +10,11 @@ import {
 } from 'vitest'
 import { Drink } from '@prisma/client'
 import prisma from '../__mocks__/prisma'
+import redis from '../__mocks__/redis'
 import { toCursorHash } from '../utils/cursorHash'
 import { AppContext } from '../types/context'
 import { Drinks } from '../models/Drink.model'
+import { Entries } from '../models/Entry.model'
 import {
   drinkResolvers,
   mixedDrinkResolvers,
@@ -27,6 +29,15 @@ vi.mock('../models/Drink.model', () => ({
   }),
 }))
 
+vi.mock('../models/Entry.model', () => ({
+  Entries: vi.fn().mockReturnValue({
+    ...prisma.entry,
+    findManyPaginated: vi.fn().mockReturnValue([{ id: 'mock-entry' }]),
+    findWithNutrition: vi.fn().mockReturnValue([{ id: 'foo' }]),
+  }),
+}))
+
+
 describe('drinks.resolver', () => {
   const args = {}
   let ctx: AppContext
@@ -35,6 +46,7 @@ describe('drinks.resolver', () => {
 
   beforeEach(() => {
     ctx = {
+      redis,
       prisma,
       req: {
         auth: {
@@ -71,10 +83,10 @@ describe('drinks.resolver', () => {
           info,
         )
 
-        expect(Drinks).toHaveBeenCalledWith(prisma.drink)
+        expect(Entries).toHaveBeenCalledWith(prisma.entry)
         expect(
-          Drinks(prisma.drink).findDrinkEntries,
-        ).toHaveBeenCalledWith(prisma, parent.id, 'mock-user')
+          Entries(prisma.entry).findManyPaginated,
+        ).toHaveBeenCalledWith(prisma, { drinkId: parent.id, userId: 'mock-user' })
         expect(res).toStrictEqual([{ id: 'mock-entry' }])
       })
     })

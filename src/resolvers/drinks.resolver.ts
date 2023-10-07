@@ -4,7 +4,7 @@ import {
   DrinkResultResolvers,
   MixedDrinkResolvers,
 } from '@/__generated__/graphql'
-import { deconstructId, fromCursorHash } from '@/utils/cursorHash'
+import { deconstructId } from '@/utils/cursorHash'
 import { Drinks } from '@/models/Drink.model'
 import { Entries } from '@/models/Entry.model'
 

@@ -281,7 +281,7 @@ describe('Drink Model', () => {
       expect.assertions(2)
       await drink.updateWithIngredients(mockPayload, prisma)
       expect(prisma.drink.update).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: '123', userId: '456' } }),
+        expect.objectContaining({ where: { id_userId: { id: '123', userId: '456' } } }),
       )
       expect(drink.saveWithIngredientsNutrition).toHaveBeenCalled()
     })

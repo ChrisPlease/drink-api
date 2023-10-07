@@ -14,6 +14,7 @@ import { seedDrinks } from '../../prisma/seeders/drinks'
 import { seedEntries } from '../../prisma/seeders/entries'
 import { AppContext } from '../types/context'
 import { DrinksHistoryPaginated } from '../__generated__/graphql'
+import redis from '../__mocks__/redis'
 import prisma from './helpers/prisma'
 import { testServer } from './helpers/server'
 
@@ -43,6 +44,7 @@ describe('history', () => {
     )
 
     contextValue = {
+      redis,
       prisma,
       req: {
         auth: {
@@ -70,7 +72,6 @@ describe('history', () => {
             count
             waterVolume
             totalVolume
-            lastEntry
             drink {
               ... on Drink {
                 name

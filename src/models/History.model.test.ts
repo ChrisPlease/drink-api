@@ -3,8 +3,8 @@ import {
   beforeEach,
   test,
   expect,
+  Mock,
 } from 'vitest'
-import { Prisma } from '@prisma/client'
 import prisma from '../__mocks__/prisma'
 import { toCursorHash } from '../utils/cursorHash'
 import { DrinkHistory } from './History.model'
@@ -13,27 +13,19 @@ describe('DrinkHistory', () => {
   const history = DrinkHistory(prisma)
 
   describe('findDrinkHistory', () => {
-    let mockArgs: Pick<Prisma.EntryAggregateArgs, 'where'>
     let mockResponse: any
 
     beforeEach(() => {
-      mockArgs = {
-        where: {
-          drinkId: 'drink-123',
-          userId: 'user-123',
-        },
-      }
-
       mockResponse = {
         id: toCursorHash('DrinkHistory:drink-123'),
-      }
+      };
 
-      prisma.$transaction.mockResolvedValue(mockResponse)
+      (prisma.$transaction as Mock).mockResolvedValue(mockResponse)
     })
 
 
     test('makes a transaction to retrieve drink history', async () => {
-      await history.findUniqueDrinkHistory(mockArgs)
+      await history.findUniqueDrinkHistory(toCursorHash('DrinkHistory:drink-123'), 'user-123')
 
       expect(prisma.$transaction).toHaveBeenCalled()
     })
