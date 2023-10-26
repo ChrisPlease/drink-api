@@ -130,14 +130,29 @@ Union of Mixed and Base Drinks
 """
 union DrinkResult = BaseDrink | MixedDrink
 
+
 """
-Base Ingredient used in Drink type
+Relative Ingredient used in drink, size is based on total drink serving size (parts)
 """
-type Ingredient {
+type RelativeIngredient {
   id: ID!
-  parts: Int!
+  parts: Float!
   drink: DrinkResult
 }
+
+"""
+Absolute ingredient used in drink, size is based on absolute volume (ounces)
+"""
+type AbsoluteIngredient {
+  id: ID!
+  volume: Float!
+  drink: DrinkResult
+}
+
+"""
+Ingredient Union combines Absolute and Relative Ingredients
+"""
+union Ingredient = RelativeIngredient | AbsoluteIngredient
 
 
 """
