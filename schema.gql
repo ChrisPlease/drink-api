@@ -32,8 +32,8 @@ enum Comparison {
 Number filter to allow gte, or lte comparison
 """
 input NumberFilter {
-  value: Float
-  comparison: Comparison
+  value: Float!
+  comparison: Comparison!
 }
 
 """
@@ -50,6 +50,7 @@ input DrinkSort {
   name: Sort
   createdAt: Sort
   entries: Sort
+  caffeine: Sort
   coefficient: Sort
   sugar: Sort
 }
@@ -324,7 +325,10 @@ Filter for the Drinks query
 """
 input DrinksFilter {
   search: String
-  coefficient: NumberFilter
+  coefficient: [NumberFilter!]
+  sugar: [NumberFilter!]
+  caffeine: [NumberFilter!]
+  isUserDrink: Boolean
   isMixedDrink: Boolean
 }
 

@@ -32,6 +32,11 @@ model Drink {
   @@index(name)
   @@index(createdAt)
   @@index([id,userId])
+
+  @@unique([id,sugar])
+  @@unique([id,coefficient])
+  @@unique([id,caffeine])
+
   @@unique([id,name])
   @@unique([id,userId])
   @@unique([name,userId])
@@ -82,6 +87,7 @@ model Entry {
 
 model User {
   id      String  @id() @db.VarChar
+
   drinks  Drink[]
   entries Entry[]
 

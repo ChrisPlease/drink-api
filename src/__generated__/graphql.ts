@@ -146,6 +146,7 @@ export type DrinkResult = BaseDrink | MixedDrink;
 
 /** Sorting input for Drinks */
 export type DrinkSort = {
+  caffeine?: InputMaybe<Sort>;
   coefficient?: InputMaybe<Sort>;
   createdAt?: InputMaybe<Sort>;
   entries?: InputMaybe<Sort>;
@@ -155,9 +156,12 @@ export type DrinkSort = {
 
 /** Filter for the Drinks query */
 export type DrinksFilter = {
-  coefficient?: InputMaybe<NumberFilter>;
+  caffeine?: InputMaybe<Array<NumberFilter>>;
+  coefficient?: InputMaybe<Array<NumberFilter>>;
   isMixedDrink?: InputMaybe<Scalars['Boolean']>;
+  isUserDrink?: InputMaybe<Scalars['Boolean']>;
   search?: InputMaybe<Scalars['String']>;
+  sugar?: InputMaybe<Array<NumberFilter>>;
 };
 
 /** Filter for the Drinks History query */
@@ -319,8 +323,8 @@ export type Node = {
 
 /** Number filter to allow gte, or lte comparison */
 export type NumberFilter = {
-  comparison?: InputMaybe<Comparison>;
-  value?: InputMaybe<Scalars['Float']>;
+  comparison: Comparison;
+  value: Scalars['Float'];
 };
 
 /** Pagination List metadata */

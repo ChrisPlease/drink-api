@@ -18,7 +18,7 @@ export type ModelType = 'User' | 'MixedDrink' | 'BaseDrink' | 'Entry' | 'DrinkHi
 
 export type DrinkHistory = {
   id: string,
-  drink: Drink | string,
+  drink: Drink,
   count: number,
   totalVolume: number,
   waterVolume: number,

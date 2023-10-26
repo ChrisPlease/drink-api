@@ -1,10 +1,12 @@
 import { PrismaClient, Drink, Prisma } from '@prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import {
+  Comparison,
   DrinkCreateInput,
   DrinkEditInput,
   IngredientInput,
   MutationDrinkDeleteArgs,
+  NumberFilter,
   QueryDrinksArgs,
 } from '@/__generated__/graphql'
 import { roundNumber } from '@/utils/roundNumber'
@@ -42,13 +44,25 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       const {
         search,
         coefficient,
+        caffeine,
+        sugar,
         isMixedDrink,
       } = filterInput || {}
 
+      function rangeFilter(filters: NumberFilter[]): Prisma.FloatNullableFilter<'Drink'> {
+        return filters.reduce((acc, { comparison, value }) => ({ ...acc, [comparison]: value }), {})
+      }
+
       const filter = {
         ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
-        ...(coefficient ? { coefficient: { [coefficient.comparison || '']: coefficient.value } } : {}),
-        ...(isMixedDrink ? { ingredients: { some: {} } } : {}),
+        ...(coefficient ? { coefficient: rangeFilter(coefficient) } : {}),
+        ...(caffeine ? { caffeine: rangeFilter(caffeine) } : {}),
+        ...(sugar ? { sugar: rangeFilter(sugar) } : {}),
+        ...(
+          (isMixedDrink !== undefined)
+            ? isMixedDrink ? { ingredients: { some: {} } } : { ingredients: { none: {} } }
+            : {}
+          ),
       }
 
       const where: Prisma.DrinkWhereInput = {
@@ -72,15 +86,15 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       })[0]
 
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
-        sortKey
-          ? { [sortKey]: sortKey === 'entries' ? { _count: sortValue } : sortValue }
-          : { name: 'asc' }
+        ['name', 'createdAt'].includes(sortKey)
+          ? { [sortKey]: sortValue }
+          : ([{ [sortKey]: (sortKey === 'entries' ? { _count: sortValue } : sortValue) }, { name: 'asc' }])
       )
 
       const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(
-        sortKey !== 'name'
-          ? sortKey === 'entries' ? 'id' : sortKey
-          : 'id_name'
+        ['name', 'createdAt', 'entries'].includes(sortKey)
+          ? sortKey === 'name' ? 'id' : 'createdAt'
+          : `id_${sortKey}`
       )
 
       const { include, orderBy: orderByArg, ...baseArgs } = {
