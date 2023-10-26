@@ -43,7 +43,7 @@ export const mutationResolvers: MutationResolvers = {
 
     const nutrition = { caffeine, servingSize, sugar, coefficient }
 
-    if (ingredients) {
+    if (ingredients && ingredients.length) {
       res = await drink.createWithIngredients(
         { userId, servingSize, ingredients, ...rest },
         prisma,
