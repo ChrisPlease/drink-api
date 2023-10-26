@@ -1,7 +1,6 @@
 import { PrismaClient, Drink, Prisma } from '@prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import {
-  Comparison,
   DrinkCreateInput,
   DrinkEditInput,
   IngredientInput,
