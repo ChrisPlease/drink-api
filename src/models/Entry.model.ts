@@ -280,7 +280,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       args: MutationEntryDeleteArgs & { userId: string },
       client: PrismaClient,
     ) {
-      const { userId, entryId } = args
+      const { userId, id: entryId } = args
       const [,id] = deconstructId(entryId)
 
       return await client.$transaction(async (tx) => {

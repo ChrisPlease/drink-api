@@ -13,7 +13,6 @@ export const drinkResultResolvers: DrinkResultResolvers = {
     const [type] = deconstructId(parent.id)
     return type as 'MixedDrink' | 'BaseDrink'
   },
-
 }
 
 export const drinkResolvers: DrinkResolvers = {

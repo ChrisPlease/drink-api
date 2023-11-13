@@ -41,11 +41,13 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     ) {
 
       const {
-        search,
-        coefficient,
         caffeine,
-        sugar,
+        coefficient,
+        id,
         isMixedDrink,
+        search,
+        sugar,
+        isUserDrink,
       } = filterInput || {}
 
       function rangeFilter(filters: NumberFilter[]): Prisma.FloatNullableFilter<'Drink'> {
@@ -57,6 +59,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         ...(coefficient ? { coefficient: rangeFilter(coefficient) } : {}),
         ...(caffeine ? { caffeine: rangeFilter(caffeine) } : {}),
         ...(sugar ? { sugar: rangeFilter(sugar) } : {}),
+        ...(id?.in ? { id: { in: id.in.map(drinkId => deconstructId(drinkId)?.[1]) } } : {}),
         ...(
           (isMixedDrink !== undefined)
             ? isMixedDrink ? { ingredients: { some: {} } } : { ingredients: { none: {} } }
@@ -66,7 +69,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
       const where: Prisma.DrinkWhereInput = {
         ...(
-          userId ? { userId } : {
+          (userId || isUserDrink)
+            ? userId ? { userId } : { userId: reqUser }
+            : {
             OR: [
               { userId: reqUser },
               { userId: null },
@@ -269,7 +274,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     },
 
     async deleteDrink(
-      { drinkId, userId }: MutationDrinkDeleteArgs & { userId: string },
+      { id: drinkId, userId }: MutationDrinkDeleteArgs & { userId: string },
     ) {
       const [,id] = deconstructId(drinkId)
       return await prismaDrink.delete({ where: { id_userId: { id, userId } } })
@@ -355,11 +360,12 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 function mapToInputIngredients(
   ingredients?: IngredientInput[],
 ): Prisma.DrinkIngredientsCreateWithoutDrinkInput[] {
-  return (ingredients || []).map(({ drinkId, parts }) => ({
+  return (ingredients || []).map(({ drinkId, parts, volume }) => ({
     ingredient: {
       create: {
         drinkId: deconstructId(drinkId || '')?.[1],
-        parts,
+        ...(parts ? { parts } : {}),
+        ...(volume ? { volume } : {}),
       },
     },
   }))

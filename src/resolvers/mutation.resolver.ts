@@ -15,7 +15,7 @@ export const mutationResolvers: MutationResolvers = {
 
   async entryDelete(_, args, { prisma, redis, req: { auth } }) {
     const userId = <string>auth?.sub
-    const redisKey = `entries:${userId}:${args.entryId}`
+    const redisKey = `entries:${userId}:${args.id}`
 
     await redis.del(redisKey)
 
@@ -57,13 +57,13 @@ export const mutationResolvers: MutationResolvers = {
     return res
   },
 
-  async drinkDelete(_, { drinkId }, { prisma, redis, req: { auth } }) {
+  async drinkDelete(_, { id: drinkId }, { prisma, redis, req: { auth } }) {
     const userId = <string>auth?.sub
     const redisKey = `drinks:${drinkId}`
 
     await redis.del(redisKey)
 
-    const res = await Drinks(prisma.drink).deleteDrink({ drinkId, userId })
+    const res = await Drinks(prisma.drink).deleteDrink({ id: drinkId, userId })
 
     await redis.set(redisKey, JSON.stringify(res))
 
@@ -138,7 +138,7 @@ export const mutationResolvers: MutationResolvers = {
     return res
   },
 
-  async userCreate(_, { userId }, { prisma }) {
+  async userCreate(_, { id: userId }, { prisma }) {
     try {
       return await prisma.user.create({ data: { id: userId } })
     } catch (err) {
