@@ -37,6 +37,13 @@ input NumberFilter {
 }
 
 """
+ID Filter
+"""
+input IDFilter {
+  in: [ID!]
+}
+
+"""
 Node interface for Paginated Queries
 """
 interface Node {
@@ -67,8 +74,8 @@ interface Drink implements Node {
   sugar: Float
   servingSize: Float
   entries(
-    sort: EntriesSort,
-    filter: EntriesFilter,
+    sort: EntrySort,
+    filter: EntryFilter,
     before: String,
     after: String,
     first: Int,
@@ -90,8 +97,8 @@ type BaseDrink implements Drink & Node {
   sugar: Float
   servingSize: Float
   entries(
-    sort: EntriesSort,
-    filter: EntriesFilter,
+    sort: EntrySort,
+    filter: EntryFilter,
     before: String,
     after: String,
     first: Int,
@@ -113,8 +120,8 @@ type MixedDrink implements Drink & Node {
   sugar: Float
   servingSize: Float
   entries(
-    sort: EntriesSort,
-    filter: EntriesFilter,
+    sort: EntrySort,
+    filter: EntryFilter,
     before: String,
     after: String,
     first: Int,
@@ -131,19 +138,41 @@ Union of Mixed and Base Drinks
 union DrinkResult = BaseDrink | MixedDrink
 
 """
-Base Ingredient used in Drink type
+Ingredient Interface to combine drink and ID
 """
-type Ingredient {
+interface DrinkIngredient {
   id: ID!
-  parts: Int!
   drink: DrinkResult
 }
+
+"""
+Relative Ingredient used in drink, size is based on total drink serving size (parts)
+"""
+type RelativeIngredient implements DrinkIngredient {
+  id: ID!
+  parts: Float
+  drink: DrinkResult
+}
+
+"""
+Absolute ingredient used in drink, size is based on absolute volume (ounces)
+"""
+type AbsoluteIngredient implements DrinkIngredient {
+  id: ID!
+  volume: Float
+  drink: DrinkResult
+}
+
+"""
+Ingredient Union combines Absolute and Relative Ingredients
+"""
+union Ingredient = RelativeIngredient | AbsoluteIngredient
 
 
 """
 Sorting input for Entries
 """
-input EntriesSort {
+input EntrySort {
   timestamp: Sort
   drink: Sort
   volume: Sort
@@ -173,8 +202,8 @@ type DrinkHistory implements Node {
   totalVolume: Float!
   waterVolume: Float!
   entries(
-    sort: EntriesSort,
-    filter: EntriesFilter,
+    sort: EntrySort,
+    filter: EntryFilter,
     before: String,
     after: String,
     first: Int,
@@ -190,8 +219,8 @@ Base user type
 type User implements Node {
   id: ID!
   entries(
-    sort: EntriesSort,
-    filter: EntriesFilter,
+    sort: EntrySort,
+    filter: EntryFilter,
     before: String,
     after: String,
     first: Int,
@@ -200,7 +229,7 @@ type User implements Node {
   ): EntriesPaginated
   drinks(
     sort: DrinkSort,
-    filter: DrinksFilter,
+    filter: DrinkFilter,
     before: String,
     after: String,
     first: Int,
@@ -211,7 +240,7 @@ type User implements Node {
     after: String,
     first: Int,
     last: Int,
-    filter: DrinksHistoryFilter,
+    filter: DrinkHistoryFilter,
   ): DrinksHistoryPaginated
 }
 
@@ -220,7 +249,8 @@ Input for Ingredient type
 """
 input IngredientInput {
   drinkId: ID!
-  parts: Int!
+  parts: Int
+  volume: Float
 }
 
 """
@@ -323,7 +353,8 @@ type DrinksHistoryPaginated implements PaginatedQuery {
 """
 Filter for the Drinks query
 """
-input DrinksFilter {
+input DrinkFilter {
+  id: IDFilter
   search: String
   coefficient: [NumberFilter!]
   sugar: [NumberFilter!]
@@ -335,16 +366,23 @@ input DrinksFilter {
 """
 Filter for the Drinks History query
 """
-input DrinksHistoryFilter {
+input DrinkHistoryFilter {
   search: String
   hasEntries: Boolean
   limit: Date
 }
 
 """
+Filter for drink ingredients
+"""
+input IngredientFilter {
+  id: IDFilter
+}
+
+"""
 Filter for the Entries query
 """
-input EntriesFilter {
+input EntryFilter {
   search: String
   limit: Date
   distinct: Boolean
@@ -354,22 +392,30 @@ input EntriesFilter {
 Root Queries
 """
 type Query {
+  """ Get node by ID """
   node(id: ID!): Node
-  """ Get a drink by id """
-  drink(drinkId: ID!): DrinkResult
+
+  """ Get drink by ID """
+  drink(id: ID!): DrinkResult
+
+  """ Get paginated drinks """
   drinks(
     sort: DrinkSort,
-    filter: DrinksFilter,
+    filter: DrinkFilter,
     before: String,
     after: String,
     first: Int,
     last: Int,
     userId: ID
   ): DrinksPaginated
-  entry(entryId: ID!): Entry
+
+  """ Get Entry by ID """
+  entry(id: ID!): Entry
+
+  """ Get paginated entries """
   entries(
-    sort: EntriesSort,
-    filter: EntriesFilter,
+    sort: EntrySort,
+    filter: EntryFilter,
     before: String,
     after: String,
     first: Int,
@@ -378,14 +424,14 @@ type Query {
   ): EntriesPaginated
   users: [User!]
   me: User
-  user(userId: ID!): User
-  drinkHistory(drinkId: ID!): DrinkHistory
+  user(id: ID!): User
+  drinkHistory(id: ID!): DrinkHistory
   drinksHistory(
     before: String,
     after: String,
     first: Int,
     last: Int,
-    filter: DrinksHistoryFilter,
+    filter: DrinkHistoryFilter,
   ): DrinksHistoryPaginated
 }
 
@@ -394,9 +440,9 @@ Root Mutations
 """
 type Mutation {
   entryCreate(volume: Float!, drinkId: ID!): Entry
-  entryDelete(entryId: ID!): Entry
+  entryDelete(id: ID!): Entry
   drinkCreate(drinkInput: DrinkCreateInput!): DrinkResult
-  drinkDelete(drinkId: ID!): DrinkResult
+  drinkDelete(id: ID!): DrinkResult
   drinkEdit(drinkInput: DrinkEditInput!): DrinkResult
-  userCreate(userId: ID!): User
+  userCreate(id: ID!): User
 }

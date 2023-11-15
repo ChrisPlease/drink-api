@@ -45,7 +45,10 @@ model Drink {
 
 model Ingredient {
   id      String             @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  parts   Int
+
+  parts   Float?
+
+  volume  Float?
 
   drink   DrinkIngredients[]
   drinkId String             @map("drink_id") @db.Uuid

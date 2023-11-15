@@ -1,8 +1,20 @@
 import { Drink } from '@prisma/client'
-import { IngredientResolvers } from '@/__generated__/graphql'
+import { AbsoluteIngredient, AbsoluteIngredientResolvers, IngredientResolvers, RelativeIngredient, RelativeIngredientResolvers } from '@/__generated__/graphql'
 import { toCursorHash } from '@/utils/cursorHash'
 
-export const ingredientResolvers: IngredientResolvers = {
+
+export const ingredientTypeResolvers: IngredientResolvers = {
+  async __resolveType(parent) {
+    const type = parent as AbsoluteIngredient
+    if (type.volume) return 'AbsoluteIngredient' as const
+
+    return 'RelativeIngredient' as const
+  },
+}
+
+export const ingredientResolvers: AbsoluteIngredientResolvers & RelativeIngredientResolvers = {
+  ...ingredientTypeResolvers,
+
   async drink(parent, _, { prisma }) {
     const [{
       id,

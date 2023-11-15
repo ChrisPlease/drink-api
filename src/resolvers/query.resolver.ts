@@ -32,7 +32,7 @@ export const queryResolvers: QueryResolvers = {
     }
   },
 
-  async drink(_, { drinkId: id }, { prisma, redis }) {
+  async drink(_, { id }, { prisma, redis }) {
     const res = await redis.get(`drinks:${id}`)
 
     if (res) {
@@ -51,7 +51,7 @@ export const queryResolvers: QueryResolvers = {
     return await Drinks(prisma.drink).findManyPaginated({ ...args }, <string>auth?.sub)
   },
 
-  async entry(_, { entryId }, { prisma, redis, req: { auth } }) {
+  async entry(_, { id: entryId }, { prisma, redis, req: { auth } }) {
     const userId = <string>auth?.sub
     const res = await redis.get(`entries:${userId}:${entryId}`)
 
@@ -70,7 +70,7 @@ export const queryResolvers: QueryResolvers = {
     return await Entries(prisma.entry).findManyPaginated(prisma, { ...args, userId: <string>auth?.sub })
   },
 
-  async drinkHistory(_, { drinkId }, { prisma, redis, req: { auth } }) {
+  async drinkHistory(_, { id: drinkId }, { prisma, redis, req: { auth } }) {
     const userId = <string>auth?.sub
     const redisKey = `drinkHistory:${userId}:${drinkId}`
 
@@ -97,7 +97,7 @@ export const queryResolvers: QueryResolvers = {
     return user?.then(({ ...user }) => ({ ...user, id: toCursorHash(`User:${id}` )}))
   },
 
-  async user(parent, { userId }, { prisma }) {
+  async user(parent, { id: userId }, { prisma }) {
     const id = toCursorHash(`User:${userId}`)
     const user = prisma.user.findUnique({ where: { id: userId } })
 
