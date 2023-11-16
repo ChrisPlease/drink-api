@@ -91,7 +91,7 @@ describe('history', () => {
     `
   })
 
-  it.only('limits results to entries when filter is applied', async () => {
+  it('limits results to entries when filter is applied', async () => {
     const res = await testServer.executeOperation({
       query: QUERY,
       variables: {

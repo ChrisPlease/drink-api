@@ -154,7 +154,7 @@ describe('drinks', () => {
         }`
       })
 
-      it.only('returns a base drink', async () => {
+      it('returns a base drink', async () => {
         expect.assertions(2)
         const res = await testServer.executeOperation({
           query: QUERY,
