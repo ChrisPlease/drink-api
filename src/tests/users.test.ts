@@ -41,7 +41,7 @@ describe('users', () => {
     beforeEach(() => {
       QUERY = gql`
         mutation CreateUser($userId: ID!) {
-          userCreate(userId: $userId) {
+          userCreate(id: $userId) {
             id
           }
         }
@@ -113,7 +113,7 @@ describe('users', () => {
     beforeEach(() => {
       QUERY = gql`
         query GetUser($userId: ID!) {
-          user(userId: $userId) {
+          user(id: $userId) {
             id
           }
         }

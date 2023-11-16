@@ -1,5 +1,10 @@
 import { Drink } from '@prisma/client'
-import { AbsoluteIngredient, AbsoluteIngredientResolvers, IngredientResolvers, RelativeIngredient, RelativeIngredientResolvers } from '@/__generated__/graphql'
+import {
+  AbsoluteIngredient,
+  AbsoluteIngredientResolvers,
+  IngredientResolvers,
+  RelativeIngredientResolvers,
+} from '@/__generated__/graphql'
 import { toCursorHash } from '@/utils/cursorHash'
 
 

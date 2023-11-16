@@ -59,7 +59,7 @@ describe('history', () => {
       $first: Int,
       $last: Int,
       $after: String,
-      $filter: DrinksHistoryFilter
+      $filter: DrinkHistoryFilter
     ) {
       drinksHistory(
         first: $first,
@@ -103,7 +103,6 @@ describe('history', () => {
 
     assert(res.body.kind === 'single')
     assert(res.body.singleResult.data?.drinksHistory !== null)
-
     result = res.body.singleResult.data?.drinksHistory as DrinksHistoryPaginated
 
     expect(result.edges).toHaveLength(4)

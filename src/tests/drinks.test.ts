@@ -137,11 +137,16 @@ describe('drinks', () => {
             }
             ... on MixedDrink {
               ingredients {
-                parts
-                drink {
-                  ... on Drink {
-                    name
+                ... on RelativeIngredient {
+                  parts
+                }
+                ... on DrinkIngredient {
+                  drink {
+                    ... on Drink {
+                      name
+                    }
                   }
+
                 }
               }
             }
@@ -169,6 +174,7 @@ describe('drinks', () => {
         assert(res.body.singleResult.data?.drinkCreate !== null)
 
         result = res.body.singleResult.data?.drinkCreate as DrinkResult
+
         const [type] = deconstructId(result.id)
         expect(type).toEqual('BaseDrink')
         expect(result).toEqual(

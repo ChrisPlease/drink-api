@@ -137,7 +137,7 @@ describe('queryResolvers', () => {
       mockId = toCursorHash('BaseDrink:123')
       node = await queryResolvers.drink?.(
         {},
-        { drinkId: mockId },
+        { id: mockId },
         ctx,
         {} as GraphQLResolveInfo,
       )
@@ -266,7 +266,7 @@ describe('queryResolvers', () => {
     describe('user', () => {
       test('makes a call to `prisma.user` with the given argument', async () => {
 
-        await queryResolvers.user({}, { userId: mockId }, ctx, {})
+        await queryResolvers.user({}, { id: mockId }, ctx, {})
         expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 'user-456' } })
       })
     })
