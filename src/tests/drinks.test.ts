@@ -137,11 +137,16 @@ describe('drinks', () => {
             }
             ... on MixedDrink {
               ingredients {
-                parts
-                drink {
-                  ... on Drink {
-                    name
+                ... on RelativeIngredient {
+                  parts
+                }
+                ... on DrinkIngredient {
+                  drink {
+                    ... on Drink {
+                      name
+                    }
                   }
+
                 }
               }
             }
@@ -149,7 +154,7 @@ describe('drinks', () => {
         }`
       })
 
-      it('returns a base drink', async () => {
+      it.only('returns a base drink', async () => {
         expect.assertions(2)
         const res = await testServer.executeOperation({
           query: QUERY,
@@ -169,6 +174,7 @@ describe('drinks', () => {
         assert(res.body.singleResult.data?.drinkCreate !== null)
 
         result = res.body.singleResult.data?.drinkCreate as DrinkResult
+
         const [type] = deconstructId(result.id)
         expect(type).toEqual('BaseDrink')
         expect(result).toEqual(

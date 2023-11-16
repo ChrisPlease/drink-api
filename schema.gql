@@ -373,13 +373,6 @@ input DrinkHistoryFilter {
 }
 
 """
-Filter for drink ingredients
-"""
-input IngredientFilter {
-  id: IDFilter
-}
-
-"""
 Filter for the Entries query
 """
 input EntryFilter {

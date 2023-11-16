@@ -81,7 +81,7 @@ describe('mutationResolvers', () => {
     describe('entryDelete', () => {
       test('calls Entries model, calls deleteAndReturn and returns response', async () => {
         expect.assertions(3)
-        const args: MutationEntryDeleteArgs = { entryId: '123' }
+        const args: MutationEntryDeleteArgs = { id: '123' }
         const res = await mutationResolvers.entryDelete(parent, args, ctx, info)
 
         expect(Entries).toHaveBeenCalledWith(prisma.entry)
@@ -157,14 +157,14 @@ describe('mutationResolvers', () => {
 
     describe('drinkDelete', () => {
       test('calls Drink model to delete drink', async () => {
-        const args: MutationDrinkDeleteArgs = { drinkId: '123' }
+        const args: MutationDrinkDeleteArgs = { id: '123' }
         await mutationResolvers.drinkDelete({}, args, ctx, info)
 
         expect.assertions(2)
         expect(Drinks).toHaveBeenCalledWith(prisma.drink)
         expect(Drinks(prisma.drink).deleteDrink).toHaveBeenCalledWith({
           userId: 'user-123',
-          drinkId: '123',
+          id: '123',
         })
       })
     })

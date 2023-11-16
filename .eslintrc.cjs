@@ -1,7 +1,10 @@
 /** @type {import("eslint").Linter.Config} */
 module.exports = {
   root: true,
-  "ignorePatterns": ["src/__generated__/**/*"],
+  "ignorePatterns": [
+    "src/__generated__/**/*",
+    "coverage/**/*"
+  ],
   "rules": {
 
   },
