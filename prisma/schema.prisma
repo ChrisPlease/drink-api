@@ -13,13 +13,13 @@ model Drink {
   id          String             @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name        String             @db.VarChar
   icon        String             @db.VarChar
-  coefficient Float?             @default(0)
-  caffeine    Float?             @default(0)
-  sugar       Float?             @default(0)
-  servingSize Float              @map("serving_size")
+
+  upc         String?            @db.VarChar(12)
 
   userId      String?            @map("user_id") @db.VarChar
   user        User?              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  nutrition   Nutrition?
 
   ingredients DrinkIngredients[]
 
@@ -33,14 +33,42 @@ model Drink {
   @@index(createdAt)
   @@index([id,userId])
 
-  @@unique([id,sugar])
-  @@unique([id,coefficient])
-  @@unique([id,caffeine])
-
   @@unique([id,name])
   @@unique([id,userId])
   @@unique([name,userId])
+
   @@map("drinks")
+}
+
+model Nutrition {
+  id            String   @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+
+  coefficient   Float?   @default(100)
+
+  servingSize   Int      @map("serving_size")
+  servingUnit   String   @map("serving_unit")
+
+  metricSize    Int      @map("metric_size")
+
+  calories      Float?   @default(0)
+
+  saturatedFat  Float?   @map("saturated_fat") @default(0)
+  totalFat      Float?   @map("total_fat") @default(0)
+  cholesterol   Float?   @default(0)
+  sodium        Float?   @default(0)
+  carbohydrates Float?   @default(0)
+  fiber         Float?   @default(0)
+  sugar         Float?   @default(0)
+  addedSugar    Float?   @default(0) @map("added_sugar")
+  protein       Float?   @default(0)
+  potassium     Float?   @default(0)
+
+  caffeine      Float?   @default(0)
+
+  drinkId       String   @map("drink_id") @db.Uuid @unique
+  drink         Drink   @relation(fields: [drinkId], references: [id])
+
+  @@map("nutrition")
 }
 
 model Ingredient {

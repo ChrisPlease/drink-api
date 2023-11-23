@@ -63,16 +63,67 @@ input DrinkSort {
 }
 
 """
+Nutriton Input for creating and editing drinks
+"""
+input DrinkNutritionInput {
+  coefficient: Float!
+
+  servingSize: Int!
+  servingUnit: String!
+
+  metricSize: Int!
+
+  calories: Float
+  saturatedFat: Float
+  totalFat: Float
+  cholesterol: Float
+  sodium: Float
+  carbohydrates: Float
+  fiber: Float
+  sugar: Float
+  addedSugar: Float
+  protein: Float
+  potassium: Float
+
+  caffeine: Float
+}
+
+"""
+Drink Health Nutrition field
+"""
+type DrinkNutrition {
+  id: ID!
+
+  coefficient: Float
+
+  servingSize: Int
+  servingUnit: String
+
+  metricSize: Int
+
+  calories: Float
+  saturatedFat: Float
+  totalFat: Float
+  cholesterol: Float
+  sodium: Float
+  carbohydrates: Float
+  fiber: Float
+  sugar: Float
+  addedSugar: Float
+  protein: Float
+  potassium: Float
+
+  caffeine: Float
+}
+
+"""
 Drink Interface for all drinks
 """
 interface Drink implements Node {
   id: ID!
   name: String!
   icon: Icon!
-  coefficient: Float
-  caffeine: Float
-  sugar: Float
-  servingSize: Float
+  nutrition: DrinkNutrition
   entries(
     sort: EntrySort,
     filter: EntryFilter,
@@ -92,10 +143,7 @@ type BaseDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
-  coefficient: Float
-  caffeine: Float
-  sugar: Float
-  servingSize: Float
+  nutrition: DrinkNutrition
   entries(
     sort: EntrySort,
     filter: EntryFilter,
@@ -115,10 +163,7 @@ type MixedDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
-  coefficient: Float
-  caffeine: Float
-  sugar: Float
-  servingSize: Float
+  nutrition: DrinkNutrition
   entries(
     sort: EntrySort,
     filter: EntryFilter,
@@ -260,10 +305,7 @@ input DrinkCreateInput {
   name: String!
   icon: Icon!
 
-  servingSize: Float!
-  caffeine: Float
-  sugar: Float
-  coefficient: Float
+  nutrition: DrinkNutritionInput
 
   ingredients: [IngredientInput!]
 }
@@ -277,10 +319,7 @@ input DrinkEditInput {
   name: String
   icon: Icon
 
-  servingSize: Float
-  caffeine: Float
-  sugar: Float
-  coefficient: Float
+  nutrition: DrinkNutritionInput
 
   ingredients: [IngredientInput!]
 }
@@ -426,6 +465,8 @@ type Query {
     last: Int,
     filter: DrinkHistoryFilter,
   ): DrinksHistoryPaginated
+
+  drinkNutrition(upc: String!): String
 }
 
 """

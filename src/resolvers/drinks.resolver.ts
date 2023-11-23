@@ -26,6 +26,10 @@ export const drinkResolvers: DrinkResolvers = {
     return entries
   },
 
+  // async nutrition(parent, args, { prisma }) {
+  //   return await Drinks(prisma.drink)
+  // },
+
   async user(parent, args, { prisma }) {
     return await Drinks(prisma.drink).findDrinkUser(parent.id)
   },

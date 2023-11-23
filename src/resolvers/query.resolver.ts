@@ -4,6 +4,7 @@ import { QueryResolvers } from '@/__generated__/graphql'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistory } from '@/models/History.model'
 import { Drinks } from '@/models/Drink.model'
+import { fetchItem } from '@/services/nutritionix'
 import {
   deconstructId, toCursorHash,
 } from '@/utils/cursorHash'
@@ -110,6 +111,13 @@ export const queryResolvers: QueryResolvers = {
     return users?.then(users => users.map(
       ({ ...user }) => ({ ...user, id: toCursorHash(`User:${user.id}` )})),
     )
+  },
+
+  async drinkNutrition(_, { upc }, { req: { auth } }) {
+    const foo = await fetchItem({ upc })
+
+    console.log('foo', foo)
+    return ''
   },
 }
 
