@@ -91,6 +91,7 @@ export type DrinkCreateInput = {
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name: Scalars['String']['input'];
   nutrition?: InputMaybe<DrinkNutritionInput>;
+  upc?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Edge for Paginated Drinks */
@@ -164,7 +165,7 @@ export type DrinkIngredient = {
 };
 
 /** Drink Health Nutrition field */
-export type DrinkNutrition = {
+export type DrinkNutrition = Nutrition & {
   __typename?: 'DrinkNutrition';
   addedSugar?: Maybe<Scalars['Float']['output']>;
   caffeine?: Maybe<Scalars['Float']['output']>;
@@ -242,15 +243,13 @@ export type EntriesPaginated = PaginatedQuery & {
 /** Base Entry for logged drinks */
 export type Entry = Node & {
   __typename?: 'Entry';
-  caffeine: Scalars['Float']['output'];
   drink: DrinkResult;
   id: Scalars['ID']['output'];
-  servings: Scalars['Float']['output'];
-  sugar: Scalars['Float']['output'];
+  metricVolume?: Maybe<Scalars['Float']['output']>;
+  nutrition?: Maybe<EntryNutrition>;
+  servings?: Maybe<Scalars['Float']['output']>;
   timestamp: Scalars['Date']['output'];
   user?: Maybe<User>;
-  volume: Scalars['Float']['output'];
-  waterContent: Scalars['Float']['output'];
 };
 
 /** Edge for Paginated Entries */
@@ -265,6 +264,29 @@ export type EntryFilter = {
   distinct?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: InputMaybe<Scalars['Date']['input']>;
   search?: InputMaybe<Scalars['String']['input']>;
+};
+
+/**
+ * Entry nutrition field.
+ *
+ * Contains water content and servings
+ */
+export type EntryNutrition = Nutrition & {
+  __typename?: 'EntryNutrition';
+  addedSugar?: Maybe<Scalars['Float']['output']>;
+  caffeine?: Maybe<Scalars['Float']['output']>;
+  calories?: Maybe<Scalars['Float']['output']>;
+  carbohydrates?: Maybe<Scalars['Float']['output']>;
+  cholesterol?: Maybe<Scalars['Float']['output']>;
+  fiber?: Maybe<Scalars['Float']['output']>;
+  potassium?: Maybe<Scalars['Float']['output']>;
+  protein?: Maybe<Scalars['Float']['output']>;
+  saturatedFat?: Maybe<Scalars['Float']['output']>;
+  servings?: Maybe<Scalars['Float']['output']>;
+  sodium?: Maybe<Scalars['Float']['output']>;
+  sugar?: Maybe<Scalars['Float']['output']>;
+  totalFat?: Maybe<Scalars['Float']['output']>;
+  water?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Sorting input for Entries */
@@ -346,7 +368,8 @@ export type MutationDrinkEditArgs = {
 /** Root Mutations */
 export type MutationEntryCreateArgs = {
   drinkId: Scalars['ID']['input'];
-  volume: Scalars['Float']['input'];
+  quantity: Scalars['Float']['input'];
+  unit: Scalars['String']['input'];
 };
 
 
@@ -370,6 +393,22 @@ export type Node = {
 export type NumberFilter = {
   comparison: Comparison;
   value: Scalars['Float']['input'];
+};
+
+/** Nutrition interface for both drinks and entries */
+export type Nutrition = {
+  addedSugar?: Maybe<Scalars['Float']['output']>;
+  caffeine?: Maybe<Scalars['Float']['output']>;
+  calories?: Maybe<Scalars['Float']['output']>;
+  carbohydrates?: Maybe<Scalars['Float']['output']>;
+  cholesterol?: Maybe<Scalars['Float']['output']>;
+  fiber?: Maybe<Scalars['Float']['output']>;
+  potassium?: Maybe<Scalars['Float']['output']>;
+  protein?: Maybe<Scalars['Float']['output']>;
+  saturatedFat?: Maybe<Scalars['Float']['output']>;
+  sodium?: Maybe<Scalars['Float']['output']>;
+  sugar?: Maybe<Scalars['Float']['output']>;
+  totalFat?: Maybe<Scalars['Float']['output']>;
 };
 
 /** Pagination List metadata */
@@ -608,6 +647,7 @@ export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = R
   Drink: ( BaseDrinkModel ) | ( MixedDrinkModel );
   DrinkIngredient: ( Omit<AbsoluteIngredient, 'drink'> & { drink?: Maybe<RefType['DrinkResult']> } ) | ( Omit<RelativeIngredient, 'drink'> & { drink?: Maybe<RefType['DrinkResult']> } );
   Node: ( BaseDrinkModel ) | ( DrinkHistoryModel ) | ( EntryModel ) | ( MixedDrinkModel ) | ( Omit<User, 'drinksHistory' | 'entries'> & { drinksHistory?: Maybe<RefType['DrinksHistoryPaginated']>, entries?: Maybe<RefType['EntriesPaginated']> } );
+  Nutrition: ( DrinkNutrition ) | ( EntryNutrition );
   PaginatedQuery: ( Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<RefType['DrinkHistoryEdge']> } ) | ( DrinksPaginated ) | ( Omit<EntriesPaginated, 'edges'> & { edges: Array<RefType['EntryEdge']> } );
 }>;
 
@@ -637,6 +677,7 @@ export type ResolversTypes = ResolversObject<{
   Entry: ResolverTypeWrapper<EntryModel>;
   EntryEdge: ResolverTypeWrapper<Omit<EntryEdge, 'node'> & { node: ResolversTypes['Entry'] }>;
   EntryFilter: EntryFilter;
+  EntryNutrition: ResolverTypeWrapper<EntryNutrition>;
   EntrySort: EntrySort;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
@@ -649,6 +690,7 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Node']>;
   NumberFilter: NumberFilter;
+  Nutrition: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Nutrition']>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PaginatedQuery: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['PaginatedQuery']>;
   Query: ResolverTypeWrapper<{}>;
@@ -683,6 +725,7 @@ export type ResolversParentTypes = ResolversObject<{
   Entry: EntryModel;
   EntryEdge: Omit<EntryEdge, 'node'> & { node: ResolversParentTypes['Entry'] };
   EntryFilter: EntryFilter;
+  EntryNutrition: EntryNutrition;
   EntrySort: EntrySort;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
@@ -695,6 +738,7 @@ export type ResolversParentTypes = ResolversObject<{
   Mutation: {};
   Node: ResolversInterfaceTypes<ResolversParentTypes>['Node'];
   NumberFilter: NumberFilter;
+  Nutrition: ResolversInterfaceTypes<ResolversParentTypes>['Nutrition'];
   PageInfo: PageInfo;
   PaginatedQuery: ResolversInterfaceTypes<ResolversParentTypes>['PaginatedQuery'];
   Query: {};
@@ -808,21 +852,37 @@ export type EntriesPaginatedResolvers<ContextType = AppContext, ParentType exten
 }>;
 
 export type EntryResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Entry'] = ResolversParentTypes['Entry']> = ResolversObject<{
-  caffeine?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   drink?: Resolver<ResolversTypes['DrinkResult'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  servings?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  sugar?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  metricVolume?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  nutrition?: Resolver<Maybe<ResolversTypes['EntryNutrition']>, ParentType, ContextType>;
+  servings?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  volume?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  waterContent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type EntryEdgeResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['EntryEdge'] = ResolversParentTypes['EntryEdge']> = ResolversObject<{
   cursor?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Entry'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EntryNutritionResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['EntryNutrition'] = ResolversParentTypes['EntryNutrition']> = ResolversObject<{
+  addedSugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  caffeine?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  calories?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  carbohydrates?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  cholesterol?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  fiber?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  potassium?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  protein?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  saturatedFat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  servings?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  sodium?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  totalFat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  water?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -850,7 +910,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
   drinkCreate?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType, RequireFields<MutationDrinkCreateArgs, 'drinkInput'>>;
   drinkDelete?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType, RequireFields<MutationDrinkDeleteArgs, 'id'>>;
   drinkEdit?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType, RequireFields<MutationDrinkEditArgs, 'drinkInput'>>;
-  entryCreate?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryCreateArgs, 'drinkId' | 'volume'>>;
+  entryCreate?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryCreateArgs, 'drinkId' | 'quantity' | 'unit'>>;
   entryDelete?: Resolver<Maybe<ResolversTypes['Entry']>, ParentType, ContextType, RequireFields<MutationEntryDeleteArgs, 'id'>>;
   userCreate?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationUserCreateArgs, 'id'>>;
 }>;
@@ -858,6 +918,22 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
 export type NodeResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{
   __resolveType: TypeResolveFn<'BaseDrink' | 'DrinkHistory' | 'Entry' | 'MixedDrink' | 'User', ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+}>;
+
+export type NutritionResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Nutrition'] = ResolversParentTypes['Nutrition']> = ResolversObject<{
+  __resolveType: TypeResolveFn<'DrinkNutrition' | 'EntryNutrition', ParentType, ContextType>;
+  addedSugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  caffeine?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  calories?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  carbohydrates?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  cholesterol?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  fiber?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  potassium?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  protein?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  saturatedFat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  sodium?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  sugar?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  totalFat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
 }>;
 
 export type PageInfoResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = ResolversObject<{
@@ -918,11 +994,13 @@ export type Resolvers<ContextType = AppContext> = ResolversObject<{
   EntriesPaginated?: EntriesPaginatedResolvers<ContextType>;
   Entry?: EntryResolvers<ContextType>;
   EntryEdge?: EntryEdgeResolvers<ContextType>;
+  EntryNutrition?: EntryNutritionResolvers<ContextType>;
   Icon?: GraphQLScalarType;
   Ingredient?: IngredientResolvers<ContextType>;
   MixedDrink?: MixedDrinkResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Node?: NodeResolvers<ContextType>;
+  Nutrition?: NutritionResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   PaginatedQuery?: PaginatedQueryResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

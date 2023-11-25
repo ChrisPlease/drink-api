@@ -89,9 +89,29 @@ input DrinkNutritionInput {
 }
 
 """
+Nutrition interface for both drinks and entries
+"""
+
+interface Nutrition {
+  calories: Float
+  saturatedFat: Float
+  totalFat: Float
+  cholesterol: Float
+  sodium: Float
+  carbohydrates: Float
+  fiber: Float
+  sugar: Float
+  addedSugar: Float
+  protein: Float
+  potassium: Float
+
+  caffeine: Float
+}
+
+"""
 Drink Health Nutrition field
 """
-type DrinkNutrition {
+type DrinkNutrition implements Nutrition {
   id: ID!
 
   coefficient: Float
@@ -100,6 +120,32 @@ type DrinkNutrition {
   servingUnit: String
 
   metricSize: Int
+
+  calories: Float
+  saturatedFat: Float
+  totalFat: Float
+  cholesterol: Float
+  sodium: Float
+  carbohydrates: Float
+  fiber: Float
+  sugar: Float
+  addedSugar: Float
+  protein: Float
+  potassium: Float
+
+  caffeine: Float
+}
+
+"""
+Entry nutrition field.
+
+Contains water content and servings
+"""
+# eslint-disable-next-line @graphql-eslint/strict-id-in-types
+type EntryNutrition implements Nutrition {
+  servings: Float
+
+  water: Float
 
   calories: Float
   saturatedFat: Float
@@ -228,11 +274,12 @@ Base Entry for logged drinks
 """
 type Entry implements Node {
   id: ID!
-  volume: Float!
-  caffeine: Float!
-  sugar: Float!
-  waterContent: Float!
-  servings: Float!
+
+  metricVolume: Float
+  servings: Float
+
+  nutrition: EntryNutrition
+
   user: User
   drink: DrinkResult!
   timestamp: Date!
@@ -304,6 +351,7 @@ Input for Creating a new Drink
 input DrinkCreateInput {
   name: String!
   icon: Icon!
+  upc: String
 
   nutrition: DrinkNutritionInput
 
@@ -473,7 +521,11 @@ type Query {
 Root Mutations
 """
 type Mutation {
-  entryCreate(volume: Float!, drinkId: ID!): Entry
+  entryCreate(
+    quantity: Float!,
+    unit: String!,
+    drinkId: ID!
+  ): Entry
   entryDelete(id: ID!): Entry
   drinkCreate(drinkInput: DrinkCreateInput!): DrinkResult
   drinkDelete(id: ID!): DrinkResult
