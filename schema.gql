@@ -68,10 +68,11 @@ Nutriton Input for creating and editing drinks
 input DrinkNutritionInput {
   coefficient: Float!
 
-  servingSize: Int!
+  servingSize: Float!
   servingUnit: String!
 
   metricSize: Int!
+
 
   calories: Float
   saturatedFat: Float
@@ -111,15 +112,15 @@ interface Nutrition {
 """
 Drink Health Nutrition field
 """
+# eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type DrinkNutrition implements Nutrition {
-  id: ID!
-
   coefficient: Float
 
-  servingSize: Int
+  servingSize: Float
   servingUnit: String
 
-  metricSize: Int
+  metricSize: Int!
+  imperialSize: Int
 
   calories: Float
   saturatedFat: Float
@@ -189,6 +190,7 @@ type BaseDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
+  upc: String
   nutrition: DrinkNutrition
   entries(
     sort: EntrySort,
@@ -275,14 +277,15 @@ Base Entry for logged drinks
 type Entry implements Node {
   id: ID!
 
-  metricVolume: Float
+  volume: Float
   servings: Float
+  timestamp: Date!
 
   nutrition: EntryNutrition
 
-  user: User
   drink: DrinkResult!
-  timestamp: Date!
+
+  user: User
 }
 
 """
@@ -514,7 +517,7 @@ type Query {
     filter: DrinkHistoryFilter,
   ): DrinksHistoryPaginated
 
-  drinkNutrition(upc: String!): String
+  drinkNutrition(upc: String!): DrinkResult
 }
 
 """
@@ -522,9 +525,9 @@ Root Mutations
 """
 type Mutation {
   entryCreate(
-    quantity: Float!,
-    unit: String!,
-    drinkId: ID!
+    volume: Float!,
+    drinkId: ID!,
+    unit: String,
   ): Entry
   entryDelete(id: ID!): Entry
   drinkCreate(drinkInput: DrinkCreateInput!): DrinkResult

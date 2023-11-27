@@ -16,7 +16,7 @@ model Drink {
   userId      String?            @map("user_id") @db.VarChar
   createdAt   DateTime           @unique @default(now()) @map("created_at") @db.Timestamp(6)
   deleted     DateTime?
-  upc         String?            @db.VarChar(12)
+  upc         String?            @unique @db.VarChar(12)
   ingredients DrinkIngredients[]
   user        User?              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entries     Entry[]
@@ -34,7 +34,7 @@ model Drink {
 model Nutrition {
   coefficient   Float?   @default(100)
 
-  servingSize   Int      @map("serving_size")
+  servingSize   Float    @map("serving_size")
   servingUnit   String   @map("serving_unit")
 
   metricSize    Int      @map("metric_size")
@@ -85,11 +85,14 @@ model Entry {
   id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   volume    Float
   timestamp DateTime @unique @default(now()) @db.Timestamp(6)
+
   drinkId   String   @map("drink_id") @db.Uuid
-  userId    String   @map("user_id") @db.VarChar
-  deleted   Boolean  @default(false)
   drink     Drink    @relation(fields: [drinkId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  userId    String   @map("user_id") @db.VarChar
   user      User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  deleted   Boolean  @default(false)
 
   @@unique([volume, id])
   @@unique([drinkId, id])
