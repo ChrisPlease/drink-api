@@ -1,10 +1,14 @@
-import { Drink } from '@prisma/client'
+import { Drink, Entry } from '@prisma/client'
+
+export interface ResolvedEntry extends Entry {
+  id: string;
+  servings: number;
+}
 
 export type Nutrition = {
   caffeine: number,
   sugar: number,
   coefficient: number,
-  servingSize: number,
 }
 
 export type NutritionQuery = {
