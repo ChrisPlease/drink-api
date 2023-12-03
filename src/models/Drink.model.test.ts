@@ -47,7 +47,7 @@ describe('Drink Model', () => {
       const res = await drink.findUniqueById(mockId)
 
       expect(prisma.drink.findUnique).toHaveBeenCalledWith({
-        where: { id: '123' },
+        where: { id: '123', deleted: { not: null } },
         include: {
           _count: {
             select: {

@@ -3,13 +3,14 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import { roundNumber } from '@/utils/roundNumber'
 import { deconstructId, toCursorHash } from '@/utils/cursorHash'
 import { QueryDrinksHistoryArgs } from '@/__generated__/graphql'
+import { DrinkHistory } from '@/types/models'
 
 export function DrinkHistory(client: PrismaClient) {
   return Object.assign({}, {
     async findUniqueDrinkHistory(
       drinkHistoryId: string,
       userId: string,
-    ) {
+    ): Promise<DrinkHistory> {
       const [,id] = deconstructId(drinkHistoryId)
       return await client.$transaction(async (tx) => {
         const where = { drinkId: id, userId }
@@ -83,7 +84,7 @@ export function DrinkHistory(client: PrismaClient) {
     const rawSearch = search ? `%${search}%` : ''
 
     return await findManyCursorConnection(
-      async (args) => {
+      async (args): Promise<DrinkHistory[]> => {
         const { take, cursor } = args
         const [,id] = deconstructId(cursor?.id || '')
 
@@ -106,6 +107,7 @@ export function DrinkHistory(client: PrismaClient) {
               COUNT(di) AS ingredients
             FROM drinks
             LEFT JOIN drink_ingredients di ON drinks.id = di.drink_id
+            WHERE drinks.deleted IS NULL
             GROUP BY drinks.id
           ) d
           ${
@@ -114,23 +116,24 @@ export function DrinkHistory(client: PrismaClient) {
               : Prisma.sql`LEFT`
           } JOIN (
             SELECT
-              d.id AS drink_id,
+              n.drink_id AS drink_id,
               COALESCE(COUNT(e)::int,0) AS count,
               COALESCE(SUM(e.volume),0) AS total_volume,
-              ROUND(COALESCE(SUM(e.volume*d.coefficient)::int,0),1) AS water_volume,
+              ROUND(COALESCE(SUM(e.volume*(n.coefficient/100))::int,0),1) AS water_volume,
               MAX(e.timestamp) AS timestamp
-            FROM drinks d
+            FROM nutrition n
+            INNER JOIN drinks d ON d.id = n.drink_id
             ${
               hasEntries
                 ? Prisma.sql`INNER`
                 : Prisma.sql`LEFT`
-            } JOIN entries e ON e.drink_id = d.id AND e.user_id = ${userId}
+            } JOIN entries e ON e.drink_id = n.drink_id AND e.user_id = ${userId}
             ${
               limit
                 ? Prisma.sql`WHERE e.timestamp IS NULL OR e.timestamp BETWEEN ${limit} AND now()`
                 : Prisma.empty
             }
-            GROUP BY d.id
+            GROUP BY n.drink_id
           ) e ON e.drink_id = d.id
           ${search ? Prisma.sql`WHERE d.name ILIKE ${rawSearch}` : Prisma.empty}
           )
@@ -154,8 +157,8 @@ export function DrinkHistory(client: PrismaClient) {
             take ? Prisma.sql`LIMIT ${take}` : Prisma.empty
           };`
         .then(query => query.map(({
-          water_volume: waterVolume,
-          total_volume: totalVolume,
+          water_volume: water,
+          total_volume: volume,
           drink: {
             id: drinkId,
             ingredients,
@@ -164,8 +167,8 @@ export function DrinkHistory(client: PrismaClient) {
           ...entry
         }) => ({
           id: toCursorHash(`DrinkHistory:${id}`),
-          waterVolume,
-          totalVolume,
+          water,
+          volume,
           drink: {
             id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drinkId}`),
           } as Drink,

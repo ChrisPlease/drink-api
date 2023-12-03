@@ -29,18 +29,18 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     async findUniqueById(drinkId: string) {
       const [,id] = deconstructId(drinkId)
       const { _count: count, ...res } = <DrinkPayload>await prismaDrink.findUnique({
-        where: { id },
+        where: { id, deleted: { not: null } },
         include: {
           _count: {
             select: { ingredients: true },
           },
         },
-      })
+      }) || {}
 
       return res ? {
         ...res,
         id: toCursorHash(`${
-          count.ingredients > 0 ? 'MixedDrink' : 'BaseDrink'
+          count?.ingredients > 0 ? 'MixedDrink' : 'BaseDrink'
         }:${id}`),
       } : null
     },
