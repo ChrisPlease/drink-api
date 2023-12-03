@@ -13,11 +13,7 @@ export function DrinkHistory(client: PrismaClient) {
       const [,id] = deconstructId(drinkHistoryId)
       return await client.$transaction(async (tx) => {
         const where = { drinkId: id, userId }
-        const [{
-          _count: count,
-          _max: max,
-          _sum: sum,
-        }] = await tx.entry.groupBy({
+        const entryCount = await tx.entry.groupBy({
           where: { ...where, deleted: false },
           by: ['drinkId', 'userId'],
           _max: {
@@ -29,29 +25,26 @@ export function DrinkHistory(client: PrismaClient) {
           },
         })
 
+        const [{
+          _count: count,
+          _max: max,
+          _sum: sum,
+        }] = entryCount.length ? entryCount : [{ _count: 0, _max: { timestamp: null }, _sum: { volume: 0 } }]
 
         const {
-          id: drinkId,
-          _count: { ingredients },
-          ...drink
-        } = <Drink & { _count: { ingredients: number } }>await tx.drink.findUnique({
+          coefficient,
+        } = await tx.drink.findUnique({
           where: { id },
-          include: {
-            _count: { select: { ingredients: true } },
-          },
-        })
+        }).nutrition() || { coefficient: 1 }
 
         const totalVolume = sum.volume || 0
         const lastEntry = max.timestamp
 
         return {
           id: toCursorHash(`DrinkHistory:${id}`),
-          drink: { id: toCursorHash(`${
-            ingredients > 0 ? 'Mixed' : 'Base'
-          }Drink:${drinkId}`), ...drink },
           count,
-          totalVolume,
-          waterVolume: roundNumber(totalVolume * (drink?.coefficient || 0)),
+          volume: totalVolume,
+          water: roundNumber(totalVolume * ((coefficient || 1) / 100)),
           lastEntry,
         }
       })

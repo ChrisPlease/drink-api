@@ -16,7 +16,11 @@ prisma.$use(
         createValue: (value) => value ? new Date() : null,
         allowCompoundUniqueIndexWhere: true,
       },
-      Entry: true,
+      Entry: {
+        field: 'deleted',
+        createValue: (value) => value,
+        allowCompoundUniqueIndexWhere: true,
+      },
     },
   }),
 )

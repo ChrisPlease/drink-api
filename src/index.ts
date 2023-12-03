@@ -9,6 +9,7 @@ import { KeyvAdapter } from '@apollo/utils.keyvadapter'
 import Keyv from 'keyv'
 import prisma from './client'
 import { redis } from './redis'
+import { drinkLoader } from './loaders/drinkLoader'
 import { errorHandler } from './middleware/errorHandler'
 import { resolvers } from './resolvers'
 import { AppContext } from './types/context'
@@ -67,6 +68,9 @@ async function initServer() {
         res,
         prisma,
         redis,
+        loaders: {
+          drinkLoader,
+        },
       }),
     }),
     errorHandler,

@@ -2,19 +2,46 @@ import { Drink, Entry } from '@prisma/client'
 
 export interface ResolvedEntry extends Entry {
   id: string;
-  servings: number;
+  servings?: number;
 }
 
-export type Nutrition = {
+export type NutritionResult = {
+  coefficient?: number,
+
+  calories?: number,
+
+  saturatedFat?: number,
+  totalFat?: number,
+
+  cholesterol?: number,
+  sodium?: number,
+  carbohydrates?: number,
+  fiber?: number,
+  sugar?: number,
+  addedSugar?: number,
+  protein?: number,
+  potassium?: number,
+
   caffeine: number,
-  sugar: number,
-  coefficient: number,
 }
 
 export type NutritionQuery = {
-  caffeine: string,
-  sugar: string,
   coefficient: string,
+
+  calories: string,
+
+  saturated_fat: string,
+  total_fat: string,
+  cholesterol: string,
+  sodium: string,
+  carbohydrates: string,
+  fiber: string,
+  sugar: string,
+  added_sugar: string,
+  protein: string,
+  potassium: string,
+
+  caffeine: string,
 }
 
 
@@ -22,8 +49,8 @@ export type ModelType = 'User' | 'MixedDrink' | 'BaseDrink' | 'Entry' | 'DrinkHi
 
 export type DrinkHistory = {
   id: string,
-  drink: Drink,
-  count: number,
-  totalVolume: number,
-  waterVolume: number,
+  drink?: Drink,
+  count?: number,
+  volume?: number,
+  water?: number,
 }

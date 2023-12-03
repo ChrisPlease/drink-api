@@ -55,10 +55,13 @@ export const queryResolvers: QueryResolvers = {
   async entry(_, { id: entryId }, { prisma, redis, req: { auth } }) {
     const userId = <string>auth?.sub
     const res = await redis.get(`entries:${userId}:${entryId}`)
-
+    console.log('here')
     if (res) {
+      console.log(res)
       return JSON.parse(res)
     }
+
+    console.log('then here')
 
     const entry = await Entries(prisma.entry).findUniqueWithNutrition(entryId, userId)
 
@@ -113,11 +116,15 @@ export const queryResolvers: QueryResolvers = {
     )
   },
 
-  async drinkNutrition(_, { upc }, { req: { auth } }) {
+  async drinkNutrition(_, { upc }, { prisma, req: { auth } }) {
+    const drink = await prisma.drink.findUnique({ where: { upc }})
+
+    if (drink) return drink
+
     const foo = await fetchItem({ upc })
 
     console.log('foo', foo)
-    return ''
+    return null
   },
 }
 
