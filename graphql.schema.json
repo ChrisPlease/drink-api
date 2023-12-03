@@ -590,9 +590,13 @@
             "name": "nutrition",
             "description": null,
             "type": {
-              "kind": "INPUT_OBJECT",
-              "name": "DrinkNutritionInput",
-              "ofType": null
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "DrinkNutritionInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -744,46 +748,6 @@
         "fields": null,
         "inputFields": [
           {
-            "name": "caffeine",
-            "description": null,
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "NumberFilter",
-                  "ofType": null
-                }
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "coefficient",
-            "description": null,
-            "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "NumberFilter",
-                  "ofType": null
-                }
-              }
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
             "name": "id",
             "description": null,
             "type": {
@@ -820,11 +784,11 @@
             "deprecationReason": null
           },
           {
-            "name": "search",
+            "name": "nutrition",
             "description": null,
             "type": {
-              "kind": "SCALAR",
-              "name": "String",
+              "kind": "INPUT_OBJECT",
+              "name": "DrinkNutritionFilter",
               "ofType": null
             },
             "defaultValue": null,
@@ -832,20 +796,12 @@
             "deprecationReason": null
           },
           {
-            "name": "sugar",
+            "name": "search",
             "description": null,
             "type": {
-              "kind": "LIST",
-              "name": null,
-              "ofType": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "NumberFilter",
-                  "ofType": null
-                }
-              }
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -934,18 +890,6 @@
                 "deprecationReason": null
               },
               {
-                "name": "filter",
-                "description": null,
-                "type": {
-                  "kind": "INPUT_OBJECT",
-                  "name": "EntryFilter",
-                  "ofType": null
-                },
-                "defaultValue": null,
-                "isDeprecated": false,
-                "deprecationReason": null
-              },
-              {
                 "name": "first",
                 "description": null,
                 "type": {
@@ -1007,7 +951,7 @@
             "deprecationReason": null
           },
           {
-            "name": "totalVolume",
+            "name": "volume",
             "description": null,
             "args": [],
             "type": {
@@ -1023,7 +967,7 @@
             "deprecationReason": null
           },
           {
-            "name": "waterVolume",
+            "name": "water",
             "description": null,
             "args": [],
             "type": {
@@ -1417,6 +1361,77 @@
       },
       {
         "kind": "INPUT_OBJECT",
+        "name": "DrinkNutritionFilter",
+        "description": "Filter by drink nutrition",
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "caffeine",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "NumberFilter",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "coefficient",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "NumberFilter",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "sugar",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "NumberFilter",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
         "name": "DrinkNutritionInput",
         "description": "Nutriton Input for creating and editing drinks",
         "fields": null,
@@ -1485,13 +1500,9 @@
             "name": "coefficient",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "Float",
-                "ofType": null
-              }
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -1635,6 +1646,41 @@
         "possibleTypes": null
       },
       {
+        "kind": "INPUT_OBJECT",
+        "name": "DrinkNutritionSort",
+        "description": "Sorting input for Drink Nutrition",
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "coefficient",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "Sort",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "protein",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "Sort",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
         "kind": "UNION",
         "name": "DrinkResult",
         "description": "Union of Mixed and Base Drinks",
@@ -1661,30 +1707,6 @@
         "description": "Sorting input for Drinks",
         "fields": null,
         "inputFields": [
-          {
-            "name": "caffeine",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "Sort",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "coefficient",
-            "description": null,
-            "type": {
-              "kind": "ENUM",
-              "name": "Sort",
-              "ofType": null
-            },
-            "defaultValue": null,
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
           {
             "name": "createdAt",
             "description": null,
@@ -1722,11 +1744,11 @@
             "deprecationReason": null
           },
           {
-            "name": "sugar",
+            "name": "nutrition",
             "description": null,
             "type": {
-              "kind": "ENUM",
-              "name": "Sort",
+              "kind": "INPUT_OBJECT",
+              "name": "DrinkNutritionSort",
               "ofType": null
             },
             "defaultValue": null,

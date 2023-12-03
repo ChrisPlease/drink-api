@@ -1,4 +1,3 @@
-
 """
 Date scalar used for JS Date
 """
@@ -51,28 +50,34 @@ interface Node {
 }
 
 """
+Sorting input for Drink Nutrition
+"""
+input DrinkNutritionSort {
+  coefficient: Sort
+  protein: Sort
+}
+
+"""
 Sorting input for Drinks
 """
 input DrinkSort {
   name: Sort
   createdAt: Sort
   entries: Sort
-  caffeine: Sort
-  coefficient: Sort
-  sugar: Sort
+
+  nutrition: DrinkNutritionSort
 }
 
 """
 Nutriton Input for creating and editing drinks
 """
 input DrinkNutritionInput {
-  coefficient: Float!
+  coefficient: Float
 
   servingSize: Float!
   servingUnit: String!
 
   metricSize: Int!
-
 
   calories: Float
   saturatedFat: Float
@@ -294,11 +299,10 @@ Drink History to retreive summary of drink entries
 type DrinkHistory implements Node {
   id: ID!
   count: Int!
-  totalVolume: Float!
-  waterVolume: Float!
+  volume: Float!
+  water: Float!
   entries(
     sort: EntrySort,
-    filter: EntryFilter,
     before: String,
     after: String,
     first: Int,
@@ -356,7 +360,7 @@ input DrinkCreateInput {
   icon: Icon!
   upc: String
 
-  nutrition: DrinkNutritionInput
+  nutrition: DrinkNutritionInput!
 
   ingredients: [IngredientInput!]
 }
@@ -441,14 +445,22 @@ type DrinksHistoryPaginated implements PaginatedQuery {
 }
 
 """
+Filter by drink nutrition
+"""
+input DrinkNutritionFilter {
+  coefficient: [NumberFilter!]
+  sugar: [NumberFilter!]
+  caffeine: [NumberFilter!]
+}
+
+"""
 Filter for the Drinks query
 """
 input DrinkFilter {
   id: IDFilter
   search: String
-  coefficient: [NumberFilter!]
-  sugar: [NumberFilter!]
-  caffeine: [NumberFilter!]
+
+  nutrition: DrinkNutritionFilter
   isUserDrink: Boolean
   isMixedDrink: Boolean
 }
