@@ -258,7 +258,7 @@ export type Entry = Node & {
   servings?: Maybe<Scalars['Float']['output']>;
   timestamp: Scalars['Date']['output'];
   user?: Maybe<User>;
-  volume?: Maybe<Scalars['Float']['output']>;
+  volume: Scalars['Float']['output'];
 };
 
 /** Edge for Paginated Entries */
@@ -872,7 +872,7 @@ export type EntryResolvers<ContextType = AppContext, ParentType extends Resolver
   servings?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
-  volume?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  volume?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 

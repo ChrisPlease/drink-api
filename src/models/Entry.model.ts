@@ -7,7 +7,10 @@ import {
   getCursor,
   deconstructId,
 } from '@/utils/cursorHash'
-import { convertEntryToOz, mLToOz, ozToMl } from '@/utils/conversions'
+import {
+  convertEntryToOz,
+  volumeToServings,
+} from '@/utils/unit-conversions'
 import {
   DrinkNutrition,
   MutationEntryCreateArgs,
@@ -18,15 +21,6 @@ import { ResolvedEntry } from '@/types/models'
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
-    computeServings(
-      entry: Entry,
-      metricSize?: number | null,
-    ): ResolvedEntry {
-      return {
-        ...entry,
-        servings: Math.round((ozToMl(entry.volume) / (metricSize || 1))*16)/16,
-      }
-    },
 
     async findUniqueWithNutrition(
       entryId: string,
@@ -52,14 +46,21 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
             },
           },
         },
-      }) ?? {}
+      }) || {} as Prisma.EntryGetPayload<{
+        include: {
+          drink: {
+            include: {
+              nutrition: true,
+            },
+          },
+        },
+      }>
 
-      return this.computeServings({
+      return {
         id: entryId,
+        servings: volumeToServings(entry?.volume, drink?.nutrition?.metricSize),
         ...entry,
-      } as Entry,
-      drink?.nutrition?.metricSize || 1,
-      )
+      }
     },
 
     async findWithNutrition(
@@ -69,7 +70,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         ...args,
         include: {
           drink: {
-            include: {
+            select: {
               nutrition: {
                 select: {
                   servingSize: true,
@@ -84,10 +85,11 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
       return entries.map(({ id, drink: { nutrition }, ...entry }) => {
 
-        return this.computeServings({
+        return {
           id: toCursorHash(`Entry:${id}`),
+          servings: volumeToServings(entry?.volume, nutrition?.metricSize),
           ...entry,
-        }, nutrition?.metricSize)
+        }
       })
     },
 
@@ -258,11 +260,12 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         },
       })
 
-      return this.computeServings({
-        ...rest,
+      return {
         id: toCursorHash(`Entry:${entryId}`),
         volume,
-      }, metricSize)
+        servings: volumeToServings(volume, metricSize),
+        ...rest,
+      }
     },
 
     async deleteAndReturn(
@@ -281,11 +284,12 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           where: { id: drinkId },
         }).nutrition() ?? {} as DrinkNutrition
 
-        return this.computeServings({
+        return {
           ...deletedEntry,
           drinkId,
           id,
-        }, metricSize)
+          servings: volumeToServings(deletedEntry.volume, metricSize),
+        }
       })
     },
   })

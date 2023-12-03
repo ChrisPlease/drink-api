@@ -55,13 +55,9 @@ export const queryResolvers: QueryResolvers = {
   async entry(_, { id: entryId }, { prisma, redis, req: { auth } }) {
     const userId = <string>auth?.sub
     const res = await redis.get(`entries:${userId}:${entryId}`)
-    console.log('here')
     if (res) {
-      console.log(res)
       return JSON.parse(res)
     }
-
-    console.log('then here')
 
     const entry = await Entries(prisma.entry).findUniqueWithNutrition(entryId, userId)
 

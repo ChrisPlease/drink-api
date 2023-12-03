@@ -282,7 +282,7 @@ Base Entry for logged drinks
 type Entry implements Node {
   id: ID!
 
-  volume: Float
+  volume: Float!
   servings: Float
   timestamp: Date!
 

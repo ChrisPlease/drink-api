@@ -39,7 +39,7 @@ vi.mock('../models/Drink.model', () => ({
 vi.mock('../models/Entry.model', () => ({
   Entries: vi.fn().mockReturnValue({
     ...prisma.entry,
-    createWithNutrition: vi.fn().mockResolvedValue({ id: 'mock' }),
+    createEntry: vi.fn().mockResolvedValue({ id: 'mock' }),
     deleteAndReturn: vi.fn().mockResolvedValue({ id: 'mock' }),
   }),
 }))
@@ -65,15 +65,15 @@ describe('mutationResolvers', () => {
 
   describe('entries', () => {
     describe('entryCreate', () => {
-      test('calls Entries model, calls createWithNutrition method and returns response', async () => {
+      test('calls Entries model, calls createEntry method and returns response', async () => {
         expect.assertions(3)
         const args: MutationEntryCreateArgs = { drinkId: '123', volume: 5 }
         const res = await mutationResolvers.entryCreate(parent, args, ctx, info)
 
         expect(Entries).toHaveBeenCalledWith(prisma.entry)
         expect(
-          Entries(prisma.entry).createWithNutrition,
-        ).toHaveBeenCalledWith({ ...args, userId: 'user-123' })
+          Entries(prisma.entry).createEntry,
+        ).toHaveBeenCalledWith({ ...args, userId: 'user-123' }, prisma.drink)
         expect(res).toStrictEqual({ id: 'mock' })
       })
     })
@@ -102,7 +102,11 @@ describe('mutationResolvers', () => {
           drinkInput: {
             name: 'Test',
             icon: 'test',
-            servingSize: 12,
+            nutrition: {
+              metricSize: 100,
+              servingSize: 1,
+              servingUnit: 'cup',
+            },
           },
         }
       })
@@ -123,9 +127,6 @@ describe('mutationResolvers', () => {
           ...args,
           drinkInput: {
             ...args.drinkInput,
-            caffeine: 12,
-            sugar: 12,
-            coefficient: 1,
           },
         }
 
@@ -230,22 +231,6 @@ describe('mutationResolvers', () => {
               ...args.drinkInput,
               id: toCursorHash('MixedDrink:123'),
             },
-          }
-        })
-
-        test('throws when a mixed drink provides nutrients', async () => {
-          args = {
-            ...args,
-            drinkInput: {
-              ...args.drinkInput,
-              caffeine: 12,
-            },
-          }
-          try {
-            await mutationResolvers.drinkEdit({}, args, ctx, info)
-          } catch (err) {
-            expect(err).toBeInstanceOf(Error)
-            expect(err.message).toEqual('Cannot add nutrition to a Mixed Drink')
           }
         })
 

@@ -5,7 +5,7 @@ import {
   test,
   expect,
 } from 'vitest'
-import { Entry } from '@prisma/client'
+import { Entry, Prisma } from '@prisma/client'
 import prisma from '../__mocks__/prisma'
 import { toCursorHash } from '../utils/cursorHash'
 import { Entries } from './Entry.model'
@@ -13,30 +13,20 @@ import { Entries } from './Entry.model'
 describe('Entry Model', () => {
   const entry = Entries(prisma.entry)
 
-  describe('computeNutrition', () => {
-    test('calculates and nutritional content', () => {
-      expect(entry.computeNutrition({
-        caffeine: 12,
-        sugar: 12,
-        coefficient: 1,
-        servingSize: 12,
-      }, 12)).toEqual({
-        caffeine: 12,
-        sugar: 12,
-        waterContent: 12,
-        servings: 1,
-      })
-    })
-  })
-
   describe('findUniqueWithNutrition', () => {
-    let mockResult: Entry & {
-      drink?: {
-        caffeine: number,
-        sugar: number,
-        coefficient: number,
+    let mockResult: Prisma.EntryGetPayload<{
+      include: {
+        drink: {
+          select: {
+            nutrition: {
+              select: {
+                metricSize: true,
+              },
+            },
+          },
+        },
       },
-    }
+    }>
 
     beforeEach(() => {
       mockResult = {
@@ -47,9 +37,9 @@ describe('Entry Model', () => {
         userId: '123',
         deleted: false,
         drink: {
-          caffeine: 1,
-          sugar: 1,
-          coefficient: 1,
+          nutrition: {
+            metricSize: 355,
+          },
         },
       }
       prisma.entry.findUnique.mockResolvedValue(mockResult)
@@ -60,11 +50,14 @@ describe('Entry Model', () => {
       expect(prisma.entry.findUnique).toHaveBeenCalledWith({
         include: {
           drink: {
-            select: {
-              caffeine: true,
-              coefficient: true,
-              sugar: true,
-              servingSize: true,
+            include: {
+              nutrition: {
+                select: {
+                  metricSize: true,
+                  servingSize: true,
+                  servingUnit: true,
+                },
+              },
             },
           },
         },
@@ -78,15 +71,11 @@ describe('Entry Model', () => {
     })
 
     test('computes the nutrition based on volume', async () => {
-      expect.assertions(2)
-      vi.spyOn(entry, 'computeNutrition')
       const res = await entry.findUniqueWithNutrition(mockResult.id, 'user-123')
 
-      expect(entry.computeNutrition).toHaveBeenCalled()
       expect(res).toStrictEqual(expect.objectContaining({
-        caffeine: 12,
-        sugar: 12,
-        waterContent: 12,
+        servings: 1,
+        volume: 12,
       }))
     })
 
@@ -97,13 +86,21 @@ describe('Entry Model', () => {
   })
 
   describe('findWithNutrition', () => {
-    let mockResult: (Entry & {
-      drink?: {
-        caffeine: number,
-        sugar: number,
-        coefficient: number,
+    let mockResult: Prisma.EntryGetPayload<{
+      include: {
+        drink: {
+          select: {
+            nutrition: {
+              select: {
+                metricSize: true,
+                servingUnit: true,
+                servingSize: true,
+              },
+            },
+          },
+        },
       },
-    })[]
+    }>[]
 
     beforeEach(() => {
       mockResult = [{
@@ -114,9 +111,11 @@ describe('Entry Model', () => {
         userId: '123',
         deleted: false,
         drink: {
-          caffeine: 1,
-          sugar: 1,
-          coefficient: 1,
+          nutrition: {
+            metricSize: 355,
+            servingUnit: 'fl oz',
+            servingSize: 12,
+          },
         },
       }]
 
@@ -129,10 +128,13 @@ describe('Entry Model', () => {
         include: {
           drink: {
             select: {
-              caffeine: true,
-              sugar: true,
-              coefficient: true,
-              servingSize: true,
+              nutrition: {
+                select: {
+                  metricSize: true,
+                  servingUnit: true,
+                  servingSize: true,
+                },
+              },
             },
           },
         },

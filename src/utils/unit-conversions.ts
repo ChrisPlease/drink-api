@@ -1,3 +1,5 @@
+import { roundNumber } from './roundNumber'
+
 export const ozToMl = (value: number): number => value * 29.57353
 
 export const mLToOz = (value: number): number => value / 29.57353
@@ -32,3 +34,7 @@ export const convertEntryToOz = (
   return volume
 }
 
+export const volumeToServings = (
+  volume?: number | null,
+  metricSize?: number | null,
+) => roundNumber((ozToMl(volume || 1)) / (metricSize || 1), 16)

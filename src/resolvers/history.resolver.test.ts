@@ -46,7 +46,7 @@ describe('historyResolvers', () => {
 
   describe('drink', () => {
     test('calls the DrinkModel.findByUnique', async () => {
-      await historyResolvers.drink({ drink: { id: '123' } }, {}, ctx)
+      await historyResolvers.drink({ id: '123' }, {}, ctx)
       expect(Drinks(prisma.drink).findUniqueById).toHaveBeenCalledWith('123')
     })
   })

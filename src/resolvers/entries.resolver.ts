@@ -1,6 +1,6 @@
 import { EntryNutrition, EntryResolvers } from '@/__generated__/graphql'
 import { Entries } from '@/models/Entry.model'
-import { ozToMl } from '@/utils/conversions'
+import { ozToMl } from '@/utils/unit-conversions'
 
 export const entryResolvers: EntryResolvers = {
   async drink({ id }, _, { prisma }) {
