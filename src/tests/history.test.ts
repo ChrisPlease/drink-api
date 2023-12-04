@@ -27,11 +27,10 @@ describe('history', () => {
     await seedUsers(prisma, ['user-123'])
     const {
       water: waterId,
-      coffee: coffeeId,
+      dripCoffee: coffeeId,
       whiskey: whiskeyId,
-      soda: sodaId,
     } = await seedDrinks(prisma)
-    const drinksArray = [waterId, coffeeId, whiskeyId, sodaId]
+    const drinksArray = [waterId, coffeeId, whiskeyId]
     const volumeArray = [12, 8, 16]
     await seedEntries(
       prisma,
@@ -70,8 +69,8 @@ describe('history', () => {
         edges {
           node {
             count
-            waterVolume
-            totalVolume
+            water
+            volume
             drink {
               ... on Drink {
                 name
@@ -95,9 +94,6 @@ describe('history', () => {
     const res = await testServer.executeOperation({
       query: QUERY,
       variables: {
-        filter: {
-          hasEntries: true,
-        },
       },
     }, { contextValue })
 
@@ -105,6 +101,6 @@ describe('history', () => {
     assert(res.body.singleResult.data?.drinksHistory !== null)
     result = res.body.singleResult.data?.drinksHistory as DrinksHistoryPaginated
 
-    expect(result.edges).toHaveLength(4)
+    expect(result.edges).toHaveLength(3)
   })
 })

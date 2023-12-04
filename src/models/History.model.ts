@@ -62,7 +62,6 @@ export function DrinkHistory(client: PrismaClient) {
         filter,
         userId,
       } = baseArgs
-
     const {
       hasEntries,
       limit,
