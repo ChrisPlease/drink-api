@@ -11,7 +11,6 @@ import {
   deconstructId,
   toCursorHash,
 } from '../utils/cursorHash'
-import { queryIngredientNutrition } from '../utils/queries'
 import {
   DrinkCreateInput,
   DrinkEditInput,
@@ -47,7 +46,7 @@ describe('Drink Model', () => {
       const res = await drink.findUniqueById(mockId)
 
       expect(prisma.drink.findUnique).toHaveBeenCalledWith({
-        where: { id: '123', deleted: { not: null } },
+        where: { id: '123' },
         include: {
           _count: {
             select: {
@@ -225,7 +224,6 @@ describe('Drink Model', () => {
           servingUnit: 'fl oz',
           metricSize: 350,
         },
-        // servingSize: 8,
         userId: '456',
         ingredients: [
           { drinkId: toCursorHash('Ingredient:456'), parts: 1 },
