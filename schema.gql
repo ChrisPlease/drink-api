@@ -449,7 +449,19 @@ Filter by drink nutrition
 """
 input DrinkNutritionFilter {
   coefficient: [NumberFilter!]
+
+  calories: [NumberFilter!]
+  saturatedFat: [NumberFilter!]
+  totalFat: [NumberFilter!]
+  cholesterol: [NumberFilter!]
+  sodium: [NumberFilter!]
+  carbohydrates: [NumberFilter!]
+  fiber: [NumberFilter!]
   sugar: [NumberFilter!]
+  addedSugar: [NumberFilter!]
+  protein: [NumberFilter!]
+  potassium: [NumberFilter!]
+
   caffeine: [NumberFilter!]
 }
 

@@ -3,11 +3,9 @@ import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection
 import {
   DrinkCreateInput,
   DrinkEditInput,
-  DrinkNutrition,
   DrinkNutritionInput,
   IngredientInput,
   MutationDrinkDeleteArgs,
-  NumberFilter,
   QueryDrinksArgs,
 } from '@/__generated__/graphql'
 import {
@@ -18,17 +16,18 @@ import {
   fromCursorHash,
 } from '@/utils/cursorHash'
 import { snakeToCamel } from '@/utils/string-manipulation'
+import { rangeFilter, stringFilter } from '@/utils/filters'
 import { queryIngredientNutrition } from '@/utils/queries'
+import { DrinkWithIngredientCountPayload } from '@/types/drinks'
 import { NutritionResult } from '@/types/models'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
-type DrinkPayload = Prisma.DrinkGetPayload<{ include: { _count: { select: { ingredients: boolean } } } }>
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {
     async findUniqueById(drinkId: string) {
       const [,id] = deconstructId(drinkId)
-      const { _count: count, ...res } = <DrinkPayload>await prismaDrink.findUnique({
+      const { _count: count, ...res } = <DrinkWithIngredientCountPayload>await prismaDrink.findUnique({
         where: { id },
         include: {
           _count: {
@@ -61,22 +60,18 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         id,
         isMixedDrink,
         search,
-        nutrition,
+        nutrition: nutritionFilter,
         isUserDrink,
       } = filterInput || {}
-      const { coefficient, caffeine, sugar} = nutrition || {}
 
-      function rangeFilter(filters: NumberFilter[]): Prisma.FloatNullableFilter<'Nutrition'> {
-        return filters.reduce((acc, { comparison, value }) => ({ ...acc, [comparison]: value }), {})
-      }
+      const nutrition = Object.entries(nutritionFilter || {}).reduce((acc, [key, val]) => ({
+        ...(val ? {[key]: rangeFilter(val)} : {}),
+        ...acc,
+      }), {})
 
-      const filter = {
-        ...(search ? { name: { contains: search, mode: 'insensitive' as const } } : {}),
-        nutrition: {
-          ...(coefficient ? { coefficient: rangeFilter(coefficient) } : {}),
-          ...(caffeine ? { caffeine: rangeFilter(caffeine) } : {}),
-          ...(sugar ? { sugar: rangeFilter(sugar) } : {}),
-        },
+      const filter: Prisma.DrinkWhereInput = {
+        ...stringFilter('name', search),
+        nutrition,
         ...(id?.in ? { id: { in: id.in.map(drinkId => deconstructId(drinkId)?.[1]) } } : {}),
         ...(
           (isMixedDrink !== undefined)
@@ -103,7 +98,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       const [
         sortKey,
         sortValue,
-      ] = <[keyof Prisma.DrinkOrderByWithRelationInput, string]>Object.entries(sort || {
+      ] = <[keyof Prisma.DrinkOrderByWithRelationInput, Prisma.SortOrder]>Object.entries(sort || {
         name: 'asc',
       })[0]
 
@@ -119,7 +114,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           : `id_${sortKey}`
       )
 
-      const { include, orderBy: orderByArg, ...baseArgs } = {
+      const { include, orderBy: orderByArg, ...baseArgs }: Prisma.DrinkFindManyArgs = {
         where,
         include: {
           _count: {
@@ -138,7 +133,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
             }:${id}`),
             ...drink,
           }))),
-        () => prismaDrink.count(baseArgs),
+        () => prismaDrink.count(baseArgs as Prisma.DrinkCountArgs),
         { first, last, after, before },
         {
           getCursor: (record) => getCursor<Drink, Prisma.DrinkWhereUniqueInput>(record, cursorKey),

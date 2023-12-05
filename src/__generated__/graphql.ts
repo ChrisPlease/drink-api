@@ -186,9 +186,19 @@ export type DrinkNutrition = Nutrition & {
 
 /** Filter by drink nutrition */
 export type DrinkNutritionFilter = {
+  addedSugar?: InputMaybe<Array<NumberFilter>>;
   caffeine?: InputMaybe<Array<NumberFilter>>;
+  calories?: InputMaybe<Array<NumberFilter>>;
+  carbohydrates?: InputMaybe<Array<NumberFilter>>;
+  cholesterol?: InputMaybe<Array<NumberFilter>>;
   coefficient?: InputMaybe<Array<NumberFilter>>;
+  fiber?: InputMaybe<Array<NumberFilter>>;
+  potassium?: InputMaybe<Array<NumberFilter>>;
+  protein?: InputMaybe<Array<NumberFilter>>;
+  saturatedFat?: InputMaybe<Array<NumberFilter>>;
+  sodium?: InputMaybe<Array<NumberFilter>>;
   sugar?: InputMaybe<Array<NumberFilter>>;
+  totalFat?: InputMaybe<Array<NumberFilter>>;
 };
 
 /** Nutriton Input for creating and editing drinks */

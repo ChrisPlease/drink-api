@@ -15,13 +15,12 @@ import {
   DrinkCreateInput,
   DrinkEditInput,
 } from '../__generated__/graphql'
+import { DrinkWithIngredientCountPayload } from '../types/drinks'
 import { Drinks } from './Drink.model'
 
 vi.mock('../utils/queries', () => ({
   queryIngredientNutrition: vi.fn().mockResolvedValue([{}]),
 }))
-
-type DrinkPayload = Prisma.DrinkGetPayload<{ include: { _count: { select: { ingredients: boolean } } } }>
 
 describe('Drink Model', () => {
   const drink = Drinks(prisma.drink)
@@ -41,7 +40,7 @@ describe('Drink Model', () => {
         _count: {
           ingredients: 0,
         },
-      } as DrinkPayload
+      } as DrinkWithIngredientCountPayload
       prisma.drink.findUnique.mockResolvedValue(mockRes)
       const res = await drink.findUniqueById(mockId)
 
@@ -63,7 +62,7 @@ describe('Drink Model', () => {
   })
 
   describe('findManyPaginated', () => {
-    let mockResponse: DrinkPayload[]
+    let mockResponse: DrinkWithIngredientCountPayload[]
     beforeEach(() => {
       mockResponse = Array.from(new Array(12)).map((_, index) => ({
         id: `drink-${index}`,
