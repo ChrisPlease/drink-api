@@ -4,8 +4,7 @@ import { DrinkHistoryResolvers } from '@/__generated__/graphql'
 import { Drinks } from '@/models/Drink.model'
 
 export const historyResolvers: DrinkHistoryResolvers = {
-  async drink({ id, ...args }, _, { prisma }) {
-    console.log(args)
+  async drink({ id }, _, { prisma }) {
     return <Drink>await Drinks(prisma.drink).findUniqueById(id || '')
   },
 

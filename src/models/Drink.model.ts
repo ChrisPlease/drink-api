@@ -178,7 +178,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     }: Omit<DrinkCreateInput, 'nutrition'> & { userId: string; nutrition: DrinkNutritionInput },
     client: PrismaClient,
     ): Promise<Drink> {
-      const ingredients = mapToInputIngredients(drinkIngredients || [])
+      const ingredients = mapCreateToInputIngredients(drinkIngredients || [])
 
       return await client.$transaction(async (tx) => {
 
@@ -225,7 +225,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           where: { id: { in: oldIngredients } },
         })
 
-        const ingredients = mapToInputIngredients(newIngredients)
+        const ingredients = mapCreateToInputIngredients(newIngredients)
 
         await tx.drink.update({
           where: {
@@ -233,9 +233,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           },
           data: {
             ...data,
-            ...(nutrition ? {
-              nutrition: { update: { ...nutrition } },
-            } : {}),
+            ...mapUpdateToInputNutrition(nutrition),
             ingredients: { create: ingredients },
           },
         })
@@ -257,7 +255,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         where: { id },
         data: {
           ...data,
-          nutrition: { update: { ...nutrition } },
+          ...mapUpdateToInputNutrition(nutrition),
           userId,
         },
       })
@@ -315,21 +313,20 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     async findDrinkIngredients(
       drinkId: string,
     ) {
+      const [,id] = deconstructId(drinkId)
 
-    const [,id] = deconstructId(drinkId)
-    const ingredients = await prismaDrink.findUnique({
-      where: { id },
-    }).ingredients({ include: { ingredient: true } })
-      .then(ingredients => ingredients?.map(({ ingredient }) => ingredient))
+      const ingredients = await prismaDrink.findUnique({ where: { id } })
+        .ingredients({ include: { ingredient: true } })
+        .then(ingredients => ingredients?.map(({ ingredient }) => ingredient))
 
-    return ingredients || []
+      return ingredients || []
     },
 
     async findDrinkUser(userId: string) {
       const [,id] = deconstructId(userId)
-      const user = await prismaDrink.findUnique({
-        where: { id },
-      }).user()
+
+      const user = await prismaDrink.findUnique({ where: { id } }).user()
+
       return user ? { ...user, id: toCursorHash(`User:${user.id}`) } : null
     },
 
@@ -351,7 +348,11 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     ): Promise<Drink> {
       const nutrition = await this.queryNutritionFromIngredients(id, client)
 
-      return await client.drink.update({ where: { id }, data: { nutrition: { update: { ...nutrition } } } })
+      return await client.drink
+        .update({
+          where: { id },
+          data: mapUpdateToInputNutrition(nutrition),
+        })
         .then(({ ...drink }) => ({
           ...drink,
           id: toCursorHash(`MixedDrink:${drink?.id}`),
@@ -360,7 +361,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
   })
 }
 
-function mapToInputIngredients(
+function mapCreateToInputIngredients(
   ingredients?: IngredientInput[],
 ): Prisma.DrinkIngredientsCreateWithoutDrinkInput[] {
   return (ingredients || []).map(({ drinkId, parts, volume }) => ({
@@ -372,4 +373,14 @@ function mapToInputIngredients(
       },
     },
   }))
+}
+
+function mapUpdateToInputNutrition(
+  nutrition: NutritionResult | DrinkNutritionInput | undefined | null,
+): { nutrition?: Prisma.NutritionUpdateOneWithoutDrinkNestedInput } {
+  return nutrition ? {
+    nutrition: {
+      update: nutrition,
+    },
+  } : {}
 }

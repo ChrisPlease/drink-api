@@ -12,10 +12,9 @@ export function DrinkHistory(client: PrismaClient) {
       drinkHistoryId: string,
       userId: string,
     ): Promise<DrinkHistoryModel> {
-        const [,id] = deconstructId(drinkHistoryId)
-        console.log('=========')
-        console.log(id)
-      console.log('=========')
+
+      const [,id] = deconstructId(drinkHistoryId)
+
       return await client.$transaction(async (tx) => {
         const where = { drinkId: id, userId }
         const entryCount = await tx.entry.groupBy({
@@ -41,13 +40,13 @@ export function DrinkHistory(client: PrismaClient) {
           where: { id },
         }).nutrition() || { coefficient: 1 }
 
-        const totalVolume = sum.volume || 0
+        const volume = sum.volume || 0
 
         return {
           id: toCursorHash(`DrinkHistory:${id}`),
           count,
-          volume: totalVolume,
-          water: roundNumber(totalVolume * ((coefficient || 1) / 100)),
+          volume: volume,
+          water: roundNumber(volume * ((coefficient || 1) / 100)),
         }
       })
     },
@@ -75,7 +74,7 @@ export function DrinkHistory(client: PrismaClient) {
           client,
           {
             id,
-            limit,
+            limit: limit ? new Date(limit) : null,
             take,
             userId,
             search,

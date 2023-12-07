@@ -101,6 +101,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       } = <Drink & { _count: { ingredients: number } }>await prismaEntry.findUnique({
         where: { id },
       }).drink({ include: { _count: { select: { ingredients: true } } } })
+
       return {
         ...drink,
         id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drink.id}`),
@@ -294,4 +295,3 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
     },
   })
 }
-
