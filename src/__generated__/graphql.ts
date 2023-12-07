@@ -124,7 +124,7 @@ export type DrinkFilter = {
 export type DrinkHistory = Node & {
   __typename?: 'DrinkHistory';
   count: Scalars['Int']['output'];
-  drink: DrinkResult;
+  drink?: Maybe<DrinkResult>;
   entries?: Maybe<EntriesPaginated>;
   id: Scalars['ID']['output'];
   volume: Scalars['Float']['output'];
@@ -812,7 +812,7 @@ export type DrinkEdgeResolvers<ContextType = AppContext, ParentType extends Reso
 
 export type DrinkHistoryResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['DrinkHistory'] = ResolversParentTypes['DrinkHistory']> = ResolversObject<{
   count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  drink?: Resolver<ResolversTypes['DrinkResult'], ParentType, ContextType>;
+  drink?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType>;
   entries?: Resolver<Maybe<ResolversTypes['EntriesPaginated']>, ParentType, ContextType, Partial<DrinkHistoryEntriesArgs>>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   volume?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;

@@ -1,5 +1,6 @@
-import { Drink, PrismaClient } from '@prisma/client'
-import { NutritionQuery, NutritionResult } from '../types/models'
+import { Prisma, Drink, PrismaClient } from '@prisma/client'
+import { NutritionQuery } from '../types/models'
+import { RawDrink, RawEntry } from '../types/queries'
 
 export const queryIngredientNutrition = async (
   client: PrismaClient,
@@ -37,7 +38,7 @@ WHERE di.drink_id = ${drinkId}::uuid`
 export const queryIngredientCount = async (
   client: PrismaClient,
   drinkId: string,
-): Promise<(Drink & { ingredients: number })[]> => {
+): Promise<RawDrink[]> => {
   return await client.$queryRaw<(Drink & { ingredients: number })[]>`
 SELECT \
 d.*,\
@@ -49,3 +50,94 @@ LEFT JOIN ingredients i2 ON di.drink_id = i2.id \
 WHERE i.id = ${drinkId}::uuid \
 GROUP BY d.id`
 }
+
+export const queryDrinkHistory = async (
+  client: PrismaClient,
+  {
+    id,
+    hasEntries,
+    limit,
+    userId,
+    search,
+    cursor,
+    take,
+  }: {
+    id: string,
+    hasEntries?: boolean,
+    limit?: Date | null,
+    userId?: string,
+    search?: string,
+    cursor?: string,
+    take?: number,
+  },
+) => {
+
+  const rawSearch = search ? `%${search}%` : ''
+
+  return client.$queryRaw<RawEntry[]>`
+WITH cte AS (\
+SELECT \
+row_number() OVER (\
+ORDER BY CASE WHEN e.timestamp IS NULL THEN 1 ELSE 0 END, e.timestamp DESC
+\) as row_idx,\
+d.id,\
+row_to_json(d) AS drink,\
+e.count,\
+e.water_volume,\
+e.total_volume,\
+e.timestamp \
+FROM (\
+SELECT \
+drinks.name,\
+drinks.id,\
+COUNT(di) AS ingredients \
+FROM drinks \
+LEFT JOIN drink_ingredients di ON drinks.id = di.drink_id \
+WHERE drinks.deleted IS NULL \
+GROUP BY drinks.id\
+) d \
+${
+  hasEntries
+    ? Prisma.sql`INNER`
+    : Prisma.sql`LEFT`
+} JOIN (\
+SELECT \
+n.drink_id AS drink_id,\
+COALESCE(COUNT(e)::int,0) AS count,\
+COALESCE(SUM(e.volume),0) AS total_volume,\
+ROUND(COALESCE(SUM(e.volume*(n.coefficient/100))::int,0),1) AS water_volume,\
+MAX(e.timestamp) AS timestamp \
+FROM nutrition n \
+INNER JOIN drinks d ON d.id = n.drink_id \
+${
+  hasEntries
+    ? Prisma.sql`INNER`
+    : Prisma.sql`LEFT`
+} JOIN entries e ON e.drink_id = n.drink_id AND e.user_id = ${userId} \
+${
+  limit
+    ? Prisma.sql`WHERE e.timestamp IS NULL OR e.timestamp BETWEEN ${limit} AND now()`
+    : Prisma.empty
+} \
+GROUP BY n.drink_id \
+) e ON e.drink_id = d.id \
+${search ? Prisma.sql`WHERE d.name ILIKE ${rawSearch}` : Prisma.empty}\
+) \
+SELECT \
+c.id,\
+c.drink,\
+c.count,\
+c.water_volume,\
+c.total_volume \
+FROM cte c ${cursor
+  ? Prisma.sql`INNER JOIN cte AS c2 ON (c2.id = ${id}::uuid AND c.row_idx > c2.row_idx)`
+  : Prisma.empty
+} \
+${
+  limit
+    ? Prisma.sql`WHERE c.timestamp BETWEEN ${limit} AND now()`
+    : Prisma.empty
+} \
+ORDER BY c.row_idx ASC ${
+  take ? Prisma.sql`LIMIT ${take}` : Prisma.empty
+};`}

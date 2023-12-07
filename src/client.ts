@@ -5,7 +5,7 @@ import { createSoftDeleteMiddleware } from 'prisma-soft-delete-middleware'
 const isDev = process.env.NODE_ENV === 'develop'
 
 const prisma = new PrismaClient({
-  log: <Prisma.LogLevel[]>['info', 'error'].concat(isDev ? ['query'] : []),
+  log: <Prisma.LogLevel[]>['info', 'error'].concat(isDev ? [] : []),
 })
 
 prisma.$use(

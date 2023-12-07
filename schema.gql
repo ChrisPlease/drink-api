@@ -309,7 +309,7 @@ type DrinkHistory implements Node {
     last: Int,
     drinkId: ID
   ): EntriesPaginated
-  drink: DrinkResult!
+  drink: DrinkResult
 }
 
 """
