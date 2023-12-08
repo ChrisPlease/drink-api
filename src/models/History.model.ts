@@ -1,4 +1,4 @@
-import { PrismaClient, Drink } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { queryDrinkHistory } from '@/utils/queries'
 import { roundNumber } from '@/utils/roundNumber'
