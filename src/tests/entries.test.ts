@@ -27,11 +27,10 @@ describe('entries', () => {
     await seedUsers(prisma, ['user-123', 'user-456'])
     const {
       water: waterId,
-      coffee: coffeeId,
+      dripCoffee: coffeeId,
       whiskey: whiskeyId,
-      soda: sodaId,
     } = await seedDrinks(prisma)
-    const drinksArray = [waterId, coffeeId, whiskeyId, sodaId]
+    const drinksArray = [waterId, coffeeId, whiskeyId]
     const volumeArray = [12, 8, 16]
 
     await seedEntries(prisma, new Array(40).fill({}).map((_, index) => ({
@@ -89,7 +88,7 @@ describe('entries', () => {
   test('returns a paginated list of entries', async () => {
     const res = await testServer.executeOperation({
       query: QUERY,
-      variables: { distinct: true, first: 12 },
+      variables: { distinct: false, first: 12 },
     }, { contextValue })
 
     assert(res.body.kind === 'single')

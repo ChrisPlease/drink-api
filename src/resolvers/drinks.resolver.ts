@@ -26,6 +26,11 @@ export const drinkResolvers: DrinkResolvers = {
     return entries
   },
 
+  async nutrition(parent, args, { prisma }) {
+    const drinkId = deconstructId(parent.id)[1]
+    return await prisma.nutrition.findUnique({ where: { drinkId } })
+  },
+
   async user(parent, args, { prisma }) {
     return await Drinks(prisma.drink).findDrinkUser(parent.id)
   },

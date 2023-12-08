@@ -9,3 +9,5 @@ coverage
 
 # nginx certs
 certs
+
+dump_*

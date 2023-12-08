@@ -22,7 +22,7 @@ describe('drinks', () => {
   let contextValue: AppContext
   let QUERY: DocumentNode
   let waterId: string
-  let sodaId: string
+  let coffeeId: string
 
   beforeEach(async () => {
     contextValue = {
@@ -36,9 +36,20 @@ describe('drinks', () => {
       res: {} as Response,
     }
     await seedUsers(prisma, ['user-123'])
-    const { water, soda } = await seedDrinks(prisma)
+    const { water, dripCoffee } = await seedDrinks(prisma, new Array(14).fill({}).map((item, index) => ({
+      name: `Drink ${index}`,
+      icon: 'glass-water',
+      nutrition: {
+        create: {
+          servingSize: 12,
+          servingUnit: 'fl oz',
+          metricSize: 350,
+          imperialSize: 12,
+        },
+      },
+    })))
     waterId = toCursorHash(`BaseDrink:${water}`)
-    sodaId = toCursorHash(`BaseDrink:${soda}`)
+    coffeeId = toCursorHash(`BaseDrink:${dripCoffee}`)
   })
 
   describe('queries', () => {
@@ -52,7 +63,6 @@ describe('drinks', () => {
                 ... on Drink {
                   id
                   name
-                  coefficient
                 }
               }
               cursor
@@ -162,10 +172,11 @@ describe('drinks', () => {
             drinkInput: {
               name: 'Test Drink',
               icon: 'test-icon',
-              caffeine: 12,
-              sugar: 12,
-              coefficient: 1,
-              servingSize: 12,
+              nutrition: {
+                servingSize: 12,
+                servingUnit: 'fl oz',
+                metricSize: 350,
+              },
             },
           },
         }, { contextValue })
@@ -192,10 +203,14 @@ describe('drinks', () => {
             drinkInput: {
               name: 'Mixed drink',
               icon: 'test-mixed',
-              servingSize: 12,
+              nutrition: {
+                servingSize: 12,
+                metricSize: 350,
+                servingUnit: 'fl oz',
+              },
               ingredients: [
                 { drinkId: waterId, parts: 1 },
-                { drinkId: sodaId, parts: 1 },
+                { drinkId: coffeeId, parts: 1 },
               ],
             },
           },
@@ -218,13 +233,13 @@ describe('drinks', () => {
       })
     })
 
-    describe('drinkDelete', () => {
+    describe.only('drinkDelete', () => {
       let newDrinkId: string
 
       beforeEach(async () => {
         QUERY = gql`
-        mutation DeleteDrink($drinkId: ID!) {
-          drinkDelete(drinkId: $drinkId) {
+        mutation DeleteDrink($id: ID!) {
+          drinkDelete(id: $id) {
             ... on Drink {
               name
             }
@@ -234,10 +249,18 @@ describe('drinks', () => {
           data: {
             name: 'New drink',
             icon: 'new-icon',
-            caffeine: 0,
-            sugar: 0,
-            servingSize: 8,
-            coefficient: 1,
+            nutrition: {
+              create: {
+                servingUnit: 'fl oz',
+                metricSize: 355,
+                imperialSize: 8,
+                caffeine: 0,
+                sugar: 0,
+                servingSize: 8,
+                coefficient: 1,
+
+              },
+            },
             userId: 'user-123',
           },
         })
@@ -248,7 +271,7 @@ describe('drinks', () => {
       it('returns the deleted drink', async () => {
         const res = await testServer.executeOperation({
           query: QUERY,
-          variables: { drinkId: newDrinkId },
+          variables: { id: newDrinkId },
         }, { contextValue })
 
         assert(res.body.kind === 'single')
@@ -261,7 +284,7 @@ describe('drinks', () => {
       it('removes the drink from the database', async () => {
         await testServer.executeOperation({
           query: QUERY,
-          variables: { drinkId: newDrinkId },
+          variables: { id: newDrinkId },
         }, { contextValue })
 
         const [,dehashedId] = deconstructId(newDrinkId)
@@ -282,10 +305,17 @@ describe('drinks', () => {
           data: {
             name: 'Test Drink',
             icon: 'test-icon',
-            caffeine: 12,
-            sugar: 12,
-            coefficient: 1,
-            servingSize: 12,
+            nutrition: {
+              create: {
+                servingUnit: 'fl oz',
+                metricSize: 350,
+                imperialSize: 12,
+                caffeine: 12,
+                sugar: 12,
+                coefficient: 1,
+                servingSize: 12,
+              },
+            },
             userId: 'user-123',
           },
         })

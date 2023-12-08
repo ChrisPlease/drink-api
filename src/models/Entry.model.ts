@@ -1,6 +1,5 @@
 import { Prisma, PrismaClient, Entry, Drink } from '@prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
-import { roundNumber } from '@/utils/roundNumber'
 import {
   toCursorHash,
   fromCursorHash,
@@ -8,34 +7,25 @@ import {
   getCursor,
   deconstructId,
 } from '@/utils/cursorHash'
-import { MutationEntryCreateArgs, MutationEntryDeleteArgs, QueryEntriesArgs } from '@/__generated__/graphql'
-import { Nutrition } from '@/types/models'
-
-type EntryNutrition = {
-  caffeine: number,
-  sugar: number,
-  waterContent: number,
-  servings: number,
-}
+import {
+  convertEntryToOz,
+  volumeToServings,
+} from '@/utils/unit-conversions'
+import {
+  DrinkNutrition,
+  MutationEntryCreateArgs,
+  MutationEntryDeleteArgs,
+  QueryEntriesArgs,
+} from '@/__generated__/graphql'
+import { ResolvedEntry } from '@/types/models'
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
-    computeNutrition(
-      { caffeine, sugar, coefficient, servingSize }: Nutrition,
-      volume: number,
-    ): EntryNutrition {
-      return {
-        caffeine: roundNumber(caffeine * (volume / servingSize)),
-        sugar: roundNumber(sugar * (volume / servingSize)),
-        waterContent: roundNumber(coefficient * volume),
-        servings: roundNumber(volume / servingSize) || 0,
-      }
-    },
 
     async findUniqueWithNutrition(
       entryId: string,
       userId: string,
-    ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number }) | null> {
+    ): Promise<ResolvedEntry> {
       const [,id] = deconstructId(entryId)
       const {
         id: _,
@@ -45,64 +35,59 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         where: { id_userId: { userId, id } },
         include: {
           drink: {
-            select: {
-              caffeine: true,
-              sugar: true,
-              coefficient: true,
-              servingSize: true,
+            include: {
+              nutrition: {
+                select: {
+                  servingSize: true,
+                  servingUnit: true,
+                  metricSize: true,
+                },
+              },
             },
           },
         },
-      }) as Entry & { drink: Pick<Drink, 'caffeine' | 'sugar' | 'coefficient' | 'servingSize' > }
-
-      const nutrition = this.computeNutrition(
-        {
-          caffeine: drink?.caffeine ?? 0,
-          sugar: drink?.sugar ?? 0,
-          coefficient: drink?.coefficient ?? 0,
-          servingSize: drink?.servingSize ?? 1,
+      }) || {} as Prisma.EntryGetPayload<{
+        include: {
+          drink: {
+            include: {
+              nutrition: true,
+            },
+          },
         },
-        entry?.volume ?? 0,
-      )
+      }>
 
       return {
         id: entryId,
+        servings: volumeToServings(entry?.volume, drink?.nutrition?.metricSize),
         ...entry,
-        ...nutrition,
       }
     },
 
     async findWithNutrition(
       args: Prisma.EntryFindManyArgs,
-    ): Promise<(Entry & { caffeine: number; sugar: number; waterContent: number })[]> {
+    ): Promise<ResolvedEntry[]> {
       const entries = await prismaEntry.findMany({
         ...args,
         include: {
           drink: {
             select: {
-              caffeine: true,
-              sugar: true,
-              coefficient: true,
-              servingSize: true,
+              nutrition: {
+                select: {
+                  servingSize: true,
+                  servingUnit: true,
+                  metricSize: true,
+                },
+              },
             },
           },
         },
       })
 
-      return entries.map(({ id, drink, ...entry }) => {
-        const nutrition = this.computeNutrition(
-          {
-            caffeine: drink?.caffeine ?? 0,
-            sugar: drink?.sugar ?? 0,
-            coefficient: drink?.coefficient ?? 0,
-            servingSize: drink?.servingSize ?? 0,
-          },
-          entry.volume,
-        )
+      return entries.map(({ id, drink: { nutrition }, ...entry }) => {
 
         return {
           id: toCursorHash(`Entry:${id}`),
-          ...nutrition,
+          servings: volumeToServings(entry?.volume, nutrition?.metricSize),
           ...entry,
         }
       })
@@ -116,6 +101,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       } = <Drink & { _count: { ingredients: number } }>await prismaEntry.findUnique({
         where: { id },
       }).drink({ include: { _count: { select: { ingredients: true } } } })
+
       return {
         ...drink,
         id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drink.id}`),
@@ -140,6 +126,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       client: PrismaClient,
       args: QueryEntriesArgs & { userId: string },
     ) {
+
       const {
         first,
         sort,
@@ -150,12 +137,15 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         drinkId: hashedDrinkId,
         userId,
       } = args
+
       const {
         limit,
         distinct,
         search,
       } = filter || { limit: null, distinct: false, search: undefined }
+
       const [,drinkId] = hashedDrinkId ? deconstructId(hashedDrinkId) : ''
+
       const orderBy = <Prisma.EntryOrderByWithRelationInput>(
         sort
           ? Object.keys(sort)[0] === 'drink'
@@ -212,7 +202,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
             `)
           } else {
             count = await prismaEntry.count(
-              { ...baseArgs } as Omit<Prisma.EntryFindManyArgs, 'select' | 'include'>,
+              { ...baseArgs } as Omit<Prisma.EntryCountArgs, 'select' | 'include'>,
             )
           }
           return count
@@ -229,57 +219,60 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       )
     },
 
-    async createWithNutrition(
+    async createEntry(
       args: MutationEntryCreateArgs & { userId: string },
-    ) {
-    const { drinkId, volume, userId } = args
-    const [,id] = deconstructId(drinkId)
+      prismaDrink: PrismaClient['drink'],
+    ): Promise<ResolvedEntry> {
 
-    const {
-      id: entryId,
-      drink: {
-        caffeine,
-        sugar,
-        coefficient,
-        servingSize,
-      },
-      ...rest
-    } = await prismaEntry.create({
-      data: {
-        volume,
-        drinkId: id,
+      const {
+        drinkId,
+        volume: inputVolume,
+        unit,
         userId,
-      },
-      include: {
-        drink: {
-          select: {
-            caffeine: true,
-            coefficient: true,
-            sugar: true,
-            servingSize: true,
-          },
+      } = args
+      const [,id] = deconstructId(drinkId)
+
+      const {
+        servingUnit,
+        servingSize,
+        metricSize,
+      } = await prismaDrink
+        .findUnique({ where: { id } }).nutrition() ?? {} as DrinkNutrition
+
+      const volume = convertEntryToOz(
+        inputVolume,
+        {
+          servingSize,
+          servingUnit,
+          metricSize,
         },
-      },
-    })
+        unit,
+      )
 
-    const nutrition = this.computeNutrition({
-      sugar: sugar ?? 0,
-      coefficient: coefficient ?? 1,
-      caffeine: caffeine ?? 0,
-      servingSize: servingSize ?? 1,
-    }, volume)
+      const {
+        id: entryId,
+        volume: _,
+        ...rest
+      } = await prismaEntry.create({
+        data: {
+          volume,
+          drinkId: id,
+          userId,
+        },
+      })
 
-    return {
-      id: toCursorHash(`Entry:${entryId}`),
-      ...nutrition,
-      ...rest,
-    }
+      return {
+        id: toCursorHash(`Entry:${entryId}`),
+        volume,
+        servings: volumeToServings(volume, metricSize),
+        ...rest,
+      }
     },
 
     async deleteAndReturn(
       args: MutationEntryDeleteArgs & { userId: string },
       client: PrismaClient,
-    ) {
+    ): Promise<ResolvedEntry> {
       const { userId, id: entryId } = args
       const [,id] = deconstructId(entryId)
 
@@ -288,30 +281,17 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           where: { id_userId: { id, userId } },
         })
 
-        const drink = await tx.drink.findUnique({
+        const { metricSize } = await tx.drink.findUnique({
           where: { id: drinkId },
-          select: {
-            caffeine: true,
-            sugar: true,
-            coefficient: true,
-            servingSize: true,
-          },
-        })
+        }).nutrition() ?? {} as DrinkNutrition
 
         return {
           ...deletedEntry,
           drinkId,
           id,
-          ...this.computeNutrition({
-            sugar: drink?.sugar ?? 0,
-            caffeine: drink?.caffeine ?? 0,
-            coefficient: drink?.coefficient ?? 0,
-            servingSize: drink?.servingSize ?? 1,
-          }, deletedEntry.volume),
-
+          servings: volumeToServings(deletedEntry.volume, metricSize),
         }
       })
     },
   })
 }
-

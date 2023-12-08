@@ -4,6 +4,7 @@ import { QueryResolvers } from '@/__generated__/graphql'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistory } from '@/models/History.model'
 import { Drinks } from '@/models/Drink.model'
+import { fetchItem } from '@/services/nutritionix'
 import {
   deconstructId, toCursorHash,
 } from '@/utils/cursorHash'
@@ -54,7 +55,6 @@ export const queryResolvers: QueryResolvers = {
   async entry(_, { id: entryId }, { prisma, redis, req: { auth } }) {
     const userId = <string>auth?.sub
     const res = await redis.get(`entries:${userId}:${entryId}`)
-
     if (res) {
       return JSON.parse(res)
     }
@@ -110,6 +110,17 @@ export const queryResolvers: QueryResolvers = {
     return users?.then(users => users.map(
       ({ ...user }) => ({ ...user, id: toCursorHash(`User:${user.id}` )})),
     )
+  },
+
+  async drinkNutrition(_, { upc }, { prisma, req: { auth } }) {
+    const drink = await prisma.drink.findUnique({ where: { upc }})
+
+    if (drink) return drink
+
+    const foo = await fetchItem({ upc })
+
+    console.log('foo', foo)
+    return null
   },
 }
 

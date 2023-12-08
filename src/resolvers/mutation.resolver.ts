@@ -6,11 +6,9 @@ import { deconstructId } from '@/utils/cursorHash'
 
 export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, args, { prisma, req: { auth } }) {
+
     return await Entries(prisma.entry)
-      .createWithNutrition({
-        ...args,
-        userId: <string>auth?.sub,
-      })
+      .createEntry({ ...args, userId: <string>auth?.sub }, prisma.drink)
   },
 
   async entryDelete(_, args, { prisma, redis, req: { auth } }) {
@@ -34,38 +32,22 @@ export const mutationResolvers: MutationResolvers = {
 
     const {
       ingredients,
-      caffeine,
-      servingSize,
-      sugar,
-      coefficient,
+      nutrition,
       ...rest
     } = drinkInput
 
-    const nutrition = { caffeine, servingSize, sugar, coefficient }
-
     if (ingredients && ingredients.length) {
       res = await drink.createWithIngredients(
-        { userId, servingSize, ingredients, ...rest },
+        { userId, nutrition, ingredients, ...rest },
         prisma,
       )
     } else {
-      res = await drink.createWithNutrition({ userId, ...nutrition, ...rest })
+      res = await drink.createWithNutrition({ userId, nutrition, ...rest })
     }
 
-    await redis.set(`drinks:${res?.id}`, JSON.stringify(res))
-
-    return res
-  },
-
-  async drinkDelete(_, { id: drinkId }, { prisma, redis, req: { auth } }) {
-    const userId = <string>auth?.sub
-    const redisKey = `drinks:${drinkId}`
-
-    await redis.del(redisKey)
-
-    const res = await Drinks(prisma.drink).deleteDrink({ id: drinkId, userId })
-
-    await redis.set(redisKey, JSON.stringify(res))
+    if (res) {
+      await redis.set(`drinks:${res?.id}`, JSON.stringify(res))
+    }
 
     return res
   },
@@ -74,17 +56,14 @@ export const mutationResolvers: MutationResolvers = {
     _,
     {
       drinkInput: {
-        caffeine,
-        sugar,
-        servingSize,
-        coefficient,
+        nutrition,
         ingredients,
         ...drinkInput
       },
     }, { prisma, redis, req: { auth } }) {
     let res: Drink | null
 
-    const hasNutrition = !!caffeine || !!sugar || !!coefficient
+    // const hasNutrition = !!caffeine || !!sugar || !!coefficient
     const drink = Drinks(prisma.drink)
     const userId = <string>auth?.sub
     const redisKey = `drinks:${drinkInput.id}`
@@ -101,10 +80,10 @@ export const mutationResolvers: MutationResolvers = {
     await redis.del(redisKey)
 
     if (type === 'MixedDrink') {
-      if (hasNutrition) throw new Error('Cannot add nutrition to a Mixed Drink')
+      // if (hasNutrition) throw new Error('Cannot add nutrition to a Mixed Drink')
       if (ingredients) {
         res = await Drinks(prisma.drink).updateWithIngredients(
-          { userId, ingredients, ...drinkInput },
+          { userId, nutrition, ingredients, ...drinkInput },
           prisma,
         )
       } else {
@@ -116,16 +95,14 @@ export const mutationResolvers: MutationResolvers = {
       }
     } else if (type === 'BaseDrink') {
       if (ingredients) throw new Error('Cannot add ingredients to a Base Drink')
-      const nutrition = { caffeine, sugar, coefficient }
 
-      if (Object.values(nutrition).some(item => item) && !servingSize) {
+      if (Object.values(nutrition || {}).some(item => item) && !nutrition?.servingSize) {
         throw new Error('Serving size is required when editing nutritional values')
       }
 
       res = await drink.updateWithNutrition({
         userId,
-        servingSize,
-        ...nutrition,
+        nutrition,
         ...drinkInput,
       })
     } else {
@@ -135,6 +112,19 @@ export const mutationResolvers: MutationResolvers = {
     res = { ...res, id: drinkInput.id } as Drink
 
     await redis.set(redisKey, JSON.stringify(res))
+    return res
+  },
+
+  async drinkDelete(_, { id: drinkId }, { prisma, redis, req: { auth } }) {
+    const userId = <string>auth?.sub
+    const redisKey = `drinks:${drinkId}`
+
+    await redis.del(redisKey)
+
+    const res = await Drinks(prisma.drink).deleteDrink({ id: drinkId, userId })
+
+    await redis.set(redisKey, JSON.stringify(res))
+
     return res
   },
 
