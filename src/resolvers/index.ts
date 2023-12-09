@@ -6,6 +6,8 @@ import {
   baseDrinkResolvers,
   drinkResolvers,
   drinkResultResolvers,
+  drinkScanResolvers,
+  drinkScanResultResolvers,
   mixedDrinkResolvers,
 } from './drinks.resolver'
 import { ingredientResolvers, ingredientTypeResolvers } from './ingredients.resolver'
@@ -57,6 +59,9 @@ export const resolvers: Resolvers = {
   MixedDrink: mixedDrinkResolvers,
   DrinkResult: drinkResultResolvers,
   DrinkHistory: historyResolvers,
+
+  // DrinkScan: drinkScanResolvers,
+  DrinkScanResult: drinkScanResultResolvers,
 
   AbsoluteIngredient: ingredientResolvers,
   RelativeIngredient: ingredientResolvers,

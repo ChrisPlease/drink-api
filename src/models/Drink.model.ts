@@ -19,7 +19,7 @@ import { snakeToCamel } from '@/utils/string-manipulation'
 import { rangeFilter, stringFilter } from '@/utils/filters'
 import { queryIngredientNutrition } from '@/utils/queries'
 import { DrinkWithIngredientCountPayload } from '@/types/drinks'
-import { NutritionResult } from '@/types/models'
+import { DrinkResult, NutritionResult } from '@/types/models'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
@@ -55,7 +55,6 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     }: QueryDrinksArgs,
     reqUser?: string,
     ) {
-
       const {
         id,
         isMixedDrink,
@@ -124,7 +123,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         orderBy,
       }
 
-      return await findManyCursorConnection<Drink, Prisma.DrinkWhereUniqueInput>(
+      return await findManyCursorConnection<DrinkResult, Prisma.DrinkWhereUniqueInput>(
         (args) => prismaDrink
           .findMany({ ...args, include, orderBy: orderByArg, ...baseArgs })
           .then(drinks => drinks.map(({ _count, id, ...drink }) => ({
@@ -136,7 +135,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         () => prismaDrink.count(baseArgs as Prisma.DrinkCountArgs),
         { first, last, after, before },
         {
-          getCursor: (record) => getCursor<Drink, Prisma.DrinkWhereUniqueInput>(record, cursorKey),
+          getCursor: (record) => getCursor<DrinkResult, Prisma.DrinkWhereUniqueInput>(record, cursorKey),
           encodeCursor: (cursor) => toCursorHash(JSON.stringify(encodeCursor(cursor, ['id']))),
           decodeCursor: (cursorString) => JSON.parse(fromCursorHash(cursorString)),
         },

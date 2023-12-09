@@ -1,4 +1,5 @@
 import { fetch } from 'undici'
+import { DrinkScan, DrinkScanResult } from '@/__generated__/graphql'
 
 interface NutritionixPhoto {
   thumb: string | null;
@@ -83,13 +84,30 @@ export async function fetchItem(params: { upc: string }) {
   const { foods } = res
   const item = foods?.[0]
 
-  console.log(res)
+  return mapToDrinkNutrition(item, params.upc)
+}
 
+function mapToDrinkNutrition(item: NutritionixItem, upc: string): DrinkScan {
   return {
     name: `${item.brand_name} ${item.food_name}`,
-    upc: params.upc,
+    upc,
     nutrition: {
+      servingSize: item.serving_qty || 8,
+      servingUnit: item.serving_unit || 'fl oz',
+      metricSize: item.nf_metric_qty,
+
+      calories: item.nf_calories,
+
+      totalFat: item.nf_total_fat,
+      saturatedFat: item.nf_saturated_fat,
+      sodium: item.nf_sodium,
+      carbohydrates: item.nf_total_carbohydrate,
+
       sugar: item.nf_sugars,
+      addedSugar: item.nf_sugars,
+
+      protein: item.nf_protein,
+      potassium: item.nf_potassium,
     },
   }
 }

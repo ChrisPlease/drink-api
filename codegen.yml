@@ -6,12 +6,14 @@ generates:
       - "typescript"
       - "typescript-resolvers"
     config:
+      maybeValue: 'T extends PromiseLike<infer U> ? Promise<U | null> : T | null'
       useIndexSignature: true
       makeResolverTypeCallable: true
       contextType: "../types/context#AppContext"
       scalars:
         Date: Date
       mappers:
+        DrinkResult: ../types/models#DrinkResult as DrinkResultModel
         Drink: .prisma/client#Drink as DrinkModel
         BaseDrink: .prisma/client#Drink as BaseDrinkModel
         MixedDrink: .prisma/client#Drink as MixedDrinkModel

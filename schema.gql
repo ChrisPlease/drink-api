@@ -123,8 +123,7 @@ type DrinkNutrition implements Nutrition {
 
   servingSize: Float
   servingUnit: String
-
-  metricSize: Int!
+  metricSize: Int
   imperialSize: Int
 
   calories: Float
@@ -171,11 +170,9 @@ type EntryNutrition implements Nutrition {
 """
 Drink Interface for all drinks
 """
-interface Drink implements Node {
-  id: ID!
+interface Drink {
   name: String!
-  icon: Icon!
-  nutrition: DrinkNutrition
+  nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
     filter: EntryFilter,
@@ -185,7 +182,25 @@ interface Drink implements Node {
     last: Int
   ): EntriesPaginated
   user: User
-  createdAt: Date!
+}
+
+"""
+Result form scanning a drink upc
+"""
+# eslint-disable-next-line @graphql-eslint/strict-id-in-types
+type DrinkScan implements Drink {
+  name: String!
+  upc: String!
+  nutrition: DrinkNutrition!
+  entries(
+    sort: EntrySort,
+    filter: EntryFilter,
+    before: String,
+    after: String,
+    first: Int,
+    last: Int
+  ): EntriesPaginated
+  user: User
 }
 
 """
@@ -195,8 +210,7 @@ type BaseDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
-  upc: String
-  nutrition: DrinkNutrition
+  nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
     filter: EntryFilter,
@@ -216,7 +230,7 @@ type MixedDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon!
-  nutrition: DrinkNutrition
+  nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
     filter: EntryFilter,
@@ -496,6 +510,11 @@ input EntryFilter {
 }
 
 """
+Union type for Drink scan result, or Base Drink if drink exists
+"""
+union DrinkScanResult = DrinkScan | BaseDrink
+
+"""
 Root Queries
 """
 type Query {
@@ -541,7 +560,7 @@ type Query {
     filter: DrinkHistoryFilter,
   ): DrinksHistoryPaginated
 
-  drinkNutrition(upc: String!): DrinkResult
+  drinkScan(upc: String!): DrinkScanResult
 }
 
 """

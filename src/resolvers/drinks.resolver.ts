@@ -2,6 +2,7 @@ import {
   BaseDrinkResolvers,
   DrinkResolvers,
   DrinkResultResolvers,
+  DrinkScanResultResolvers,
   MixedDrinkResolvers,
 } from '@/__generated__/graphql'
 import { deconstructId } from '@/utils/cursorHash'
@@ -10,8 +11,15 @@ import { Entries } from '@/models/Entry.model'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
   async __resolveType(parent) {
-    const [type] = deconstructId(parent.id)
-    return type as 'MixedDrink' | 'BaseDrink'
+    const [type] = deconstructId(parent?.id || '')
+    return (type || 'BaseDrink') as 'MixedDrink' | 'BaseDrink'
+  },
+}
+
+export const drinkScanResultResolvers: DrinkScanResultResolvers = {
+  async __resolveType({ upc }, { prisma }) {
+    const drink = await Drinks(prisma.drink).findUnique({ where: { upc: upc || '' } })
+    return drink ? 'BaseDrink' : 'DrinkScan'
   },
 }
 

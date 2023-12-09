@@ -1,4 +1,9 @@
 import { Drink, Entry } from '@prisma/client'
+import { DrinkNutrition } from '@/__generated__/graphql'
+
+export interface DrinkResult extends Drink {
+  nutrition?: DrinkNutrition | null;
+}
 
 export interface ResolvedEntry extends Entry {
   id: string;
