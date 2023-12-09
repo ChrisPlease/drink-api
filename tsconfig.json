@@ -12,6 +12,7 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
+    "typeRoots": ["./src/types"],
     "paths": {
       "@/*": ["./src/*"]
     }

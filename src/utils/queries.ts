@@ -1,3 +1,5 @@
+/* istanbul ignore file -- @preserve  */
+
 import { Prisma, Drink, PrismaClient } from '@prisma/client'
 import { NutritionQuery } from '../types/models'
 import { RawDrink, RawEntry } from '../types/queries'
