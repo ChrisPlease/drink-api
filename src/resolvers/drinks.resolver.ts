@@ -1,9 +1,11 @@
 import {
   BaseDrinkResolvers,
+  DrinkNutrition,
   DrinkResolvers,
   DrinkResultResolvers,
-  DrinkScanResultResolvers,
   MixedDrinkResolvers,
+  ScanDrinkResolvers,
+  ScanDrinkResultResolvers,
 } from '@/__generated__/graphql'
 import { deconstructId } from '@/utils/cursorHash'
 import { Drinks } from '@/models/Drink.model'
@@ -16,11 +18,21 @@ export const drinkResultResolvers: DrinkResultResolvers = {
   },
 }
 
-export const drinkScanResultResolvers: DrinkScanResultResolvers = {
+export const scanDrinkResultResolvers: ScanDrinkResultResolvers = {
   async __resolveType({ upc }, { prisma }) {
     const drink = await Drinks(prisma.drink).findUnique({ where: { upc: upc || '' } })
-    return drink ? 'BaseDrink' : 'DrinkScan'
+    return drink ? 'BaseDrink' : 'ScanDrink'
   },
+}
+
+export const scanDrinkResolvers: ScanDrinkResolvers = {
+  nutrition(parent, _, { prisma }) {
+    console.log('============')
+    console.log('heeeere', parent)
+    console.log('============')
+    return parent.nutrition
+  },
+
 }
 
 export const drinkResolvers: DrinkResolvers = {
@@ -36,7 +48,7 @@ export const drinkResolvers: DrinkResolvers = {
 
   async nutrition(parent, args, { prisma }) {
     const drinkId = deconstructId(parent.id)[1]
-    return await prisma.nutrition.findUnique({ where: { drinkId } })
+    return <DrinkNutrition>await prisma.nutrition.findUnique({ where: { drinkId } })
   },
 
   async user(parent, args, { prisma }) {

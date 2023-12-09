@@ -1,5 +1,6 @@
 import { fetch } from 'undici'
-import { DrinkScan, DrinkScanResult } from '@/__generated__/graphql'
+import { ScanDrink, ScanDrinkResult } from '@/__generated__/graphql'
+import { toCursorHash } from '@/utils/cursorHash'
 
 interface NutritionixPhoto {
   thumb: string | null;
@@ -87,8 +88,9 @@ export async function fetchItem(params: { upc: string }) {
   return mapToDrinkNutrition(item, params.upc)
 }
 
-function mapToDrinkNutrition(item: NutritionixItem, upc: string): DrinkScan {
+function mapToDrinkNutrition(item: NutritionixItem, upc: string): ScanDrink {
   return {
+    id: toCursorHash(`ScanDrink:${upc}`),
     name: `${item.brand_name} ${item.food_name}`,
     upc,
     nutrition: {

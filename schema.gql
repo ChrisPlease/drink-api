@@ -171,6 +171,8 @@ type EntryNutrition implements Nutrition {
 Drink Interface for all drinks
 """
 interface Drink {
+  id: ID!
+  icon: Icon
   name: String!
   nutrition: DrinkNutrition!
   entries(
@@ -188,9 +190,11 @@ interface Drink {
 Result form scanning a drink upc
 """
 # eslint-disable-next-line @graphql-eslint/strict-id-in-types
-type DrinkScan implements Drink {
+type ScanDrink implements Drink {
+  id: ID!
+  upc: String
+  icon: Icon
   name: String!
-  upc: String!
   nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
@@ -208,8 +212,9 @@ Base Drink used for all drinks
 """
 type BaseDrink implements Drink & Node {
   id: ID!
+  upc: String
   name: String!
-  icon: Icon!
+  icon: Icon
   nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
@@ -229,7 +234,7 @@ Mixed Drink when drink has ingredients
 type MixedDrink implements Drink & Node {
   id: ID!
   name: String!
-  icon: Icon!
+  icon: Icon
   nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
@@ -512,7 +517,7 @@ input EntryFilter {
 """
 Union type for Drink scan result, or Base Drink if drink exists
 """
-union DrinkScanResult = DrinkScan | BaseDrink
+union ScanDrinkResult = ScanDrink | BaseDrink
 
 """
 Root Queries
@@ -560,7 +565,7 @@ type Query {
     filter: DrinkHistoryFilter,
   ): DrinksHistoryPaginated
 
-  drinkScan(upc: String!): DrinkScanResult
+  drinkScan(upc: String!): ScanDrinkResult
 }
 
 """

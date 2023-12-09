@@ -1,6 +1,6 @@
 import { Drink, Entry, User } from '@prisma/client'
-import { DrinkHistory as DrinkHistoryModel } from '@/types/models'
-import { BaseDrink, DrinkScan, QueryResolvers } from '@/__generated__/graphql'
+import { DrinkHistory as DrinkHistoryModel, ScanDrink } from '@/types/models'
+import { QueryResolvers } from '@/__generated__/graphql'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistory } from '@/models/History.model'
 import { Drinks } from '@/models/Drink.model'
@@ -113,15 +113,12 @@ export const queryResolvers: QueryResolvers = {
     )
   },
 
-  async drinkScan(_, { upc }, { prisma, req: { auth } }) {
-    const drink = <BaseDrink>await prisma.drink.findUnique({ where: { upc }, include: { nutrition: true }})
+  async drinkScan(_, { upc }, { prisma }) {
+    const drink = <Drink>await prisma.drink.findUnique({ where: { upc } })
 
-    if (drink) return { ...drink, id: toCursorHash(`BaseDrink:${drink.id}`) } as BaseDrink
+    if (drink) return { ...drink, id: toCursorHash(`BaseDrink:${drink.id}`) } as Drink
 
-    const foo = <DrinkScan>await fetchItem({ upc })
-
-    console.log('foo', foo)
-    return foo
+    return <ScanDrink>await fetchItem({ upc })
   },
 }
 

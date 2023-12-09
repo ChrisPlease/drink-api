@@ -15,6 +15,7 @@ generates:
       mappers:
         DrinkResult: ../types/models#DrinkResult as DrinkResultModel
         Drink: .prisma/client#Drink as DrinkModel
+        ScanDrink: ../types/models#ScanDrink as ScanDrinkModel
         BaseDrink: .prisma/client#Drink as BaseDrinkModel
         MixedDrink: .prisma/client#Drink as MixedDrinkModel
         Entry: ../types/models#ResolvedEntry as EntryModel
