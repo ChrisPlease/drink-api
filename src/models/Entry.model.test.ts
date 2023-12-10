@@ -7,7 +7,8 @@ import {
 } from 'vitest'
 import { Entry, Prisma } from '@prisma/client'
 import prisma from '../__mocks__/prisma'
-import { toCursorHash } from '../utils/cursorHash'
+import { deconstructId, fromCursorHash, toCursorHash } from '../utils/cursorHash'
+import { QueryEntriesArgs, QueryEntryArgs, Sort } from '../__generated__/graphql'
 import { Entries } from './Entry.model'
 
 describe('Entry Model', () => {
@@ -83,6 +84,13 @@ describe('Entry Model', () => {
       const res = await entry.findUniqueWithNutrition(mockResult.id, 'user-123')
       expect(res?.id).toEqual(toCursorHash('Entry:123'))
     })
+
+    test('returns null when entry is not found', async () => {
+      prisma.entry.findUnique.mockResolvedValue(null)
+      const res = await entry.findUniqueWithNutrition(mockResult.id, 'user-123')
+
+      expect(res).toBeNull()
+    })
   })
 
   describe('findWithNutrition', () => {
@@ -140,6 +148,92 @@ describe('Entry Model', () => {
         },
         where: { userId: '123' },
       })
+    })
+  })
+
+  describe('findDrinkByEntryId', () => {
+    beforeEach(() => {
+      prisma.entry.findUnique.mockReturnValue({
+        drink: vi.fn().mockResolvedValue({ _count: { ingredients: 4 }, id: 'drink-123' }),
+      } as any)
+    })
+
+    test('queries entry for the drink id and checks ingredients', async () => {
+      expect.assertions(2)
+      const res = await entry.findDrinkByEntryId(toCursorHash('drink:drink-123'))
+
+      expect(prisma.entry.findUnique).toHaveBeenCalledWith({ where: { id: 'drink-123' }})
+      expect(deconstructId(res.id)?.[0]).toEqual('MixedDrink')
+    })
+
+    test('returns base drink when no ingredients are found', async () => {
+      prisma.entry.findUnique.mockReturnValue({
+        drink: vi.fn().mockResolvedValue({ _count: { ingredients: 0 }, id: 'drink-123' }),
+      } as any)
+      const res = await entry.findDrinkByEntryId(toCursorHash('drink:drink-123'))
+
+      expect(prisma.entry.findUnique).toHaveBeenCalledWith({ where: { id: 'drink-123' }})
+      expect(deconstructId(res.id)?.[0]).toEqual('BaseDrink')
+
+    })
+  })
+
+  describe('findUserByEntryId', () => {
+    test('queries entry for the drink id and checks ingredients', async () => {
+      prisma.entry.findUnique.mockReturnValue({
+        user: vi.fn().mockResolvedValue({ id: 'user-123' }),
+      } as any)
+      expect.assertions(2)
+      const res = await entry.findUserByEntryId(toCursorHash('user:user-123'))
+
+      expect(prisma.entry.findUnique).toHaveBeenCalledWith({ where: { id: 'user-123' }})
+      expect(deconstructId(res.id)?.[0]).toEqual('User')
+    })
+  })
+
+  describe('findManyPaginated', () => {
+
+  let mockDrinkId: string
+
+    beforeEach(() => {
+      mockDrinkId = toCursorHash('BaseDrink:drink-123')
+
+      vi.spyOn(entry, 'findWithNutrition').mockResolvedValue(
+        new Array(4).fill({}).map((_, index) => ({
+          id: toCursorHash(`entry:entry-${index}`),
+          volume: 12,
+          servings: 2,
+          drinkId: mockDrinkId,
+        })),
+      )
+    })
+    test('makes a call to findWithNutrition with the provided args', async () => {
+      const res = await entry.findManyPaginated(prisma, {
+        filter: {
+          search: 'f',
+        },
+        sort: {
+          timestamp: Sort.Asc,
+        },
+        drinkId: mockDrinkId,
+        userId: 'user-123',
+      } satisfies QueryEntriesArgs & { userId: string })
+
+      expect(entry.findWithNutrition).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: { timestamp: 'ASC' },
+          where: {
+            AND: [
+              { userId: 'user-123' },
+              { deleted: false },
+              { drinkId: 'drink-123' },
+              {
+                drink: { name: { contains: 'f', mode: 'insensitive' } },
+              },
+            ],
+          },
+        }),
+      )
     })
   })
 

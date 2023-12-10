@@ -1,10 +1,10 @@
 import { fetch } from 'undici'
 import { ScanDrink } from '@/types/models'
-import { toCursorHash } from '@/utils/cursorHash'
 import {
   NutritionixResponse,
   NutritionixItem,
 } from '@/types/nutritionix'
+import { toCursorHash } from '@/utils/cursorHash'
 
 async function baseFetch(path: string, params: Record<string, string>): Promise<NutritionixResponse> {
   const headers = new Headers()

@@ -12,11 +12,10 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
-    "typeRoots": ["./src/types"],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["./src/*"],
+  "include": ["./src/*", "./src/types/env.d.ts"],
   "exclude": ["./prisma"]
 }

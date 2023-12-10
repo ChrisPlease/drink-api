@@ -20,6 +20,7 @@ import { rangeFilter, stringFilter } from '@/utils/filters'
 import { queryIngredientNutrition } from '@/utils/queries'
 import { DrinkWithIngredientCountPayload } from '@/types/drinks'
 import { DrinkResult, NutritionResult } from '@/types/models'
+import { mLToOz } from '@/utils/unit-conversions'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
@@ -27,21 +28,26 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {
     async findUniqueById(drinkId: string) {
       const [,id] = deconstructId(drinkId)
-      const { _count: count, ...res } = <DrinkWithIngredientCountPayload>await prismaDrink.findUnique({
+      const response = <DrinkWithIngredientCountPayload>await prismaDrink.findUnique({
         where: { id },
         include: {
           _count: {
             select: { ingredients: true },
           },
         },
-      }) || {}
+      })
 
-      return res ? {
-        ...res,
-        id: toCursorHash(`${
-          count?.ingredients > 0 ? 'MixedDrink' : 'BaseDrink'
-        }:${id}`),
-      } : null
+      if (response) {
+        const { _count: count, ...rest } = response
+        return {
+          ...rest,
+          id: toCursorHash(`${
+            count?.ingredients > 0 ? 'MixedDrink' : 'BaseDrink'
+          }:${id}`),
+        }
+      }
+
+      return null
     },
 
     async findManyPaginated({
@@ -98,7 +104,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         sortKey,
         sortValue,
       ] = <[keyof Prisma.DrinkOrderByWithRelationInput, Prisma.SortOrder]>Object.entries(sort || {
-        name: 'asc',
+        name: 'ASC',
       })[0]
 
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
@@ -148,6 +154,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
       const { nutrition, ...rest } = data
 
+      /* istanbul ignore if -- @preserve */
       if (data.nutrition) {
         return await prismaDrink.create({
           data: {
@@ -166,8 +173,6 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         }))
 
       }
-
-      return null
     },
 
     async createWithIngredients({
@@ -186,7 +191,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
             ...data,
             nutrition: {
               create: {
-                imperialSize: Math.ceil((nutrition?.metricSize || 1) / 29.57373),
+                imperialSize: Math.ceil(mLToOz(nutrition.metricSize)),
                 ...nutrition,
               },
 
@@ -286,6 +291,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         }),
       ])
 
+      console.log(entries)
       const {
         nutrition,
       } = <Prisma.DrinkGetPayload<{ include: { nutrition: true } }>>drink

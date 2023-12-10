@@ -1,5 +1,5 @@
-import 'dotenv/config'
 import { readFileSync } from 'fs'
+import * as dotenv from 'dotenv'
 import express from 'express'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -14,6 +14,8 @@ import { resolvers } from './resolvers'
 import { AppContext } from './types/context'
 import { jwtHandler } from './middleware/jwtHandler'
 import { toCursorHash } from './utils/cursorHash'
+
+dotenv.config()
 
 const app: express.Application = express()
 

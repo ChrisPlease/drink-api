@@ -25,13 +25,9 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
     async findUniqueWithNutrition(
       entryId: string,
       userId: string,
-    ): Promise<ResolvedEntry> {
+    ): Promise<ResolvedEntry | null> {
       const [,id] = deconstructId(entryId)
-      const {
-        id: _,
-        drink,
-        ...entry
-      } = await prismaEntry.findUnique({
+      const res = await prismaEntry.findUnique({
         where: { id_userId: { userId, id } },
         include: {
           drink: {
@@ -46,21 +42,23 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
             },
           },
         },
-      }) || {} as Prisma.EntryGetPayload<{
-        include: {
-          drink: {
-            include: {
-              nutrition: true,
-            },
-          },
-        },
-      }>
+      })
 
-      return {
-        id: entryId,
-        servings: volumeToServings(entry?.volume, drink?.nutrition?.metricSize),
-        ...entry,
+      if (res) {
+        const {
+          id: _,
+          drink,
+          ...entry
+        } = res
+
+        return {
+          id: entryId,
+          servings: volumeToServings(entry?.volume, drink?.nutrition?.metricSize),
+          ...entry,
+        }
       }
+
+      return null
     },
 
     async findWithNutrition(
