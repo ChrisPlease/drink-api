@@ -5,11 +5,16 @@ import {
   test,
   expect,
 } from 'vitest'
-import { Entry, Prisma } from '@prisma/client'
+import { Prisma } from '@prisma/client'
+import { entriesDistinctCount } from '../utils/queries'
 import prisma from '../__mocks__/prisma'
-import { deconstructId, fromCursorHash, toCursorHash } from '../utils/cursorHash'
-import { QueryEntriesArgs, QueryEntryArgs, Sort } from '../__generated__/graphql'
+import { deconstructId, toCursorHash } from '../utils/cursorHash'
+import { QueryEntriesArgs, Sort } from '../__generated__/graphql'
 import { Entries } from './Entry.model'
+
+vi.mock('../utils/queries', () => ({
+  entriesDistinctCount: vi.fn().mockResolvedValue([{ count: 5 }]),
+}))
 
 describe('Entry Model', () => {
   const entry = Entries(prisma.entry)
@@ -194,6 +199,7 @@ describe('Entry Model', () => {
   describe('findManyPaginated', () => {
 
   let mockDrinkId: string
+  let mockArgs: QueryEntriesArgs & { userId: string }
 
     beforeEach(() => {
       mockDrinkId = toCursorHash('BaseDrink:drink-123')
@@ -201,27 +207,28 @@ describe('Entry Model', () => {
       vi.spyOn(entry, 'findWithNutrition').mockResolvedValue(
         new Array(4).fill({}).map((_, index) => ({
           id: toCursorHash(`entry:entry-${index}`),
-          volume: 12,
+          volume: 12 % index,
           servings: 2,
           drinkId: mockDrinkId,
         })),
       )
     })
     test('makes a call to findWithNutrition with the provided args', async () => {
-      const res = await entry.findManyPaginated(prisma, {
+      mockArgs = {
         filter: {
           search: 'f',
         },
         sort: {
-          timestamp: Sort.Asc,
+          volume: Sort.Asc,
         },
         drinkId: mockDrinkId,
         userId: 'user-123',
-      } satisfies QueryEntriesArgs & { userId: string })
+      }
+      await entry.findManyPaginated(prisma, mockArgs)
 
       expect(entry.findWithNutrition).toHaveBeenCalledWith(
         expect.objectContaining({
-          orderBy: { timestamp: 'ASC' },
+          orderBy: { volume: 'ASC' },
           where: {
             AND: [
               { userId: 'user-123' },
@@ -234,6 +241,20 @@ describe('Entry Model', () => {
           },
         }),
       )
+    })
+
+    test('does something else', async () => {
+      mockArgs = {
+        ...mockArgs,
+        filter: { distinct: true },
+      }
+      await entry.findManyPaginated(prisma, mockArgs)
+    })
+  })
+
+  describe('createEntry', () => {
+    test('', () => {
+      expect(true).toBeTruthy()
     })
   })
 

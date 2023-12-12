@@ -140,3 +140,20 @@ WITH cte AS (
   ORDER BY c.row_idx ASC ${
     take ? Prisma.sql`LIMIT ${take}` : Prisma.empty
   };`}
+
+export const entriesDistinctCount = async (
+  client: PrismaClient,
+  {
+    userId,
+    drinkId,
+  }: {
+    userId: string,
+    drinkId?: string,
+  },
+) => await client.$queryRaw<{ count: string }[]>`
+SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${
+  userId
+} AND deleted = false ${
+  drinkId ? Prisma.sql`AND drink_id = ${drinkId}::uuid` : Prisma.empty
+}
+`

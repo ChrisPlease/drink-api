@@ -26,11 +26,8 @@ export const scanDrinkResultResolvers: ScanDrinkResultResolvers = {
 }
 
 export const scanDrinkResolvers: ScanDrinkResolvers = {
-  nutrition(parent, _, { prisma }) {
-    console.log('============')
-    console.log('heeeere', parent)
-    console.log('============')
-    return parent.nutrition
+  nutrition(parent) {
+    return parent.nutrition as DrinkNutrition
   },
 
 }

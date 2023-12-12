@@ -269,44 +269,6 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         }))
     },
 
-    async findDrinkEntries(
-      client: PrismaClient,
-      drinkId: string,
-      userId: string,
-    ) {
-      const [,id] = deconstructId(drinkId)
-
-      const [entries, drink] = await client.$transaction([
-        prismaDrink.findUnique({
-          where: { id },
-        }).entries({
-          where: { userId },
-          orderBy: {
-            timestamp: 'desc',
-          },
-        }),
-        prismaDrink.findUnique({
-          where: { id },
-          include: { nutrition: true },
-        }),
-      ])
-
-      console.log(entries)
-      const {
-        nutrition,
-      } = <Prisma.DrinkGetPayload<{ include: { nutrition: true } }>>drink
-
-      return entries?.map(({ volume, ...entry }) => {
-
-        return {
-          volume,
-          ...nutrition,
-          ...entry,
-          id: toCursorHash(`Entry:${entry.id}`),
-        }
-      }) || []
-    },
-
     async deleteDrink(
       { id: drinkId, userId }: MutationDrinkDeleteArgs & { userId: string },
     ) {

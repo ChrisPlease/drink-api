@@ -18,6 +18,7 @@ import {
   QueryEntriesArgs,
 } from '@/__generated__/graphql'
 import { ResolvedEntry } from '@/types/models'
+import { entriesDistinctCount } from '@/utils/queries'
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
@@ -189,21 +190,15 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           ...baseArgs,
         }),
         async () => {
-          let count = 0
+          let count: string = '0'
           if (distinct) {
-            ([{ count }] = await client.$queryRaw<{ count: number }[]>`
-            SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${
-              userId
-            } AND deleted = false ${
-              drinkId ? Prisma.sql`AND drink_id = ${drinkId}::uuid` : Prisma.empty
-            }
-            `)
+            ([{ count }] = await entriesDistinctCount(client, { userId, drinkId }))
           } else {
-            count = await prismaEntry.count(
+            count = `${await prismaEntry.count(
               { ...baseArgs } as Omit<Prisma.EntryCountArgs, 'select' | 'include'>,
-            )
+            )}`
           }
-          return count
+          return +count
         },
         { first, last, before, after },
         {
@@ -221,7 +216,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       args: MutationEntryCreateArgs & { userId: string },
       prismaDrink: PrismaClient['drink'],
     ): Promise<ResolvedEntry> {
-
       const {
         drinkId,
         volume: inputVolume,

@@ -17,10 +17,11 @@ import {
   DrinkEditInput,
   DrinkFilter,
   DrinkSort,
+  MutationDrinkDeleteArgs,
+  QueryDrinksArgs,
   Sort,
 } from '../__generated__/graphql'
 import { DrinkWithIngredientCountPayload } from '../types/drinks'
-import { DrinkResult } from '../types/models'
 import { Drinks } from './Drink.model'
 
 vi.mock('../utils/queries', () => ({
@@ -94,16 +95,14 @@ describe('Drink Model', () => {
 
   describe('findManyPaginated', () => {
     let mockResponse: DrinkWithIngredientCountPayload[]
+    let mockFilterInput: QueryDrinksArgs
+
     beforeEach(() => {
       mockResponse = Array.from(new Array(12)).map((_, index) => ({
         id: `drink-${index}`,
         name: `Test drink ${index}`,
         upc: '000000000000',
         icon: 'test-icon',
-        caffeine: 12,
-        sugar: 12,
-        coefficient: 1,
-        servingSize: 8,
         deleted: null,
         userId: null,
         createdAt: new Date(2023, 0, 0, 0),
@@ -113,6 +112,33 @@ describe('Drink Model', () => {
       }))
       prisma.drink.findMany.mockResolvedValue(mockResponse)
       prisma.drink.count.mockResolvedValue(12)
+
+      mockFilterInput = {
+        first: 1,
+        orderBy: {
+          name: 'asc',
+          id: 'asc',
+        },
+        filter: {
+          nutrition: {
+            coefficient: [
+              { comparison: 'GT', value: 10 },
+              { comparison: 'LT', value: 99 },
+            ],
+          },
+          id: {
+            in: [
+              toCursorHash('foo:mock-id-1'),
+              toCursorHash('foo:mock-id-2'),
+            ],
+          },
+          isMixedDrink: true,
+          isUserDrink: true,
+        } as DrinkFilter,
+        sort: {
+          name: 'ASC',
+        } as DrinkSort,
+      } as QueryDrinksArgs
     })
 
     test('makes calls to the database to return drinks and count', async () => {
@@ -150,33 +176,10 @@ describe('Drink Model', () => {
       const after = toCursorHash(
         JSON.stringify(encodeCursor({ id: 'mock-id-1'}, [])),
       )
-      const mockFilterInput = {
+      mockFilterInput = {
+        ...mockFilterInput,
         after,
-        first: 1,
-        orderBy: {
-          name: 'asc',
-          id: 'asc',
-        },
-        filter: {
-          nutrition: {
-            coefficient: [
-              { comparison: 'GT', value: 10 },
-              { comparison: 'LT', value: 99 },
-            ],
-          },
-          id: {
-            in: [
-              toCursorHash('foo:mock-id-1'),
-              toCursorHash('foo:mock-id-2'),
-            ],
-          },
-          isMixedDrink: true,
-          isUserDrink: true,
-        } as DrinkFilter,
-        sort: {
-          name: 'ASC',
-        } as DrinkSort,
-      } as Prisma.DrinkWhereInput
+      } as QueryDrinksArgs
 
       await drink.findManyPaginated(mockFilterInput, 'user-123')
 
@@ -203,6 +206,38 @@ describe('Drink Model', () => {
                 LT: 99,
               },
             },
+          }),
+        }),
+      )
+    })
+
+    test('searches by userId when provided', async () => {
+      mockFilterInput = {
+        userId: 'mock-user',
+      }
+      await drink.findManyPaginated(mockFilterInput,'user-123')
+
+      expect(prisma.drink.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            userId: 'mock-user',
+          }),
+        }),
+      )
+    })
+
+    test('filters out drinks with ingredients when searching isMixedDrink: false', async () => {
+      mockFilterInput = {
+        filter: {
+          isMixedDrink: false,
+        },
+      } as QueryDrinksArgs
+      await drink.findManyPaginated(mockFilterInput, 'user-123')
+
+      expect(prisma.drink.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            ingredients: { none: {} },
           }),
         }),
       )
@@ -530,33 +565,62 @@ describe('Drink Model', () => {
     })
   })
 
-  describe('findDrinkEntries', () => {
+  describe('deleteDrink', () => {
+    const mockDrinkId = toCursorHash('BaseDrink:drink-123')
+    let mockArgs: MutationDrinkDeleteArgs & { userId: string }
+    let mockRes: Drink
+
     beforeEach(() => {
-      prisma.$transaction
-        .mockImplementation(((cbs: (() => unknown)[]) => cbs.map(() => prisma)) as any)
-      prisma.drink.findUnique.mockReturnValueOnce({
-        entries: vi.fn().mockResolvedValue([{ volume: 4 }]),
-      } as any).mockResolvedValue({ name: 'mock-drink', nutrition: { caffeine: 3 } } as DrinkResult)
-    })
-    test('initiates a transaction', async () => {
-      await drink.findDrinkEntries(prisma, toCursorHash('foo:mock-id-1'), 'user-123')
+      mockArgs = {
+        id: mockDrinkId,
+        userId: 'user-123',
+      }
 
-      expect(prisma.$transaction).toHaveBeenCalled()
-    })
+      mockRes = {
+        id: 'drink-123',
+        name: 'foo',
+      } as Drink
 
-    test('finds the drink', async () => {
-      await drink.findDrinkEntries(prisma, toCursorHash('foo:mock-id-1'), 'user-123')
+      prisma.drink.delete.mockResolvedValue(mockRes)
 
-      expect(prisma.drink.findUnique).toHaveBeenNthCalledWith(1, { where: { id: 'mock-id-1' }})
     })
 
-    test('finds the drink nutrition', async () => {
-      await drink.findDrinkEntries(prisma, toCursorHash('foo:mock-id-1'), 'user-123')
+    test('calls to Prisma delete with given arguments', async () => {
+      await drink.deleteDrink(mockArgs)
+      expect(prisma.drink.delete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            id_userId: {
+              id: 'drink-123',
+              userId: 'user-123',
+            },
+          },
+        }),
+      )
+    })
 
-      expect(prisma.drink.findUnique).toHaveBeenNthCalledWith(2, {
-        include: { nutrition: true },
-        where: { id: 'mock-id-1' },
-      })
+    test('hashes the id and returns the object', async () => {
+      const res = await drink.deleteDrink(mockArgs)
+
+      expect(res.id).toEqual(mockDrinkId)
+
+    })
+
+  })
+
+  describe('findDrinkIngredients', () => {
+    beforeEach(() => {
+      prisma.drink.findUnique.mockReturnValue({
+        ingredients: vi.fn().mockResolvedValue([
+          { ingredient: { id: '123' } },
+          { ingredient: { id: '456' } },
+        ]),
+      } as any)
+    })
+
+    test('returns unwrapped ingredients', async () => {
+      const res = await drink.findDrinkIngredients(toCursorHash('BaseDrink:123'))
+      expect(res).toEqual([{ id: '123' }, { id: '456' }])
     })
   })
 })
