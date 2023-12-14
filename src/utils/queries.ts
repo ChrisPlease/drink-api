@@ -4,6 +4,14 @@ import { Prisma, Drink, PrismaClient } from '@prisma/client'
 import { NutritionQuery } from '../types/models'
 import { RawDrink, RawEntry } from '../types/queries'
 
+
+/**
+ * Retrieve the nutrition of a drink based on drink ingredients
+ *
+ * @param {PrismaClient} client - The prisma client
+ * @param {string} drinkId - the ID of the queried drink
+ * @return {Promise<NutritionQuery[]>} - Promise containing an array of one drink nutrition
+ */
 export const queryIngredientNutrition = async (
   client: PrismaClient,
   drinkId: string,

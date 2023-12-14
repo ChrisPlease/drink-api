@@ -623,4 +623,29 @@ describe('Drink Model', () => {
       expect(res).toEqual([{ id: '123' }, { id: '456' }])
     })
   })
+
+  describe('findDrinkUser', () => {
+    beforeEach(() => {
+      prisma.drink.findUnique.mockReturnValue({
+        user: vi.fn().mockResolvedValue({ id: 'user-123' }),
+      } as any)
+    })
+
+    test('calls the user and returns a hashed id', async () => {
+      expect.assertions(2)
+      const res = await drink.findDrinkUser(toCursorHash('BaseDrink:drink-123'))
+
+      expect(prisma.drink.findUnique).toHaveBeenCalledWith({ where: { id: 'drink-123' } })
+      expect(res).toEqual({ id: toCursorHash('User:user-123') })
+    })
+
+    test('returns null when user not found', async () => {
+      prisma.drink.findUnique.mockReturnValue({
+        user: vi.fn().mockResolvedValue(null),
+      } as any)
+
+      const res = await drink.findDrinkUser('foo')
+      expect(res).toBeNull()
+    })
+  })
 })

@@ -6,10 +6,11 @@ import {
   expect,
 } from 'vitest'
 import { Prisma } from '@prisma/client'
-import { entriesDistinctCount } from '../utils/queries'
 import prisma from '../__mocks__/prisma'
-import { deconstructId, toCursorHash } from '../utils/cursorHash'
-import { QueryEntriesArgs, Sort } from '../__generated__/graphql'
+import { deconstructId, encodeCursor, toCursorHash } from '../utils/cursorHash'
+import { MutationEntryCreateArgs, QueryEntriesArgs, Sort } from '../__generated__/graphql'
+import { entriesDistinctCount } from '../utils/queries'
+import { ResolvedEntry } from '../types/models'
 import { Entries } from './Entry.model'
 
 vi.mock('../utils/queries', () => ({
@@ -197,9 +198,8 @@ describe('Entry Model', () => {
   })
 
   describe('findManyPaginated', () => {
-
-  let mockDrinkId: string
-  let mockArgs: QueryEntriesArgs & { userId: string }
+    let mockDrinkId: string
+    let mockArgs: QueryEntriesArgs & { userId: string }
 
     beforeEach(() => {
       mockDrinkId = toCursorHash('BaseDrink:drink-123')
@@ -213,10 +213,39 @@ describe('Entry Model', () => {
         })),
       )
     })
+
+    test('provides a default empty filter when none is provided', async () => {
+      mockArgs = { userId: 'user-123' }
+      await entry.findManyPaginated(prisma, mockArgs)
+
+      expect(entry.findWithNutrition).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: {
+            drink: {
+              name: 'desc',
+            },
+          },
+          where: {
+            AND: [{
+              userId: 'user-123',
+            },{
+              deleted: false,
+            }],
+          },
+        }),
+      )
+    })
+
     test('makes a call to findWithNutrition with the provided args', async () => {
+      const after = toCursorHash(
+        JSON.stringify(encodeCursor({ id: 'mock-id-1'}, [])),
+      )
       mockArgs = {
+        first: 4,
+        after,
         filter: {
           search: 'f',
+          limit: new Date(2022, 12, 12),
         },
         sort: {
           volume: Sort.Asc,
@@ -228,12 +257,18 @@ describe('Entry Model', () => {
 
       expect(entry.findWithNutrition).toHaveBeenCalledWith(
         expect.objectContaining({
+          skip: 1,
+          take: 5,
+          cursor: {
+            id: 'mock-id-1',
+          },
           orderBy: { volume: 'ASC' },
           where: {
             AND: [
               { userId: 'user-123' },
               { deleted: false },
               { drinkId: 'drink-123' },
+              { timestamp: { gt: new Date(2022, 12, 12) } },
               {
                 drink: { name: { contains: 'f', mode: 'insensitive' } },
               },
@@ -243,22 +278,125 @@ describe('Entry Model', () => {
       )
     })
 
-    test('does something else', async () => {
+    test('makes a call to `entriesDistinctCount` when searching distinct entries', async () => {
       mockArgs = {
         ...mockArgs,
+        first: 3,
         filter: { distinct: true },
       }
       await entry.findManyPaginated(prisma, mockArgs)
+      expect(entriesDistinctCount).toHaveBeenCalledWith(expect.anything(), {
+        userId: 'user-123',
+        drinkId: 'drink-123',
+      })
     })
   })
 
   describe('createEntry', () => {
-    test('', () => {
-      expect(true).toBeTruthy()
+    let mockArgs: MutationEntryCreateArgs & { userId: string }
+
+    beforeEach(() => {
+      mockArgs = {
+        drinkId: toCursorHash('BaseDrink:drink-123'),
+        volume: 12,
+        unit: 'fl oz',
+        userId: 'user-123',
+      }
+
+      prisma.drink.findUnique.mockReturnValue({
+        nutrition: vi.fn().mockResolvedValue({
+          servingUnit: 'fl oz',
+          servingSize: 12,
+          metricSize: 355,
+        }),
+      } as any)
+
+      prisma.entry.create.mockResolvedValue({
+        id: 'entry-123',
+        volume: 12,
+        userId: 'user-123',
+        deleted: false,
+        drinkId: 'drink-123',
+        timestamp: new Date(2022, 12, 12),
+      })
+    })
+
+    test('queries prisma to find the drink nutrition', async () => {
+      await entry.createEntry(mockArgs, prisma.drink)
+      expect(prisma.drink.findUnique).toHaveBeenCalledWith({ where: { id: 'drink-123' } })
+    })
+
+    test('creates the entry', async () => {
+      await entry.createEntry(mockArgs, prisma.drink)
+      expect(prisma.entry.create).toHaveBeenCalledWith({
+        data: {
+          drinkId: 'drink-123',
+          userId: 'user-123',
+          volume: 12,
+        },
+      })
+    })
+
+    test('returns the entry with a hashed id', async () => {
+      const res = await entry.createEntry(mockArgs, prisma.drink)
+      expect(res).toEqual(
+        expect.objectContaining({
+          id: toCursorHash('Entry:entry-123'),
+        }),
+      )
     })
   })
 
-  test('true should be true', () => {
-    expect(true).toBe(true)
+  describe('deleteAndReturn', () => {
+    let mockDrinkId: string
+
+    beforeEach(() => {
+      mockDrinkId = toCursorHash('BaseDrink:123')
+
+      prisma.$transaction.mockImplementation(callback => callback(prisma))
+      prisma.entry.delete.mockResolvedValue({
+        id: 'entry-123',
+        drinkId: mockDrinkId,
+      } as ResolvedEntry)
+      prisma.drink.findUnique.mockReturnValue({
+        nutrition: vi.fn().mockResolvedValue({ servingSize: 12 }),
+      } as any)
+
+    })
+
+    test('initiates a transaction', async () => {
+      await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
+      expect(prisma.$transaction).toHaveBeenCalled()
+    })
+
+    test('deletes the provided entry', async () => {
+      await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
+      expect(prisma.entry.delete).toHaveBeenCalledWith({
+        where: {
+          id_userId: {
+            id: '123',
+            userId: 'user-123',
+          },
+        },
+      })
+    })
+
+    test('retrieves the nutrition of the deleted entry drink', async () => {
+      await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
+      expect(prisma.drink.findUnique).toHaveBeenCalledWith({
+        where: { id: mockDrinkId },
+      })
+    })
+
+    test('returns the deleted entry', async () => {
+      const res = await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
+
+      expect(res).toEqual(
+        expect.objectContaining({
+          id: '123',
+          drinkId: mockDrinkId,
+        }),
+      )
+    })
   })
 })
