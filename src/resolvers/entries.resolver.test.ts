@@ -12,7 +12,6 @@ import prisma from '../__mocks__/prisma'
 import redis from '../__mocks__/redis'
 import { Entries } from '../models/Entry.model'
 import { AppContext } from '../types/context'
-import { DrinkNutrition } from '../__generated__/graphql'
 import { entryResolvers } from './entries.resolver'
 
 vi.mock('../models/Entry.model', () => {

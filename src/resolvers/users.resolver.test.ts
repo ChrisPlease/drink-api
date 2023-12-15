@@ -1,4 +1,3 @@
-import { afterEach } from 'node:test'
 import {
   vi,
   beforeEach,
