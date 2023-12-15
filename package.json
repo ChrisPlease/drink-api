@@ -41,7 +41,7 @@
     "graphql": "^16.6.0",
     "jwks-rsa": "^3.0.1",
     "keyv": "^4.5.2",
-    "prisma-soft-delete-middleware": "^1.0.1",
+    "prisma-extension-soft-delete": "^1.0.0",
     "redis": "^4.6.6",
     "undici": "^5.27.2"
   },
