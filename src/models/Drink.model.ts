@@ -7,6 +7,7 @@ import {
   IngredientInput,
   MutationDrinkDeleteArgs,
   QueryDrinksArgs,
+  Sort,
 } from '@/__generated__/graphql'
 import {
   deconstructId,
@@ -104,13 +105,21 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         sortKey,
         sortValue,
       ] = <[keyof Prisma.DrinkOrderByWithRelationInput, Prisma.SortOrder]>Object.entries(sort || {
-        name: 'ASC',
+        name: 'asc',
       })[0]
 
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         ['name', 'createdAt'].includes(sortKey)
           ? { [sortKey]: sortValue }
-          : ([{ [sortKey]: (sortKey === 'entries' ? { _count: sortValue } : sortValue) }, { name: 'asc' }])
+          : ([
+            {
+              [sortKey]: (sortKey === 'entries'
+                ? { _count: sortValue }
+                : sortValue.toLocaleLowerCase() ),
+            }, {
+              name: Sort.Asc,
+            },
+          ])
       )
 
       const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(

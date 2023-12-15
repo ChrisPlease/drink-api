@@ -125,7 +125,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       client: PrismaClient,
       args: QueryEntriesArgs & { userId: string },
     ) {
-
       const {
         first,
         sort,
@@ -198,7 +197,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
               { ...baseArgs } as Omit<Prisma.EntryCountArgs, 'select' | 'include'>,
             )}`
           }
-          return +count
+          return parseInt(count, 0)
         },
         { first, last, before, after },
         {

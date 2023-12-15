@@ -172,7 +172,7 @@ export const entriesDistinctCount = async (
     drinkId?: string,
   },
 ) => await client.$queryRaw<{ count: string }[]>`
-SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${
+SELECT COUNT(DISTINCT (volume::int)) FROM entries WHERE user_id = ${
   userId
 } AND deleted = false ${
   drinkId ? Prisma.sql`AND drink_id = ${drinkId}::uuid` : Prisma.empty
