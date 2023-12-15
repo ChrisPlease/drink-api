@@ -45,8 +45,8 @@ export function DrinkHistory(client: PrismaClient) {
         return {
           id: toCursorHash(`DrinkHistory:${id}`),
           count,
-          volume: volume,
-          water: roundNumber(volume * ((coefficient || 1) / 100)),
+          volume,
+          water: roundNumber((volume * (coefficient || 1)), 100),
         }
       })
     },

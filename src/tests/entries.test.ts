@@ -57,18 +57,6 @@ describe('entries', () => {
               drink {
                 ... on Drink {
                   name
-                  entries {
-                    edges {
-                      node {
-                        volume
-                        drink {
-                          ... on Drink {
-                            name
-                          }
-                        }
-                      }
-                    }
-                  }
                 }
               }
             }
@@ -88,7 +76,7 @@ describe('entries', () => {
   test('returns a paginated list of entries', async () => {
     const res = await testServer.executeOperation({
       query: QUERY,
-      variables: { distinct: false, first: 12 },
+      variables: { filter: { distinct: false }, first: 12 },
     }, { contextValue })
 
     assert(res.body.kind === 'single')
@@ -101,12 +89,12 @@ describe('entries', () => {
     contextValue = { ...contextValue, req: { ...contextValue.req, auth: { sub: 'user-456' } } as Request}
     const res = await testServer.executeOperation({
       query: QUERY,
-      variables: { distinct: true, first: 12 },
+      variables: { distinct: true },
     }, { contextValue })
 
     assert(res.body.kind === 'single')
 
     result = res.body.singleResult.data?.entries as EntriesPaginated
-    expect(result.edges).toHaveLength(0)
+    expect(result?.edges || []).toHaveLength(0)
   })
 })

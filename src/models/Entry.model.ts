@@ -18,6 +18,7 @@ import {
   QueryEntriesArgs,
 } from '@/__generated__/graphql'
 import { ResolvedEntry } from '@/types/models'
+import { entriesDistinctCount } from '@/utils/queries'
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
@@ -25,13 +26,9 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
     async findUniqueWithNutrition(
       entryId: string,
       userId: string,
-    ): Promise<ResolvedEntry> {
+    ): Promise<ResolvedEntry | null> {
       const [,id] = deconstructId(entryId)
-      const {
-        id: _,
-        drink,
-        ...entry
-      } = await prismaEntry.findUnique({
+      const res = await prismaEntry.findUnique({
         where: { id_userId: { userId, id } },
         include: {
           drink: {
@@ -46,21 +43,23 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
             },
           },
         },
-      }) || {} as Prisma.EntryGetPayload<{
-        include: {
-          drink: {
-            include: {
-              nutrition: true,
-            },
-          },
-        },
-      }>
+      })
 
-      return {
-        id: entryId,
-        servings: volumeToServings(entry?.volume, drink?.nutrition?.metricSize),
-        ...entry,
+      if (res) {
+        const {
+          id: _,
+          drink,
+          ...entry
+        } = res
+
+        return {
+          id: entryId,
+          servings: volumeToServings(entry?.volume, drink?.nutrition?.metricSize),
+          ...entry,
+        }
       }
+
+      return null
     },
 
     async findWithNutrition(
@@ -126,7 +125,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       client: PrismaClient,
       args: QueryEntriesArgs & { userId: string },
     ) {
-
       const {
         first,
         sort,
@@ -191,21 +189,15 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
           ...baseArgs,
         }),
         async () => {
-          let count = 0
+          let count: string = '0'
           if (distinct) {
-            ([{ count }] = await client.$queryRaw<{ count: number }[]>`
-            SELECT COUNT(DISTINCT (volume)) FROM entries WHERE user_id = ${
-              userId
-            } AND deleted = false ${
-              drinkId ? Prisma.sql`AND drink_id = ${drinkId}::uuid` : Prisma.empty
-            }
-            `)
+            ([{ count }] = await entriesDistinctCount(client, { userId, drinkId }))
           } else {
-            count = await prismaEntry.count(
+            count = `${await prismaEntry.count(
               { ...baseArgs } as Omit<Prisma.EntryCountArgs, 'select' | 'include'>,
-            )
+            )}`
           }
-          return count
+          return parseInt(count, 0)
         },
         { first, last, before, after },
         {
@@ -223,7 +215,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       args: MutationEntryCreateArgs & { userId: string },
       prismaDrink: PrismaClient['drink'],
     ): Promise<ResolvedEntry> {
-
       const {
         drinkId,
         volume: inputVolume,

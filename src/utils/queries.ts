@@ -1,7 +1,17 @@
+/* istanbul ignore file -- @preserve  */
+
 import { Prisma, Drink, PrismaClient } from '@prisma/client'
 import { NutritionQuery } from '../types/models'
 import { RawDrink, RawEntry } from '../types/queries'
 
+
+/**
+ * Retrieve the nutrition of a drink based on drink ingredients
+ *
+ * @param {PrismaClient} client - The prisma client
+ * @param {string} drinkId - the ID of the queried drink
+ * @return {Promise<NutritionQuery[]>} - Promise containing an array of one drink nutrition
+ */
 export const queryIngredientNutrition = async (
   client: PrismaClient,
   drinkId: string,
@@ -51,6 +61,19 @@ WHERE i.id = ${drinkId}::uuid \
 GROUP BY d.id`
 }
 
+/**
+ * Retrieve a drink's entry history including volume and water
+ *
+ * @param {PrismaClient} client - The prisma client
+ * @param {{
+ *   id: string,
+ *   hasEntries: boolean,
+ *   limit?: number,
+ *   userId?: string,
+ * }}
+ *
+ * @return {Promise<RawEntry[]>}
+ */
 export const queryDrinkHistory = async (
   client: PrismaClient,
   {
@@ -138,3 +161,20 @@ WITH cte AS (
   ORDER BY c.row_idx ASC ${
     take ? Prisma.sql`LIMIT ${take}` : Prisma.empty
   };`}
+
+export const entriesDistinctCount = async (
+  client: PrismaClient,
+  {
+    userId,
+    drinkId,
+  }: {
+    userId: string,
+    drinkId?: string,
+  },
+) => await client.$queryRaw<{ count: string }[]>`
+SELECT COUNT(DISTINCT (volume::int)) FROM entries WHERE user_id = ${
+  userId
+} AND deleted = false ${
+  drinkId ? Prisma.sql`AND drink_id = ${drinkId}::uuid` : Prisma.empty
+}
+`

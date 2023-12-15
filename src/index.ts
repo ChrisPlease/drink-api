@@ -1,5 +1,5 @@
-import 'dotenv/config'
 import { readFileSync } from 'fs'
+import * as dotenv from 'dotenv'
 import express from 'express'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -15,12 +15,13 @@ import { AppContext } from './types/context'
 import { jwtHandler } from './middleware/jwtHandler'
 import { toCursorHash } from './utils/cursorHash'
 
+dotenv.config()
+
 const app: express.Application = express()
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cors({ origin: '*' }))
-
 
 async function initServer() {
   const server = new ApolloServer<AppContext>({

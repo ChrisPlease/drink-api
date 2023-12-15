@@ -56,13 +56,27 @@ describe('drinks', () => {
     describe('get all drinks', () => {
       let result: DrinksPaginated
       beforeEach(async () => {
-        QUERY = gql`query GetDrinks($first: Int, $after: String, $search: String) {
-          drinks(first: $first, after: $after, filter: { search: $search }) {
+        QUERY = gql`query GetDrinks($first: Int, $after: String, $filter: DrinkFilter) {
+          drinks(first: $first, after: $after, filter: $filter) {
             edges {
               node {
+                __typename
                 ... on Drink {
                   id
                   name
+                  entries {
+                    edges {
+                      node {
+                        volume
+                      }
+                    }
+                  }
+                  nutrition {
+                    ... on DrinkNutrition {
+                      caffeine
+                      servingSize
+                    }
+                  }
                 }
               }
               cursor
@@ -89,7 +103,6 @@ describe('drinks', () => {
         assert(res.body.singleResult.data?.drinks !== null)
 
         const result = res.body.singleResult.data?.drinks as DrinksPaginated
-
         expect(result.edges.length).toEqual(12)
         expect(result.edges[0].cursor).toEqual(result.pageInfo?.startCursor)
         expect(
@@ -118,7 +131,7 @@ describe('drinks', () => {
       it('filters results when search term is provided', async () => {
         const res = await testServer.executeOperation({
           query: QUERY,
-          variables: { search: 'w' },
+          variables: { filter: { search: 'w' } },
         }, { contextValue })
 
         assert(res.body.kind === 'single')
@@ -233,7 +246,7 @@ describe('drinks', () => {
       })
     })
 
-    describe.only('drinkDelete', () => {
+    describe('drinkDelete', () => {
       let newDrinkId: string
 
       beforeEach(async () => {

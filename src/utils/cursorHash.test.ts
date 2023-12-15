@@ -63,12 +63,9 @@ describe('cursorHash', () => {
     beforeEach(() => {
       record = {
         id: '123',
+        upc: 'foo',
         name: 'Test',
         icon: 'test',
-        coefficient: 1,
-        sugar: 0,
-        caffeine: 0,
-        servingSize: 8,
         deleted: null,
         createdAt: new Date(2023, 0, 0, 0, 0),
         userId: 'user-123',

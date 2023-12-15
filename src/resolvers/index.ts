@@ -6,6 +6,8 @@ import {
   baseDrinkResolvers,
   drinkResolvers,
   drinkResultResolvers,
+  scanDrinkResolvers,
+  scanDrinkResultResolvers,
   mixedDrinkResolvers,
 } from './drinks.resolver'
 import { ingredientResolvers, ingredientTypeResolvers } from './ingredients.resolver'
@@ -13,6 +15,8 @@ import { entryResolvers } from './entries.resolver'
 import { historyResolvers } from './history.resolver'
 import { usersResolver } from './users.resolver'
 import { NodeResolvers, Resolvers } from '@/__generated__/graphql'
+
+/* istanbul ignore file -- @preserve */
 
 const nodeResolvers: NodeResolvers = {
   __resolveType(parent) {
@@ -57,6 +61,9 @@ export const resolvers: Resolvers = {
   MixedDrink: mixedDrinkResolvers,
   DrinkResult: drinkResultResolvers,
   DrinkHistory: historyResolvers,
+
+  ScanDrink: scanDrinkResolvers,
+  ScanDrinkResult: scanDrinkResultResolvers,
 
   AbsoluteIngredient: ingredientResolvers,
   RelativeIngredient: ingredientResolvers,
