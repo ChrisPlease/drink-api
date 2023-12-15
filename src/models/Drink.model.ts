@@ -115,7 +115,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
             {
               [sortKey]: (sortKey === 'entries'
                 ? { _count: sortValue.toLowerCase() }
-                : sortValue.toLocaleLowerCase() ),
+                : sortValue),
             }, {
               name: Sort.Asc.toLowerCase(),
             },
