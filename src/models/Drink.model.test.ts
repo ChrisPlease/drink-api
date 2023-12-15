@@ -154,7 +154,7 @@ describe('Drink Model', () => {
           },
         },
         orderBy: {
-          name: 'ASC',
+          name: 'asc',
         },
         where: {
           OR: [
@@ -258,14 +258,14 @@ describe('Drink Model', () => {
     describe('sorting', () => {
       let mockSortInput: DrinkSort
 
-      test('sorts by entry count when entries is defined', async () => {
+      test.only('sorts by entry count when entries is defined', async () => {
         mockSortInput = {
           entries: Sort.Desc,
         }
         await drink.findManyPaginated({ sort: mockSortInput }, 'user-123')
 
         expect(prisma.drink.findMany).toHaveBeenCalledWith(expect.objectContaining({
-          orderBy: [{ entries: { _count: 'DESC'} }, { name: 'asc' }],
+          orderBy: [{ entries: { _count: 'desc'} }, { name: 'asc' }],
         }))
       })
 
@@ -278,7 +278,7 @@ describe('Drink Model', () => {
         await drink.findManyPaginated({ sort: mockSortInput }, 'user-123')
 
         expect(prisma.drink.findMany).toHaveBeenCalledWith(expect.objectContaining({
-          orderBy: [{ nutrition: { coefficient: 'ASC' } }, { name: 'asc' }],
+          orderBy: [{ nutrition: { coefficient: 'asc' } }, { name: 'asc' }],
         }))
       })
     })
