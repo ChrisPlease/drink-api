@@ -6,6 +6,8 @@ services:
     env_file:
       - ./.env.test
     environment:
+      - REDIS_PORT=6789
+      - REDIS_PASSWORD=''
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
