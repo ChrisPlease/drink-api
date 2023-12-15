@@ -3,7 +3,7 @@
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
 source $DIR/setenv.sh
-docker compose -f docker-compose.test.yml up -d
+docker compose -f --env-file .env.test docker-compose.test.yml up -d
 
 echo '🟡 - Waiting for database to be ready...'
 
