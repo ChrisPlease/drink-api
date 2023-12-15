@@ -61,6 +61,19 @@ WHERE i.id = ${drinkId}::uuid \
 GROUP BY d.id`
 }
 
+/**
+ * Retrieve a drink's entry history including volume and water
+ *
+ * @param {PrismaClient} client - The prisma client
+ * @param {{
+ *   id: string,
+ *   hasEntries: boolean,
+ *   limit?: number,
+ *   userId?: string,
+ * }}
+ *
+ * @return {Promise<RawEntry[]>}
+ */
 export const queryDrinkHistory = async (
   client: PrismaClient,
   {

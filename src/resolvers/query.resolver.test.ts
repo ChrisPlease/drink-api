@@ -8,12 +8,12 @@ import {
 import { Request } from 'express-jwt'
 import { Response } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
-import { Drink, Entry } from '@prisma/client'
+import { Drink, Entry, User } from '@prisma/client'
 import prisma from '../__mocks__/prisma'
 import redis from '../__mocks__/redis'
 import { AppContext } from '../types/context'
 import { toCursorHash } from '../utils/cursorHash'
-import { DrinkHistory as DrinkHistoryModel } from '../types/models'
+import { DrinkHistory as DrinkHistoryModel, ResolvedEntry } from '../types/models'
 import { Drinks } from '../models/Drink.model'
 import { DrinkHistory } from '../models/History.model'
 import { Entries } from '../models/Entry.model'
@@ -58,8 +58,31 @@ describe('queryResolvers', () => {
   })
 
   describe('node', () => {
-    let node: Drink | Entry | DrinkHistoryModel
+    let node: Drink | User | Entry | DrinkHistoryModel
     let mockId: string
+
+    describe('user node', () => {
+      beforeEach(() => {
+        mockId = '123'
+        prisma.user.findUnique.mockResolvedValue({ id: '123' })
+      })
+
+      test('calls `prisma.user` when the node is a user', async () => {
+        await queryResolvers.node?.({}, {
+          id: toCursorHash(`User:${mockId}`),
+        }, ctx, {})
+
+        expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: '123' } })
+      })
+
+      test('returns a hashed user', async () => {
+        node = await queryResolvers.node?.({}, {
+          id: toCursorHash(`User:${mockId}`),
+        }, ctx, {})
+
+        expect(node.id).toEqual(toCursorHash(`User:${mockId}`))
+      })
+    })
 
     describe('drink node', () => {
       beforeEach(() => {
@@ -147,6 +170,16 @@ describe('queryResolvers', () => {
       expect(redis.get).toHaveBeenCalledWith(`drinks:${mockId}`)
     })
 
+    describe('when drink exists in redis', () => {
+      test('returns the redis result', async () => {
+        redis.get.mockResolvedValue(JSON.stringify({ id: 'mock-id' }))
+
+        node = await queryResolvers.drink?.({}, { id: mockId }, ctx, {})
+        expect(node).toEqual({ id: 'mock-id' })
+      })
+
+    })
+
     test('calls the Drinks model with `prisma.drink`', () => {
       expect(Drinks).toHaveBeenCalledWith(prisma.drink)
     })
@@ -180,11 +213,25 @@ describe('queryResolvers', () => {
 
   describe('entry', () => {
     let mockId: string
-    let res: Record<string, unknown>
+    let res: ResolvedEntry
 
     beforeEach(async () => {
       mockId = toCursorHash('Entry:123')
-      res = await queryResolvers.entry?.({}, { entryId: mockId }, ctx, {})
+      res = await queryResolvers.entry?.({}, { id: mockId }, ctx, {})
+    })
+
+    test('checks if entry exists in redis', () => {
+      expect(redis.get).toHaveBeenCalledWith(`entries:user-123:${mockId}`)
+    })
+
+    describe('when entry exists in redis', () => {
+      test('returns the redis result', async () => {
+        redis.get.mockResolvedValue(JSON.stringify({ id: 'mock-id' }))
+
+        res = await queryResolvers.entry?.({}, { id: mockId }, ctx, {})
+        expect(res).toEqual({ id: 'mock-id' })
+      })
+
     })
 
     test('calls the Entries model, calls the findUniqueById method and returns the result', () => {
@@ -220,7 +267,21 @@ describe('queryResolvers', () => {
 
     beforeEach(async () => {
       mockId = toCursorHash('DrinkHistory:123')
-      res = await queryResolvers.drinkHistory?.({}, { drinkId: mockId }, ctx, {})
+      res = await queryResolvers.drinkHistory?.({}, { id: mockId }, ctx, {})
+    })
+
+    test('checks if drink history exists in redis', () => {
+      expect(redis.get).toHaveBeenCalledWith(`drinkHistory:user-123:${mockId}`)
+    })
+
+    describe('when drink history exists in redis', () => {
+      test('returns the redis result', async () => {
+        redis.get.mockResolvedValue(JSON.stringify({ id: 'mock-id' }))
+
+        res = await queryResolvers.drinkHistory?.({}, { id: mockId }, ctx, {})
+        expect(res).toEqual({ id: 'mock-id' })
+      })
+
     })
 
     test('calls the History model, calls the findUniqueDrinkHistory and returns the result', async () => {
@@ -251,15 +312,26 @@ describe('queryResolvers', () => {
 
   describe('user requests', () => {
     let mockId: string
+    let res: User
 
     beforeEach(() => {
       mockId = 'user-456'
+      prisma.user.findUnique.mockResolvedValue({ id: mockId })
     })
 
     describe('me', () => {
+      beforeEach(async () => {
+        res = await queryResolvers.me({}, {}, ctx, {})
+      })
+
       test('makes a call to `prisma.user` given the context id', async () => {
-        await queryResolvers.me({}, {}, ctx, {})
         expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: 'user-123' } })
+      })
+
+      test('resolves with a hashed id of context user', () => {
+        expect(res).toEqual(
+          expect.objectContaining({ id: toCursorHash('User:user-123')}),
+        )
       })
     })
 
@@ -272,10 +344,26 @@ describe('queryResolvers', () => {
     })
 
     describe('users', () => {
+      beforeEach(() => {
+        prisma.user.findMany.mockResolvedValue([{ id: 'user-123' }])
+      })
+
       test('makes a call to `prisma.user` to fetch all users', async () => {
         await queryResolvers.users({}, {}, ctx, {})
         expect(prisma.user.findMany).toHaveBeenCalled()
       })
+
+      test('returns users with hashed ids', async () => {
+        const res = await queryResolvers.users({}, {}, ctx, {})
+
+        expect(res[0]).toEqual(
+          expect.objectContaining({
+            id: toCursorHash('User:user-123'),
+          }),
+        )
+      })
     })
+
+    describe.skip('drinkScan', () => {})
   })
 })

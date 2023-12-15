@@ -16,6 +16,8 @@ import { historyResolvers } from './history.resolver'
 import { usersResolver } from './users.resolver'
 import { NodeResolvers, Resolvers } from '@/__generated__/graphql'
 
+/* istanbul ignore file -- @preserve */
+
 const nodeResolvers: NodeResolvers = {
   __resolveType(parent) {
     const [__typename] = deconstructId(parent.id)

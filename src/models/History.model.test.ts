@@ -6,9 +6,21 @@ import {
   expect,
 } from 'vitest'
 import prisma from '../__mocks__/prisma'
-import { toCursorHash } from '../utils/cursorHash'
+import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { QueryDrinksHistoryArgs } from '../__generated__/graphql'
+import { RawEntry } from '../types/queries'
+import { queryDrinkHistory } from '../utils/queries'
 import { DrinkHistory } from './History.model'
+
+vi.mock('../utils/queries', () => ({
+  queryDrinkHistory: vi.fn()
+    .mockResolvedValueOnce([])
+    .mockResolvedValue([{
+      id: '123',
+      total_volume: 4,
+      water_volume: 4,
+    }] as RawEntry[]),
+}))
 
 describe('DrinkHistory', () => {
   const history = DrinkHistory(prisma)
@@ -82,10 +94,25 @@ describe('DrinkHistory', () => {
       mockArgs = {
         userId: 'user-123',
       }
+
+      prisma.drink.count.mockResolvedValue(1)
     })
 
-    test('does something', async () => {
+    test('makes a raw query to `queryDrinkHistory`', async () => {
       await history.findManyPaginated(mockArgs)
+      expect(queryDrinkHistory).toHaveBeenCalledWith(
+        prisma,
+        expect.objectContaining({
+          userId: 'user-123',
+        }),
+      )
+    })
+
+    test('hashes the id on response', async () => {
+      const res = await history.findManyPaginated(mockArgs)
+      expect(
+        deconstructId(res.nodes[0].id)?.[1],
+      ).toEqual('123')
     })
   })
 })
