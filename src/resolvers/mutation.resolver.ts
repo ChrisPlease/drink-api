@@ -42,7 +42,7 @@ export const mutationResolvers: MutationResolvers = {
         prisma,
       )
     } else {
-      res = await drink.createWithNutrition({ userId, nutrition, ...rest })
+      res = await drink.createWithNutrition({ userId, nutrition, ...rest }) || null
     }
 
     if (res) {

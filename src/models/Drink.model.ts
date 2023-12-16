@@ -110,14 +110,14 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         ['name', 'createdAt'].includes(sortKey)
-          ? { [sortKey]: sortValue }
+          ? { [sortKey]: sortValue.toLowerCase() }
           : ([
             {
               [sortKey]: (sortKey === 'entries'
-                ? { _count: sortValue }
-                : sortValue.toLocaleLowerCase() ),
+                ? { _count: sortValue.toLowerCase() }
+                : sortValue),
             }, {
-              name: Sort.Asc,
+              name: Sort.Asc.toLowerCase(),
             },
           ])
       )

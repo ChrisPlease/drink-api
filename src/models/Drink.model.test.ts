@@ -154,7 +154,7 @@ describe('Drink Model', () => {
           },
         },
         orderBy: {
-          name: 'ASC',
+          name: 'asc',
         },
         where: {
           OR: [
@@ -265,7 +265,7 @@ describe('Drink Model', () => {
         await drink.findManyPaginated({ sort: mockSortInput }, 'user-123')
 
         expect(prisma.drink.findMany).toHaveBeenCalledWith(expect.objectContaining({
-          orderBy: [{ entries: { _count: 'DESC'} }, { name: 'asc' }],
+          orderBy: [{ entries: { _count: 'desc'} }, { name: 'asc' }],
         }))
       })
 
