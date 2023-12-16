@@ -12,7 +12,6 @@
     "test": "npm run test:unit -- --run; npm run test:int -- --run",
     "test:unit": "vitest -c ./vitest.config.unit.ts",
     "test:int": "./scripts/run-integration.sh",
-    "posttest:int": "docker compose down",
     "deploy": "npx prisma migrate deploy",
     "build": "NODE_ENV=production tsc && tsc-alias",
     "generate": "graphql-codegen --config codegen.yml",
