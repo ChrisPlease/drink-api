@@ -1,11 +1,10 @@
-FROM node:18-alpine3.16
+FROM node:18-alpine3.18
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 COPY tsconfig.json ./
-COPY .env ./
-COPY ["package.json", "package-lock.json", "tsconfig.json", ".env", "./"]
+COPY ["package.json", "package-lock.json", "tsconfig.json", "./"]
 
 COPY ./src ./src
 
