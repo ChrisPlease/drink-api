@@ -22,8 +22,10 @@ services:
     container_name: api
     restart: always
     build: .
-    env_file:
-      - ./.env
+    env_file: ./.env
+    environment:
+      - DIRECT_URL=${DIRECT_URL}
+      - DATABASE_URL=${DATABASE_URL}
     ports:
       - ${PORT}:${PORT}
       - 9229:9229
