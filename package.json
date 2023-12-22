@@ -17,7 +17,7 @@
     "test:unit": "vitest -c ./vitest.config.unit.ts",
     "test:int": "./scripts/run-integration.sh",
     "deploy": "npx prisma migrate deploy",
-    "build": "NODE_ENV=production esbuild src/index.ts --platform=node --bundle --minify --target=node18 --outdir=./dist && tsc-alias",
+    "build": "NODE_ENV=production esbuild src/index.ts --platform=node --bundle --minify --target=node18 --outdir=./dist && tsc -noEmit && npm run alias",
     "generate": "graphql-codegen --config codegen.yml",
     "lint": "eslint ."
   },
