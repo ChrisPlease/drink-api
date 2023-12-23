@@ -1,11 +1,13 @@
 FROM node:18-alpine3.18
 
-WORKDIR /usr/src/app
+WORKDIR /usr/app
 
 COPY package*.json ./
 COPY tsconfig.json ./
 
 COPY ./src ./src
+COPY ./prisma ./prisma
+COPY ./schema.gql ./
 
 RUN npm ci
 RUN npx prisma generate

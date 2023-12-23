@@ -27,13 +27,13 @@ services:
       - DIRECT_URL=${DIRECT_URL}
       - DATABASE_URL=${DATABASE_URL}
     ports:
-      - ${PORT}:${PORT}
+      - "${PORT}:${PORT}"
       - 9229:9229
     depends_on:
       - db
       - cache
     volumes:
-      - .:/usr/src/app
+      - ./src:/usr/app/src
   db:
     container_name: postgres
     image: postgres:16.1-alpine
@@ -50,7 +50,7 @@ services:
     image: redis:6.2-alpine
     restart: always
     ports:
-      - '${REDIS_PORT}:${REDIS_PORT}'
+      - "${REDIS_PORT}:${REDIS_PORT}"
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     volumes:
       - cache:/data
