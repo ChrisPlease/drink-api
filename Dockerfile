@@ -28,6 +28,6 @@ RUN chmod +x ./entrypoint.dev.sh
 COPY aws-lambda-rie ./aws-lambda-rie
 RUN chmod +x ./aws-lambda-rie
 
-# RUN npx prisma generate
+RUN npx prisma generate
 RUN npm run dev:build
 CMD ["npm", "start"]

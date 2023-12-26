@@ -23,39 +23,39 @@ services:
     restart: always
     build: .
     env_file: ./.env
-    # environment:
-    #   - DIRECT_URL=${DIRECT_URL}
-    #   - DATABASE_URL=${DATABASE_URL}
+    environment:
+      - DIRECT_URL=${DIRECT_URL}
+      - DATABASE_URL=${DATABASE_URL}
     ports:
       - "${PORT}:8080"
       - 9229:9229
-    # depends_on:
-    #   - db
-    #   - cache
+    depends_on:
+      - db
+      - cache
     volumes:
       - ./src:/usr/app/src
-#   db:
-#     container_name: postgres
-#     image: postgres:16.1-alpine
-#     restart: always
-#     ports:
-#       - '${PGPORT}:${PGPORT}'
-#     volumes:
-#       - data:/var/lib/postgresql/data
-#     environment:
-#       - POSTGRES_PASSWORD=${PGPASSWORD}
-#       - POSTGRES_DB=${PGDATABASE}
-#       - POSTGRES_USER=${PGUSER}
-#   cache:
-#     image: redis:6.2-alpine
-#     restart: always
-#     ports:
-#       - "${REDIS_PORT}:${REDIS_PORT}"
-#     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
-#     volumes:
-#       - cache:/data
+  db:
+    container_name: postgres
+    image: postgres:16.1-alpine
+    restart: always
+    ports:
+      - '${PGPORT}:${PGPORT}'
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${PGPASSWORD}
+      - POSTGRES_DB=${PGDATABASE}
+      - POSTGRES_USER=${PGUSER}
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - cache:/data
 volumes:
   data: {}
   dev_nginx_secrets: {}
-#   cache:
-#     driver: local
+  cache:
+    driver: local
