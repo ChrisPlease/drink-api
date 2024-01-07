@@ -11,9 +11,9 @@ import {
 } from '@/utils/cursorHash'
 
 export const queryResolvers: QueryResolvers = {
-  async node(_, { id: argId }, { prisma, req: { auth } }) {
+  async node(_, { id: argId }, { prisma, user }) {
     const [__typename,id] = deconstructId(argId)
-    const userId = <string>auth?.sub
+    const userId = <string>user
 
     switch (__typename) {
       case 'User':
@@ -49,12 +49,12 @@ export const queryResolvers: QueryResolvers = {
     return drink
   },
 
-  async drinks(_, args, { prisma, req: { auth } }) {
-    return await Drinks(prisma.drink).findManyPaginated({ ...args }, <string>auth?.sub)
+  async drinks(_, args, { prisma, user }) {
+    return await Drinks(prisma.drink).findManyPaginated({ ...args }, <string>user)
   },
 
-  async entry(_, { id: entryId }, { prisma, redis, req: { auth } }) {
-    const userId = <string>auth?.sub
+  async entry(_, { id: entryId }, { prisma, redis, user }) {
+    const userId = <string>user
     const res = await redis.get(`entries:${userId}:${entryId}`)
     if (res) {
       return JSON.parse(res)
@@ -67,12 +67,12 @@ export const queryResolvers: QueryResolvers = {
     return entry
   },
 
-  async entries(_, args,  { prisma, req: { auth } }) {
-    return await Entries(prisma.entry).findManyPaginated(prisma, { ...args, userId: <string>auth?.sub })
+  async entries(_, args,  { prisma, user }) {
+    return await Entries(prisma.entry).findManyPaginated(prisma, { ...args, userId: <string>user })
   },
 
-  async drinkHistory(_, { id: drinkId }, { prisma, redis, req: { auth } }) {
-    const userId = <string>auth?.sub
+  async drinkHistory(_, { id: drinkId }, { prisma, redis, user }) {
+    const userId = <string>user
     const redisKey = `drinkHistory:${userId}:${drinkId}`
 
     const res = await redis.get(redisKey)
@@ -81,21 +81,21 @@ export const queryResolvers: QueryResolvers = {
       return JSON.parse(res)
     }
 
-    const drinkHistory = await DrinkHistory(prisma).findUniqueDrinkHistory(drinkId, <string>auth?.sub)
+    const drinkHistory = await DrinkHistory(prisma).findUniqueDrinkHistory(drinkId, <string>user)
 
     await redis.set(redisKey, JSON.stringify(drinkHistory))
 
     return drinkHistory
   },
 
-  async drinksHistory(_, args, { prisma, req: { auth } }) {
-    return await DrinkHistory(prisma).findManyPaginated({ ...args, userId: <string>auth?.sub })
+  async drinksHistory(_, args, { prisma, user }) {
+    return await DrinkHistory(prisma).findManyPaginated({ ...args, userId: <string>user })
   },
 
-  async me(parent, args, { prisma, req: { auth } }) {
-    const id = <string>auth?.sub
-    const user = prisma.user.findUnique({ where: { id }})
-    return user?.then(({ ...user }) => ({ ...user, id: toCursorHash(`User:${id}` )}))
+  async me(parent, args, { prisma, user }) {
+    const id = <string>user
+    const userModel = prisma.user.findUnique({ where: { id }})
+    return userModel?.then(({ ...user }) => ({ ...user, id: toCursorHash(`User:${id}` )}))
   },
 
   async user(parent, { id: userId }, { prisma }) {

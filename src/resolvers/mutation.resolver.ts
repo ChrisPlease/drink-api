@@ -5,30 +5,30 @@ import { MutationResolvers } from '@/__generated__/graphql'
 import { deconstructId } from '@/utils/cursorHash'
 
 export const mutationResolvers: MutationResolvers = {
-  async entryCreate(_, args, { prisma, req: { auth } }) {
+  async entryCreate(_, args, { prisma, user }) {
 
     return await Entries(prisma.entry)
-      .createEntry({ ...args, userId: <string>auth?.sub }, prisma.drink)
+      .createEntry({ ...args, userId: <string>user }, prisma.drink)
   },
 
-  async entryDelete(_, args, { prisma, redis, req: { auth } }) {
-    const userId = <string>auth?.sub
+  async entryDelete(_, args, { prisma, redis, user }) {
+    const userId = <string>user
     const redisKey = `entries:${userId}:${args.id}`
 
     await redis.del(redisKey)
 
     const res = Entries(prisma.entry)
-      .deleteAndReturn({ ...args, userId: <string>auth?.sub }, prisma)
+      .deleteAndReturn({ ...args, userId: <string>user }, prisma)
 
     await redis.set(redisKey, JSON.stringify(res))
 
     return res
   },
 
-  async drinkCreate(_, { drinkInput }, { prisma, redis, req: { auth } }) {
+  async drinkCreate(_, { drinkInput }, { prisma, redis, user }) {
     let res: Drink | null
     const drink = Drinks(prisma.drink)
-    const userId = <string>auth?.sub
+    const userId = <string>user
 
     const {
       ingredients,
@@ -60,12 +60,12 @@ export const mutationResolvers: MutationResolvers = {
         ingredients,
         ...drinkInput
       },
-    }, { prisma, redis, req: { auth } }) {
+    }, { prisma, redis, user }) {
     let res: Drink | null
 
     // const hasNutrition = !!caffeine || !!sugar || !!coefficient
     const drink = Drinks(prisma.drink)
-    const userId = <string>auth?.sub
+    const userId = <string>user
     const redisKey = `drinks:${drinkInput.id}`
 
     if (!drinkInput.id) throw new Error('Drink ID required')
@@ -115,8 +115,8 @@ export const mutationResolvers: MutationResolvers = {
     return res
   },
 
-  async drinkDelete(_, { id: drinkId }, { prisma, redis, req: { auth } }) {
-    const userId = <string>auth?.sub
+  async drinkDelete(_, { id: drinkId }, { prisma, redis, user }) {
+    const userId = <string>user
     const redisKey = `drinks:${drinkId}`
 
     await redis.del(redisKey)

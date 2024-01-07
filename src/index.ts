@@ -4,7 +4,6 @@ import {
   handlers,
 } from '@as-integrations/aws-lambda'
 import * as dotenv from 'dotenv'
-// import express from 'express'
 import { ApolloServer } from '@apollo/server'
 import { RedisClientType } from 'redis'
 import prisma from './client'
@@ -37,10 +36,8 @@ export const handler = startServerAndCreateLambdaHandler(
   requestHandler,
   {
     context: async ({ event }) => {
-      console.log('EVENT:', event)
       return {
-        req: {} as Request,
-        res: {} as Response,
+        user: event.requestContext.authorizer?.principalId,
         prisma,
         redis: {} as RedisClientType,
       }

@@ -35,8 +35,8 @@ export const scanDrinkResolvers: ScanDrinkResolvers = {
 export const drinkResolvers: DrinkResolvers = {
   ...drinkResultResolvers,
 
-  async entries(parent, args, { prisma, req: { auth } }) {
-    const userId = <string>auth?.sub
+  async entries(parent, args, { prisma, user }) {
+    const userId = <string>user
     const entries = await Entries(prisma.entry)
       .findManyPaginated(prisma, { ...args, drinkId: parent.id, userId })
 
