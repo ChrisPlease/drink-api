@@ -3,6 +3,8 @@ dist
 .vscode
 coverage
 
+.aws-sam
+
 !.env.sample
 .env
 .env.*
