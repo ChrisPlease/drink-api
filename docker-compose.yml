@@ -1,23 +1,23 @@
 version: '3.8'
 services:
-  proxy:
-    container_name: nginx
-    image: jonasal/nginx-certbot:4.2.0-nginx1.23.3
-    restart: unless-stopped
-    env_file: ./.env
-    environment:
-      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
-      - DEBUG=${DEBUG}
-      - USE_LOCAL_CA=${USE_LOCAL_CA}
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./certs:/etc/local_ca
-      - dev_nginx_secrets:/etc/letsencrypt
-      - ./nginx/user_conf.d:/etc/nginx/user_conf.d
-    depends_on:
-      - server
+  # proxy:
+  #   container_name: nginx
+  #   image: jonasal/nginx-certbot:4.2.0-nginx1.23.3
+  #   restart: unless-stopped
+  #   env_file: ./.env
+  #   environment:
+  #     - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+  #     - DEBUG=${DEBUG}
+  #     - USE_LOCAL_CA=${USE_LOCAL_CA}
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   volumes:
+  #     - ./certs:/etc/local_ca
+  #     - dev_nginx_secrets:/etc/letsencrypt
+  #     - ./nginx/user_conf.d:/etc/nginx/user_conf.d
+  #   depends_on:
+  #     - server
   server:
     container_name: api
     restart: always
