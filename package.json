@@ -70,7 +70,6 @@
     "graphql-tag": "^2.12.6",
     "nodemon": "^3.0.1",
     "prisma": "^5.3.1",
-    "rimraf": "^5.0.0",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.6",
     "typescript": "^5.0.4",
