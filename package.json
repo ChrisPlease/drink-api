@@ -10,7 +10,7 @@
     "alias": "tsc-alias",
     "dev": "concurrently \"npm:alias -- --watch\" \"npm:dev:watch\"",
     "watch": "nodemon --inspect=0.0.0.0 dist/index.cjs",
-    "prebuild": "rimraf dist",
+    "prebuild": "rm -rf dist",
     "start": "concurrently \"npm:dev\" \"npm:watch\"",
     "volume:remove": "docker volume rm api_dev_nginx_secrets",
     "start:prod": "npm run deploy && node dist/index.js",
