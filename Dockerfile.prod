@@ -1,17 +1,15 @@
-FROM node:18-bullseye as builder
+FROM public.ecr.aws/lambda/nodejs:18 as builder
 
-WORKDIR /app
+WORKDIR /usr/app
 
 # Install aws-lambda-ric cpp dependencies
-RUN apt-get update && \
-    apt-get install -y \
-    g++ \
-    make \
-    cmake \
-    unzip \
-    libcurl4-openssl-dev
-
-WORKDIR /app
+# RUN apt-get update && \
+# apt-get install -y \
+# g++ \
+# make \
+# cmake \
+# unzip \
+# libcurl4-openssl-dev
 
 COPY prisma ./prisma
 COPY schema.gql ./
@@ -20,25 +18,27 @@ COPY ["package*.json", "tsconfig.json", "./"]
 
 COPY ./src ./src
 
-RUN npm ci --omit=dev
-RUN npm i aws-lambda-ric
+RUN npm ci
 RUN npx prisma generate
 
 RUN npm run build
 
-FROM node:18-bullseye-slim
+FROM public.ecr.aws/lambda/nodejs:18
 
-WORKDIR /var/task
+# ENV NPM_CONFIG_CACHE=/tmp/.npm
 
-COPY --from=builder /app/node_modules/aws-lambda-ric ./node_modules/aws-lambda-ric
-COPY --from=builder /app/node_modules/.prisma/client/libquery_engine-rhel-openssl-1.0.x.so.node ./node_modules/.prisma/client/libquery_engine-rhel-openssl-1.0.x.so.node
-COPY --from=builder /app/prisma/schema.prisma ./prisma/schema.prisma
-COPY --from=builder /app/.env ./.env
-COPY --from=builder /app/dist ./
-COPY --from=builder /app/schema.gql ./schema.gql
+WORKDIR ${LAMBDA_TASK_ROOT}
 
-RUN apt-get update
+# COPY --from=builder /usr/app/node_modules/aws-lambda-ric ./node_modules/aws-lambda-ric
+COPY --from=builder /usr/app/node_modules/.prisma/client/libquery_engine-rhel-openssl-1.0.x.so.node \
+./node_modules/.prisma/client/libquery_engine-rhel-openssl-1.0.x.so.node
 
-CMD ["tail", "-f", "/dev/null"]
-# ENTRYPOINT ["npx", "aws-lambda-ric"]
-# CMD ["dist/index.handler"]
+COPY --from=builder /usr/app/prisma/schema.prisma ./prisma/schema.prisma
+COPY --from=builder /usr/app/.env ./.env
+# COPY --from=builder /usr/app/dist/* ./
+COPY --from=builder /usr/app/schema.gql ./schema.gql
+COPY --from=builder /usr/app/dist/* ./
+
+# CMD ["tail", "-f", "/dev/null"]
+# ENTRYPOINT ["/usr/local/bin/npx", "aws-lambda-ric"]
+CMD ["index.handler"]
