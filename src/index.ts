@@ -14,6 +14,7 @@ dotenv.config()
 
   const server = new ApolloServer<AppContext>({
     typeDefs: readFileSync('./schema.gql', { encoding: 'utf-8' }),
+    introspection: true,
     resolvers,
     // cache: new KeyvAdapter(
     //   new Keyv(

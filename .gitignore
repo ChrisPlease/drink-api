@@ -3,7 +3,14 @@ dist
 .vscode
 coverage
 
+# AWS
 .aws-sam
+samconfig.toml
+
+sample.*
+
+*event.json
+!sample.event.json
 
 !.env.sample
 .env

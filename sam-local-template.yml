@@ -1,0 +1,61 @@
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+  Environment:
+    Type: String
+    Description: Deployment Environment name
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - local
+    Default: dev
+
+Resources:
+  WaterlogApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Environment
+      DefinitionBody:
+        swagger: '2.0'
+        paths:
+          /graphql:
+            post:
+              consumes:
+                - application/json
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
+                httpMethod: POST
+                type: aws_proxy
+              security:
+                - ApiAuthorizer: []
+      Auth:
+        DefaultAuthorizer: CustomJwksRsaAuthorizer
+        Authorizers:
+          CustomJwksRsaAuthorizer:
+            FunctionArn:
+              Fn::Sub: arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:jwksRsaCustomAuthorizer
+            Identity:
+              Header: Authorization
+              ReauthorizeEvery: 300 # value in seconds
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref WaterlogFunction
+      Principal: apigateway.amazonaws.com
+
+
+  WaterlogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
+      ImageConfig:
+        Command: ["index.handler"]
+    Metadata:
+      # SkipBuild: True
+      Dockerfile: Dockerfile.prod
+      DockerContext: .

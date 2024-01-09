@@ -1,0 +1,12 @@
+FROM public.ecr.aws/sam/build-python3.8
+
+# Install SAM CLI
+RUN pip install aws-sam-cli
+
+WORKDIR /usr/app
+
+COPY ./sam-local-template.yml ./template.yml
+
+EXPOSE 3000
+
+CMD ["tail", "-f", "/dev/null"]

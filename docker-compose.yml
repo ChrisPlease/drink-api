@@ -1,25 +1,20 @@
 version: '3.8'
 services:
-  # proxy:
-  #   container_name: nginx
-  #   image: jonasal/nginx-certbot:4.2.0-nginx1.23.3
-  #   restart: unless-stopped
-  #   env_file: ./.env
-  #   environment:
-  #     - CERTBOT_EMAIL=${CERTBOT_EMAIL}
-  #     - DEBUG=${DEBUG}
-  #     - USE_LOCAL_CA=${USE_LOCAL_CA}
+  # gateway-dev:
+  #   container_name: gateway-dev
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.sam
   #   ports:
-  #     - 80:80
-  #     - 443:443
+  #     - 3000:3000
   #   volumes:
-  #     - ./certs:/etc/local_ca
-  #     - dev_nginx_secrets:/etc/letsencrypt
-  #     - ./nginx/user_conf.d:/etc/nginx/user_conf.d
+  #     - ${PWD}:${PWD}
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
   #   depends_on:
-  #     - server
-  server:
-    container_name: api
+  #     - lambda-dev
+  #   command: sam local start-api -v "${PWD}/.aws-sam/build" --host=0.0.0.0 --container-host=host.docker.internal.com --container-host-interface=127.0.0.1
+  lambda-dev:
+    container_name: graphql-dev
     restart: always
     build: .
     env_file: ./.env
@@ -30,11 +25,11 @@ services:
       - "${PORT}:8080"
       - 9229:9229
     depends_on:
-      - db
-      - cache
+      - db-dev
+      - cache-dev
     volumes:
       - ./src:/usr/app/src
-  db:
+  db-dev:
     container_name: postgres
     image: postgres:16.1-alpine
     restart: always
@@ -46,7 +41,7 @@ services:
       - POSTGRES_PASSWORD=${PGPASSWORD}
       - POSTGRES_DB=${PGDATABASE}
       - POSTGRES_USER=${PGUSER}
-  cache:
+  cache-dev:
     image: redis:6.2-alpine
     restart: always
     ports:
@@ -56,6 +51,5 @@ services:
       - cache:/data
 volumes:
   data: {}
-  dev_nginx_secrets: {}
   cache:
     driver: local
