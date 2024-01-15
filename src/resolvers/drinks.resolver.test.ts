@@ -1,5 +1,3 @@
-import { Response } from 'express'
-import { Request } from 'express-jwt'
 import { GraphQLResolveInfo } from 'graphql'
 import {
   expect,
@@ -48,12 +46,7 @@ describe('drinks.resolver', () => {
     ctx = {
       redis,
       prisma,
-      req: {
-        auth: {
-          sub: 'mock-user',
-        },
-      } as Request,
-      res: {} as Response,
+      user: 'mock-user',
     } as AppContext
   })
 

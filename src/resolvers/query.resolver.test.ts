@@ -5,8 +5,6 @@ import {
   describe,
   beforeEach,
 } from 'vitest'
-import { Request } from 'express-jwt'
-import { Response } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
 import { Drink, Entry, User } from '@prisma/client'
 import prisma from '../__mocks__/prisma'
@@ -50,10 +48,7 @@ describe('queryResolvers', () => {
     ctx = {
       prisma,
       redis,
-      req: {
-        auth: { sub: 'user-123' },
-      } as Request,
-      res: {} as Response,
+      user: 'user-123',
     }
   })
 

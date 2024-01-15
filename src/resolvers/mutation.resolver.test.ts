@@ -1,5 +1,3 @@
-import { Request } from 'express-jwt'
-import { Response } from 'express'
 import { GraphQLResolveInfo } from 'graphql'
 import {
   describe,
@@ -49,12 +47,7 @@ describe('mutationResolvers', () => {
   const ctx: AppContext = {
     redis,
     prisma,
-    req: {
-      auth: {
-        sub: 'user-123',
-      },
-    } as Request,
-    res: {} as Response,
+    user: 'user-123',
   }
   const info = {} as GraphQLResolveInfo
 
