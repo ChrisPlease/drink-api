@@ -5,8 +5,6 @@ import {
   it,
   expect,
 } from 'vitest'
-import { Request } from 'express-jwt'
-import { Response } from 'express'
 import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
 import { seedUsers } from '../../prisma/seeders/users'
@@ -45,12 +43,7 @@ describe('history', () => {
     contextValue = {
       redis,
       prisma,
-      req: {
-        auth: {
-          sub: 'user-123',
-        },
-      } as Request,
-      res: {} as Response,
+      user: 'user-123',
     }
 
     QUERY = gql`

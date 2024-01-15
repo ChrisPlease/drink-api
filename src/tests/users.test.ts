@@ -5,8 +5,6 @@ import {
   it,
   expect,
 } from 'vitest'
-import { Request } from 'express-jwt'
-import { Response } from 'express'
 import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
 import { AppContext } from '../types/context'
@@ -32,8 +30,7 @@ describe('users', () => {
     ctx = {
       redis,
       prisma,
-      req: {} as Request,
-      res: {} as Response,
+      user: 'user-123',
     }
   })
 

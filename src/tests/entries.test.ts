@@ -7,8 +7,6 @@ import {
 } from 'vitest'
 import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
-import { Request } from 'express-jwt'
-import { Response } from 'express'
 import { seedUsers } from '../../prisma/seeders/users'
 import { seedDrinks } from '../../prisma/seeders/drinks'
 import { seedEntries } from '../../prisma/seeders/entries'
@@ -42,10 +40,7 @@ describe('entries', () => {
     contextValue = {
       redis,
       prisma,
-      req: {
-        auth: { sub: 'user-123' },
-      } as Request,
-      res: {} as Response,
+      user: 'user-123',
     }
 
     QUERY = gql`
@@ -86,7 +81,7 @@ describe('entries', () => {
   })
 
   test('returns only entries for the specified user', async () => {
-    contextValue = { ...contextValue, req: { ...contextValue.req, auth: { sub: 'user-456' } } as Request}
+    contextValue = { ...contextValue,  user: 'user-456' }
     const res = await testServer.executeOperation({
       query: QUERY,
       variables: { distinct: true },
