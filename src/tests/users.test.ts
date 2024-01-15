@@ -88,9 +88,7 @@ describe('users', () => {
       `
       ctx = {
         ...ctx,
-        req: {
-          auth: { sub: 'user-123' },
-        } as Request,
+        user: 'user-123',
       }
     })
 

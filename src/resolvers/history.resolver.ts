@@ -13,7 +13,7 @@ export const historyResolvers: DrinkHistoryResolvers = {
     args,
     {
       prisma,
-      req: { auth },
+      user,
     },
   ) {
     return await Entries(prisma.entry)
@@ -21,7 +21,7 @@ export const historyResolvers: DrinkHistoryResolvers = {
         prisma,
         {
           ...args,
-          userId: <string>auth?.sub,
+          userId: user || '',
           drinkId: parent.id,
         })
   },
