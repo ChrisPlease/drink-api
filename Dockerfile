@@ -1,33 +1,34 @@
-FROM node:18-bullseye
+# Builder image
+FROM public.ecr.aws/lambda/nodejs:18 as builder
 
 WORKDIR /usr/app
 
-RUN apt-get update && \
-apt-get install -y \
-g++ \
-make \
-cmake \
-unzip \
-libcurl4-openssl-dev \
-lsof
+COPY prisma ./prisma
+COPY schema.gql ./
+COPY .env.production ./.env
 
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY nodemon.json ./
-
-RUN npm ci
-RUN npm i aws-lambda-ric
+COPY ["package*.json", "tsconfig.json", "./"]
 
 COPY ./src ./src
-COPY ./prisma ./prisma
-COPY ./schema.gql ./
 
-COPY ./scripts/entrypoint.dev.sh ./
-RUN chmod +x ./entrypoint.dev.sh
-
-COPY aws-lambda-rie ./aws-lambda-rie
-RUN chmod +x ./aws-lambda-rie
-
+RUN npm ci
 RUN npx prisma generate
-RUN npm run dev:build
-CMD ["npm", "start"]
+
+RUN npm run build
+
+# Stage 2 -- only necessary files
+FROM public.ecr.aws/lambda/nodejs:18
+
+ENV NPM_CONFIG_CACHE=/tmp/.npm
+
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+COPY --from=builder /usr/app/node_modules/.prisma/client/libquery_engine-rhel-openssl-1.0.x.so.node \
+./node_modules/.prisma/client/libquery_engine-rhel-openssl-1.0.x.so.node
+
+COPY --from=builder /usr/app/prisma/schema.prisma ./prisma/schema.prisma
+COPY --from=builder /usr/app/.env ./.env
+COPY --from=builder /usr/app/schema.gql ./schema.gql
+COPY --from=builder /usr/app/dist/* ./
+
+CMD ["index.handler"]
