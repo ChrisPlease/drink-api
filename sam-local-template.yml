@@ -83,6 +83,5 @@ Resources:
       ImageConfig:
         Command: ["index.handler"]
     Metadata:
-      # SkipBuild: True
-      Dockerfile: Dockerfile.prod
+      Dockerfile: Dockerfile
       DockerContext: .
