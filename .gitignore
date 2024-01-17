@@ -6,6 +6,8 @@ coverage
 # AWS
 .aws-sam
 samconfig.toml
+!env.sample.json
+*env.json
 
 sample.*
 
