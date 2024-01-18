@@ -34,17 +34,17 @@ export const queryResolvers: QueryResolvers = {
     }
   },
 
-  async drink(_, { id }, { prisma, redis }) {
-    const res = await redis.get(`drinks:${id}`)
+  async drink(_, { id }, { prisma/* , redis */ }) {
+    /* const res = await redis.get(`drinks:${id}`)
 
     if (res) {
       return JSON.parse(res)
-    }
+    } */
 
     const drink = await Drinks(prisma.drink)
       .findUniqueById(id)
 
-    await redis.set(`drinks:${id}`, JSON.stringify(drink))
+    // await redis.set(`drinks:${id}`, JSON.stringify(drink))
 
     return drink
   },
