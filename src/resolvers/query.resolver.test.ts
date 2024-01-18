@@ -47,7 +47,7 @@ describe('queryResolvers', () => {
   beforeEach(() => {
     ctx = {
       prisma,
-      redis,
+      /* redis, */
       user: 'user-123',
     }
   })
@@ -161,11 +161,11 @@ describe('queryResolvers', () => {
       )
     })
 
-    test('checks if drink exists in redis', () => {
+    /* test('checks if drink exists in redis', () => {
       expect(redis.get).toHaveBeenCalledWith(`drinks:${mockId}`)
-    })
+    }) */
 
-    describe('when drink exists in redis', () => {
+    /* describe('when drink exists in redis', () => {
       test('returns the redis result', async () => {
         redis.get.mockResolvedValue(JSON.stringify({ id: 'mock-id' }))
 
@@ -173,7 +173,7 @@ describe('queryResolvers', () => {
         expect(node).toEqual({ id: 'mock-id' })
       })
 
-    })
+    }) */
 
     test('calls the Drinks model with `prisma.drink`', () => {
       expect(Drinks).toHaveBeenCalledWith(prisma.drink)
@@ -215,7 +215,7 @@ describe('queryResolvers', () => {
       res = await queryResolvers.entry?.({}, { id: mockId }, ctx, {})
     })
 
-    test('checks if entry exists in redis', () => {
+    /* test('checks if entry exists in redis', () => {
       expect(redis.get).toHaveBeenCalledWith(`entries:user-123:${mockId}`)
     })
 
@@ -227,7 +227,7 @@ describe('queryResolvers', () => {
         expect(res).toEqual({ id: 'mock-id' })
       })
 
-    })
+    }) */
 
     test('calls the Entries model, calls the findUniqueById method and returns the result', () => {
       expect.assertions(3)
@@ -265,11 +265,11 @@ describe('queryResolvers', () => {
       res = await queryResolvers.drinkHistory?.({}, { id: mockId }, ctx, {})
     })
 
-    test('checks if drink history exists in redis', () => {
+    /* test('checks if drink history exists in redis', () => {
       expect(redis.get).toHaveBeenCalledWith(`drinkHistory:user-123:${mockId}`)
-    })
+    }) */
 
-    describe('when drink history exists in redis', () => {
+    /* describe('when drink history exists in redis', () => {
       test('returns the redis result', async () => {
         redis.get.mockResolvedValue(JSON.stringify({ id: 'mock-id' }))
 
@@ -277,7 +277,7 @@ describe('queryResolvers', () => {
         expect(res).toEqual({ id: 'mock-id' })
       })
 
-    })
+    }) */
 
     test('calls the History model, calls the findUniqueDrinkHistory and returns the result', async () => {
       expect.assertions(3)
