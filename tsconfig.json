@@ -14,9 +14,12 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./functions/*"]
     }
   },
-  "include": ["./src/*", "./src/types/env.d.ts"],
-  "exclude": ["./prisma"]
+  "include": [
+    "./functions/**/*",
+    "functions/graphql/src/types/env.d.ts"
+  ],
+  "exclude": ["functions/graphql/prisma"]
 }

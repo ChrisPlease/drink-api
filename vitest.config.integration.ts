@@ -3,29 +3,28 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    include: ['src/tests/**/*.test.ts'],
+    include: ['functions/**/tests/**/*.test.ts'],
     threads: false,
-    setupFiles: ['src/tests/helpers/setup.ts'],
+    setupFiles: ['functions/graphql/tests/helpers/setup.ts'],
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './functions'),
     },
     coverage: {
 
       all: true,
       reportsDirectory: './coverage/integration',
       include: [
-        'src/**/*.ts',
-        '!src/**/*.test.ts',
+        'functions/**/*.ts',
+        '!functions/**/*.test.ts',
 
       ],
       exclude: [
-        'src/tests/*',
-        'src/**/*.test.ts',
-        'src/index.ts',
-        'src/client.ts',
-        'src/__mocks__',
-        'src/__generated__',
-        'src/middleware',
+        'functions/**/tests/*',
+        'functions/**/*.test.ts',
+        'functions/**/index.ts',
+        'functions/**/client.ts',
+        'functions/**/__mocks__',
+        'functions/**/__generated__',
       ],
       reporter: ['html', 'json', 'lcov', 'text', 'text-summary'],
       provider: 'istanbul',

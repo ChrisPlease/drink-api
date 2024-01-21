@@ -1,0 +1,33 @@
+{
+  "name": "waterlog-graphql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.cjs",
+  "scripts": {
+    "build": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.10.0",
+    "@apollo/utils.keyvadapter": "^3.1.0",
+    "@devoxa/prisma-relay-cursor-connection": "^3.1.1",
+    "@prisma/client": "^5.3.1",
+    "graphql": "^16.8.1",
+    "prisma-extension-soft-delete": "^1.0.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/introspection": "^4.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-document-nodes": "^4.0.1",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1",
+    "@graphql-eslint/eslint-plugin": "^3.20.1",
+    "graphql-tag": "^2.12.6",
+    "prisma": "^5.3.1"
+  }
+}
