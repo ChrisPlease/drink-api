@@ -1,5 +1,5 @@
 # Builder image
-FROM public.ecr.aws/lambda/nodejs:18 as builder
+FROM public.ecr.aws/lambda/nodejs:20 AS builder
 
 WORKDIR /usr/app
 
@@ -12,12 +12,12 @@ COPY ["package*.json", "tsconfig.json", "./"]
 COPY ./src ./src
 
 RUN npm ci
-RUN npx prisma generate
+RUN pnpm exec prisma generate
 
 RUN npm run build
 
 # Stage 2 -- only necessary files
-FROM public.ecr.aws/lambda/nodejs:18
+FROM public.ecr.aws/lambda/nodejs:20
 
 ENV NPM_CONFIG_CACHE=/tmp/.npm
 

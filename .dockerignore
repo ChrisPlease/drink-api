@@ -1,2 +1,6 @@
 node_modules
 !node_modules/aws-lambda-ric
+.git
+.gitignore
+*.md
+dist
