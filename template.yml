@@ -12,61 +12,65 @@ Parameters:
     Default: dev
 
 Resources:
-  WaterlogApi:
-    Type: AWS::Serverless::Api
+  WaterlogFunction:
+    Type: AWS::CloudFormation::Stack
     Properties:
-      StageName: !Ref Environment
-      DefinitionBody:
-        swagger: '2.0'
-        info:
-          title: "Waterlog GraphQL API"
-          version: "1.0"
-        paths:
-          /graphql:
-            post:
-              consumes:
-                - application/json
-              responses: {}
-              x-amazon-apigateway-integration:
-                uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
-                httpMethod: POST
-                type: aws_proxy
-              security:
-                - CustomJwksRsaAuthorizer: []
-            options:
-              responses:
-                '204':
-                  description: "204 response"
-                  headers:
-                    Access-Control-Allow-Headers:
-                      type: "string"
-                    Access-Control-Allow-Methods:
-                      type: "string"
-                    Access-Control-Allow-Origin:
-                      type: "string"
-                    Content-Type:
-                      type: "string"
-              x-amazon-apigateway-integration:
-                responses:
-                  default:
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
-                    statusCode: '204'
-                requestTemplates:
-                  application/json: "{ \"statusCode\": 204 }"
-                type: mock
-                security: []
-      Auth:
-        Authorizers:
-          CustomJwksRsaAuthorizer:
-            FunctionArn:
-              Fn::Sub: arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:jwksRsaCustomAuthorizer
-            Identity:
-              Header: Authorization
-              ReauthorizeEvery: 300 # value in seconds
+      TemplateURL: functions/graphql/template.yml
+  # WaterlogApi:
+  #   Type: AWS::Serverless::Api
+  #   Properties:
+  #     StageName: !Ref Environment
+  #     DefinitionBody:
+  #       swagger: '2.0'
+  #       info:
+  #         title: "Waterlog GraphQL API"
+  #         version: "1.0"
+  #       paths:
+  #         /graphql:
+  #           post:
+  #             consumes:
+  #               - application/json
+  #             responses: {}
+  #             x-amazon-apigateway-integration:
+  #               uri:
+  #                 Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
+  #               httpMethod: POST
+  #               type: aws_proxy
+  #             security:
+  #               - CustomJwksRsaAuthorizer: []
+  #           options:
+  #             responses:
+  #               '204':
+  #                 description: "204 response"
+  #                 headers:
+  #                   Access-Control-Allow-Headers:
+  #                     type: "string"
+  #                   Access-Control-Allow-Methods:
+  #                     type: "string"
+  #                   Access-Control-Allow-Origin:
+  #                     type: "string"
+  #                   Content-Type:
+  #                     type: "string"
+  #             x-amazon-apigateway-integration:
+  #               responses:
+  #                 default:
+  #                   responseParameters:
+  #                     method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+  #                     method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+  #                     method.response.header.Access-Control-Allow-Origin: "'*'"
+  #                   statusCode: '204'
+  #               requestTemplates:
+  #                 application/json: "{ \"statusCode\": 204 }"
+  #               type: mock
+  #               security: []
+  #     Auth:
+  #       Authorizers:
+  #         CustomJwksRsaAuthorizer:
+  #           FunctionArn:
+  #             Fn::Sub: arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:jwksRsaCustomAuthorizer
+  #           Identity:
+  #             Header: Authorization
+  #             ReauthorizeEvery: 300 # value in seconds
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
@@ -75,13 +79,13 @@ Resources:
       FunctionName: !Ref WaterlogFunction
       Principal: apigateway.amazonaws.com
 
-  WaterlogFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      PackageType: Image
-      ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
-      ImageConfig:
-        Command: ["index.handler"]
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerContext: .
+  # WaterlogFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     PackageType: Image
+  #     ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
+  #     ImageConfig:
+  #       Command: ["index.handler"]
+  #   Metadata:
+  #     Dockerfile: Dockerfile
+  #     DockerContext: .

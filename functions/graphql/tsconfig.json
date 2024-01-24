@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "lib": ["es2020"],
+    "experimentalDecorators": false,
+    "emitDecoratorMetadata": false,
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./functions/*"]
+    }
+  },
+  "include": [
+    "./functions/**/*",
+    "functions/graphql/src/types/env.d.ts"
+  ],
+  "exclude": ["functions/graphql/prisma"]
+}

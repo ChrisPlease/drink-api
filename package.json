@@ -23,7 +23,6 @@
   },
   "keywords": [
     "typescript",
-    "express",
     "graphql"
   ],
   "author": "Chris Pruyne <chris@chrisplease.me>",
