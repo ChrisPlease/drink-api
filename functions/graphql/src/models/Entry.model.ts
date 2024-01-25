@@ -6,19 +6,19 @@ import {
   encodeCursor,
   getCursor,
   deconstructId,
-} from '@/graphql/src/utils/cursorHash'
+} from '@/utils/cursorHash'
 import {
   convertEntryToOz,
   volumeToServings,
-} from '@/graphql/src/utils/unit-conversions'
+} from '@/utils/unit-conversions'
 import {
   DrinkNutrition,
   MutationEntryCreateArgs,
   MutationEntryDeleteArgs,
   QueryEntriesArgs,
-} from '@/graphql/src/__generated__/graphql'
-import { ResolvedEntry } from '@/graphql/src/types/models'
-import { entriesDistinctCount } from '@/graphql/src/utils/queries'
+} from '@/__generated__/graphql'
+import { ResolvedEntry } from '@/types/models'
+import { entriesDistinctCount } from '@/utils/queries'
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {

@@ -1,14 +1,14 @@
 import { Drink, Entry, User } from '@prisma/client'
-import { DrinkHistory as DrinkHistoryModel, ScanDrink } from '@/graphql/src/types/models'
-import { QueryResolvers } from '@/graphql/src/__generated__/graphql'
-import { Entries } from '@/graphql/src/models/Entry.model'
-import { DrinkHistory } from '@/graphql/src/models/History.model'
-import { Drinks } from '@/graphql/src/models/Drink.model'
-import { fetchItem } from '@/graphql/src/services/nutritionix'
+import { DrinkHistory as DrinkHistoryModel, ScanDrink } from '@/types/models'
+import { QueryResolvers } from '@/__generated__/graphql'
+import { Entries } from '@/models/Entry.model'
+import { DrinkHistory } from '@/models/History.model'
+import { Drinks } from '@/models/Drink.model'
+import { fetchItem } from '@/services/nutritionix'
 import {
   deconstructId,
   toCursorHash,
-} from '@/graphql/src/utils/cursorHash'
+} from '@/utils/cursorHash'
 
 export const queryResolvers: QueryResolvers = {
   async node(_, { id: argId }, { prisma, user }) {

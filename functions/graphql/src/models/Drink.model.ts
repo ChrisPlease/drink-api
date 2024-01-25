@@ -8,20 +8,20 @@ import {
   MutationDrinkDeleteArgs,
   QueryDrinksArgs,
   Sort,
-} from '@/graphql/src/__generated__/graphql'
+} from '@/__generated__/graphql'
 import {
   deconstructId,
   toCursorHash,
   getCursor,
   encodeCursor,
   fromCursorHash,
-} from '@/graphql/src/utils/cursorHash'
-import { snakeToCamel } from '@/graphql/src/utils/string-manipulation'
-import { rangeFilter, stringFilter } from '@/graphql/src/utils/filters'
-import { queryIngredientNutrition } from '@/graphql/src/utils/queries'
-import { DrinkWithIngredientCountPayload } from '@/graphql/src/types/drinks'
-import { DrinkResult, NutritionResult } from '@/graphql/src/types/models'
-import { mLToOz } from '@/graphql/src/utils/unit-conversions'
+} from '@/utils/cursorHash'
+import { snakeToCamel } from '@/utils/string-manipulation'
+import { rangeFilter, stringFilter } from '@/utils/filters'
+import { queryIngredientNutrition } from '@/utils/queries'
+import { DrinkWithIngredientCountPayload } from '@/types/drinks'
+import { DrinkResult, NutritionResult } from '@/types/models'
+import { mLToOz } from '@/utils/unit-conversions'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 

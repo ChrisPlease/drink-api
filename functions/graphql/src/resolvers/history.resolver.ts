@@ -1,7 +1,7 @@
 import { Drink } from '@prisma/client'
-import { Entries } from '@/graphql/src/models/Entry.model'
-import { DrinkHistoryResolvers } from '@/graphql/src/__generated__/graphql'
-import { Drinks } from '@/graphql/src/models/Drink.model'
+import { Entries } from '@/models/Entry.model'
+import { DrinkHistoryResolvers } from '@/__generated__/graphql'
+import { Drinks } from '@/models/Drink.model'
 
 export const historyResolvers: DrinkHistoryResolvers = {
   async drink({ id }, _, { prisma }) {

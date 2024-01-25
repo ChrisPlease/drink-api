@@ -5,15 +5,13 @@ module.exports = {
     "src/__generated__/**/*",
     "coverage/**/*"
   ],
-  "rules": {
-
-  },
+  "rules": {},
   "overrides": [
     {
       "files": ["*.gql"],
       "extends": "plugin:@graphql-eslint/schema-recommended",
       "parserOptions": {
-        "schema": "./schema.gql",
+        "schema": "functions/graphql/schema.gql",
       },
       "rules": {
         "@graphql-eslint/strict-id-in-types": ["error", {
@@ -81,7 +79,7 @@ module.exports = {
         "import/resolver": {
           "typescript": {
             "alwaysTryTypes": true,
-            "project": "<root>/tsconfig.json"
+            "project": ["tsconfig.json", "functions/graphql/tsconfig.json"]
           },
         },
         "import/parsers": {

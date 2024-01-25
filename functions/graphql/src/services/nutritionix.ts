@@ -1,10 +1,10 @@
 import { fetch } from 'undici'
-import { ScanDrink } from '@/graphql/src/types/models'
+import { ScanDrink } from '@/types/models'
 import {
   NutritionixResponse,
   NutritionixItem,
-} from '@/graphql/src/types/nutritionix'
-import { toCursorHash } from '@/graphql/src/utils/cursorHash'
+} from '@/types/nutritionix'
+import { toCursorHash } from '@/utils/cursorHash'
 
 async function baseFetch(path: string, params: Record<string, string>): Promise<NutritionixResponse> {
   const headers = new Headers()

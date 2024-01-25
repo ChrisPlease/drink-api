@@ -32,7 +32,7 @@ const server = new ApolloServer<AppContext>({
 
 const requestHandler = handlers.createAPIGatewayProxyEventRequestHandler()
 
-const corsMiddleware: middleware.MiddlewareFn<typeof requestHandler> = async (e) => {
+const corsMiddleware: middleware.MiddlewareFn<typeof requestHandler> = async () => {
   return async (result) => {
     result.headers = {
       ...result.headers,

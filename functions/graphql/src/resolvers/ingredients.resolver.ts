@@ -4,9 +4,9 @@ import {
   AbsoluteIngredientResolvers,
   IngredientResolvers,
   RelativeIngredientResolvers,
-} from '@/graphql/src/__generated__/graphql'
-import { queryIngredientCount } from '@/graphql/src/utils/queries'
-import { toCursorHash } from '@/graphql/src/utils/cursorHash'
+} from '@/__generated__/graphql'
+import { queryIngredientCount } from '@/utils/queries'
+import { toCursorHash } from '@/utils/cursorHash'
 
 
 export const ingredientTypeResolvers: IngredientResolvers = {

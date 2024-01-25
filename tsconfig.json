@@ -6,6 +6,7 @@
     "emitDecoratorMetadata": false,
     "module": "commonjs",
     "sourceMap": true,
+    "noEmit": true,
     "outDir": "./dist",
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -19,7 +20,6 @@
   },
   "include": [
     "./functions/**/*",
-    "functions/graphql/src/types/env.d.ts"
   ],
-  "exclude": ["functions/graphql/prisma"]
+  "exclude": ["./functions/graphql/prisma"]
 }

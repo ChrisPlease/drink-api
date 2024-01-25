@@ -2,28 +2,11 @@
 module.exports = {
   root: true,
   "ignorePatterns": [
-    "src/__generated__/**/*",
+    "functions/graphql/src/__generated__/**/*",
     "coverage/**/*"
   ],
-  "rules": {
-
-  },
+  "rules": {},
   "overrides": [
-    {
-      "files": ["*.gql"],
-      "extends": "plugin:@graphql-eslint/schema-recommended",
-      "parserOptions": {
-        "schema": "./schema.gql",
-      },
-      "rules": {
-        "@graphql-eslint/strict-id-in-types": ["error", {
-          "exceptions": {
-            "types": ["PageInfo"],
-            "suffixes": ["Paginated", "Edge"],
-          },
-        }],
-      },
-    },
     {
       "files": ["**/*.ts"],
       "env": {

@@ -1,10 +1,10 @@
 import { PrismaClient } from '@prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
-import { queryDrinkHistory } from '@/graphql/src/utils/queries'
-import { roundNumber } from '@/graphql/src/utils/roundNumber'
-import { deconstructId, toCursorHash } from '@/graphql/src/utils/cursorHash'
-import { QueryDrinksHistoryArgs, DrinkHistory as DrinkHistoryModel } from '@/graphql/src/__generated__/graphql'
-import { DrinkHistory } from '@/graphql/src/types/models'
+import { queryDrinkHistory } from '@/utils/queries'
+import { roundNumber } from '@/utils/roundNumber'
+import { deconstructId, toCursorHash } from '@/utils/cursorHash'
+import { QueryDrinksHistoryArgs, DrinkHistory as DrinkHistoryModel } from '@/__generated__/graphql'
+import { DrinkHistory } from '@/types/models'
 
 export function DrinkHistory(client: PrismaClient) {
   return Object.assign({}, {

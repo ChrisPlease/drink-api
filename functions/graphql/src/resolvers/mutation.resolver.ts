@@ -1,8 +1,8 @@
 import { Drink } from '@prisma/client'
-import { Drinks } from '@/graphql/src/models/Drink.model'
-import { Entries } from '@/graphql/src/models/Entry.model'
-import { MutationResolvers } from '@/graphql/src/__generated__/graphql'
-import { deconstructId } from '@/graphql/src/utils/cursorHash'
+import { Drinks } from '@/models/Drink.model'
+import { Entries } from '@/models/Entry.model'
+import { MutationResolvers } from '@/__generated__/graphql'
+import { deconstructId } from '@/utils/cursorHash'
 
 export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, args, { prisma, user }) {

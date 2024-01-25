@@ -6,10 +6,10 @@ import {
   MixedDrinkResolvers,
   ScanDrinkResolvers,
   ScanDrinkResultResolvers,
-} from '@/graphql/src/__generated__/graphql'
-import { deconstructId } from '@/graphql/src/utils/cursorHash'
-import { Drinks } from '@/graphql/src/models/Drink.model'
-import { Entries } from '@/graphql/src/models/Entry.model'
+} from '@/__generated__/graphql'
+import { deconstructId } from '@/utils/cursorHash'
+import { Drinks } from '@/models/Drink.model'
+import { Entries } from '@/models/Entry.model'
 
 export const drinkResultResolvers: DrinkResultResolvers = {
   async __resolveType(parent) {
