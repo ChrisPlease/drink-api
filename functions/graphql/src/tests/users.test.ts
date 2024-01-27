@@ -10,7 +10,7 @@ import { DocumentNode } from 'graphql'
 import { AppContext } from '../types/context'
 import { toCursorHash } from '../utils/cursorHash'
 import prisma from './helpers/prisma'
-import { redis } from './helpers/redis'
+// import { redis } from './helpers/redis'
 import { testServer } from './helpers/server'
 
 describe('users', () => {
@@ -28,7 +28,7 @@ describe('users', () => {
 
   beforeEach(() => {
     ctx = {
-      redis,
+      /* redis, */
       prisma,
       user: 'user-123',
     }
