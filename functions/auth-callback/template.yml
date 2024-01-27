@@ -5,16 +5,15 @@ Parameters:
     Type: String
 
 Resources:
-  WaterlogFunction:
+  AuthCallbackFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: graphql-fn:latest
+      ImageUri: callback-fn:latest
       # ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
       ImageConfig:
         Command: ["dist/index.handler"]
-      Timeout: 30
     Metadata:
       Dockerfile: Dockerfile
-      DockerTarget: graphql
+      DockerTarget: auth-callback
       DockerContext: ../..

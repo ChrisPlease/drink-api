@@ -5,16 +5,20 @@ Parameters:
     Type: String
 
 Resources:
-  WaterlogFunction:
+  JwksRsaCustomAuthorizer:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: graphql-fn:latest
+      ImageUri: authorizer-fn:latest
       # ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
       ImageConfig:
         Command: ["dist/index.handler"]
-      Timeout: 30
     Metadata:
       Dockerfile: Dockerfile
-      DockerTarget: graphql
+      DockerTarget: authorizer
       DockerContext: ../..
+
+Outputs:
+  JwksRsaCustomAuthorizerArn:
+    Description: "ARN of the Custom Authorizer Function"
+    Value: !GetAtt JwksRsaCustomAuthorizer.Arn

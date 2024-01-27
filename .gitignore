@@ -14,9 +14,9 @@ sample.*
 *event.json
 !sample.event.json
 
-!.env.sample
 .env
 .env.*
+!.env.sample
 
 # nginx certs
 certs

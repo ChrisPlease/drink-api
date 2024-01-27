@@ -10,67 +10,97 @@ Parameters:
       - prod
       - local
     Default: dev
+  AccountId:
+    Type: String
+    Description: AWS Account ID
 
 Resources:
+
+  WaterlogApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Environment
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: "Waterlog GraphQL API"
+          version: "1.0"
+        paths:
+          /callback:
+            get:
+              produces:
+                - application/json
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthCallbackFunction.Arn}/invocations
+                httpMethod: GET
+                type: aws_proxy
+              security: []
+          /graphql:
+            post:
+              consumes:
+                - application/json
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
+                httpMethod: POST
+                type: aws_proxy
+              security:
+                - CustomJwksRsaAuthorizer: []
+            options:
+              responses:
+                '204':
+                  description: "204 response"
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: "string"
+                    Access-Control-Allow-Methods:
+                      type: "string"
+                    Access-Control-Allow-Origin:
+                      type: "string"
+                    Content-Type:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                    statusCode: '204'
+                requestTemplates:
+                  application/json: "{ \"statusCode\": 204 }"
+                type: mock
+                security: []
+      Auth:
+        Authorizers:
+          CustomJwksRsaAuthorizer:
+            FunctionArn:
+              Fn::GetAtt: [JwksRsaCustomAuthorizer, Outputs.JwksRsaCustomAuthorizerArn]
+            Identity:
+              Header: Authorization
+              ReauthorizeEvery: 300 # value in seconds
+
+  JwksRsaCustomAuthorizer:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: functions/authorizer/template.yml
+
   WaterlogFunction:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: functions/graphql/template.yml
-  # WaterlogApi:
-  #   Type: AWS::Serverless::Api
-  #   Properties:
-  #     StageName: !Ref Environment
-  #     DefinitionBody:
-  #       swagger: '2.0'
-  #       info:
-  #         title: "Waterlog GraphQL API"
-  #         version: "1.0"
-  #       paths:
-  #         /graphql:
-  #           post:
-  #             consumes:
-  #               - application/json
-  #             responses: {}
-  #             x-amazon-apigateway-integration:
-  #               uri:
-  #                 Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
-  #               httpMethod: POST
-  #               type: aws_proxy
-  #             security:
-  #               - CustomJwksRsaAuthorizer: []
-  #           options:
-  #             responses:
-  #               '204':
-  #                 description: "204 response"
-  #                 headers:
-  #                   Access-Control-Allow-Headers:
-  #                     type: "string"
-  #                   Access-Control-Allow-Methods:
-  #                     type: "string"
-  #                   Access-Control-Allow-Origin:
-  #                     type: "string"
-  #                   Content-Type:
-  #                     type: "string"
-  #             x-amazon-apigateway-integration:
-  #               responses:
-  #                 default:
-  #                   responseParameters:
-  #                     method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-  #                     method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-  #                     method.response.header.Access-Control-Allow-Origin: "'*'"
-  #                   statusCode: '204'
-  #               requestTemplates:
-  #                 application/json: "{ \"statusCode\": 204 }"
-  #               type: mock
-  #               security: []
-  #     Auth:
-  #       Authorizers:
-  #         CustomJwksRsaAuthorizer:
-  #           FunctionArn:
-  #             Fn::Sub: arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:jwksRsaCustomAuthorizer
-  #           Identity:
-  #             Header: Authorization
-  #             ReauthorizeEvery: 300 # value in seconds
+      Parameters:
+        AccountId: !Ref AccountId
+
+  AuthCallbackFunction:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: functions/auth-callback/template.yml
+      Parameters:
+        AccountId: !Ref AccountId
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
@@ -78,14 +108,9 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref WaterlogFunction
       Principal: apigateway.amazonaws.com
-
-  # WaterlogFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     PackageType: Image
-  #     ImageUri: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
-  #     ImageConfig:
-  #       Command: ["index.handler"]
-  #   Metadata:
-  #     Dockerfile: Dockerfile
-  #     DockerContext: .
+  CallbackLambdaInvokePermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !Ref AuthCallbackFunction
+        Principal: apigateway.amazonaws.com
