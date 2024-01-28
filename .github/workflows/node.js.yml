@@ -26,7 +26,8 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 7.x
+          version: 8
+          run_install: false
       - name: Setup pnpm cache
         uses: actions/cache@v3
         with:
@@ -54,7 +55,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 7.x
+          version: 8
       - name: Setup pnpm cache
         uses: actions/cache@v3
         with:
@@ -83,7 +84,7 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 7.x
+          version: 8
       - name: Setup pnpm cache
         uses: actions/cache@v3
         with:
