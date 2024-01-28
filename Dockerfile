@@ -31,6 +31,7 @@ FROM base AS authorizer
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 
+COPY ./.env.production ./.env
 COPY --from=builder /prod/authorizer ${LAMBDA_TASK_ROOT}
 
 CMD ["dist/index.handler"]
