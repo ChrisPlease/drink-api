@@ -33,7 +33,8 @@ Resources:
               responses: {}
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthCallbackFunction.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthCallbackStack.Outputs.AuthCallbackFunctionArn}/invocations
+
                 httpMethod: GET
                 type: aws_proxy
               security: []
@@ -44,7 +45,8 @@ Resources:
               responses: {}
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogGraphqlStack.Outputs.WaterlogFunctionArn}/invocations
+
                 httpMethod: POST
                 type: aws_proxy
               security:
@@ -78,24 +80,26 @@ Resources:
         Authorizers:
           CustomJwksRsaAuthorizer:
             FunctionArn:
-              Fn::GetAtt: [JwksRsaCustomAuthorizer, Outputs.JwksRsaCustomAuthorizerArn]
+              Fn::GetAtt: [JwksRsaAuthorizerStack, Outputs.JwksRsaCustomAuthorizerArn]
             Identity:
               Header: Authorization
               ReauthorizeEvery: 300 # value in seconds
 
-  JwksRsaCustomAuthorizer:
+  JwksRsaAuthorizerStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: functions/authorizer/template.yml
+      Parameters:
+        AccountId: !Ref AccountId
 
-  WaterlogFunction:
+  WaterlogGraphqlStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: functions/graphql/template.yml
       Parameters:
         AccountId: !Ref AccountId
 
-  AuthCallbackFunction:
+  AuthCallbackStack:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: functions/auth-callback/template.yml
@@ -106,11 +110,12 @@ Resources:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref WaterlogFunction
+      FunctionName: !GetAtt WaterlogGraphqlStack.Outputs.WaterlogFunctionArn
       Principal: apigateway.amazonaws.com
+
   CallbackLambdaInvokePermission:
       Type: AWS::Lambda::Permission
       Properties:
         Action: lambda:InvokeFunction
-        FunctionName: !Ref AuthCallbackFunction
+        FunctionName: !GetAtt AuthCallbackStack.Outputs.AuthCallbackFunctionArn
         Principal: apigateway.amazonaws.com

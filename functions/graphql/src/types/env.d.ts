@@ -27,6 +27,7 @@ declare global {
       AUTH0_AUDIENCE: string;
       AUTH0_CLIENT_ID: string;
       AUTH0_CLIENT_SECRET: string;
+      JWKS_URI: string;
 
       CERTBOT_EMAIL: string;
       STAGING?: string;

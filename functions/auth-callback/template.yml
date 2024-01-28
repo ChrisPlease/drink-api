@@ -17,3 +17,10 @@ Resources:
       Dockerfile: Dockerfile
       DockerTarget: auth-callback
       DockerContext: ../..
+
+Outputs:
+  AuthCallbackFunctionArn:
+    Description: The ARN of the Auth Callback Function
+    Value: !GetAtt [AuthCallbackFunction, Arn]
+    Export:
+      Name: !Sub "${AWS::StackName}-AuthCallbackFunctionArn"

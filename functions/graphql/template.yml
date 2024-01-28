@@ -18,3 +18,10 @@ Resources:
       Dockerfile: Dockerfile
       DockerTarget: graphql
       DockerContext: ../..
+
+Outputs:
+  WaterlogFunctionArn:
+    Description: The ARN of the Auth Callback Function
+    Value: !GetAtt [WaterlogFunction, Arn]
+    Export:
+      Name: !Sub "${AWS::StackName}-WaterlogFunctionArn"
