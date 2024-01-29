@@ -8,6 +8,7 @@ coverage
 samconfig.toml
 !env.sample.json
 *env.json
+packaged.yml
 
 sample.*
 

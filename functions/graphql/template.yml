@@ -9,8 +9,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: graphql-fn:latest
-      # ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
+      # ImageUri: graphql-fn:latest
+      ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-v1"
       ImageConfig:
         Command: ["dist/index.handler"]
       Timeout: 30

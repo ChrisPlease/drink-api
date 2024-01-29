@@ -9,8 +9,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: authorizer-fn:latest
-      # ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
+      # ImageUri: authorizer-fn:latest
+      ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/authorizer-fn:dev-v1"
       ImageConfig:
         Command: ["dist/index.handler"]
     Metadata:
@@ -21,4 +21,6 @@ Resources:
 Outputs:
   JwksRsaCustomAuthorizerArn:
     Description: "ARN of the Custom Authorizer Function"
-    Value: !GetAtt JwksRsaCustomAuthorizer.Arn
+    Value: !GetAtt [JwksRsaCustomAuthorizer, Arn]
+    Export:
+      Name: !Sub "${AWS::StackName}-JwksRsaCustomAuthorizerArn"

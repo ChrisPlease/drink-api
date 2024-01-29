@@ -9,8 +9,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      ImageUri: callback-fn:latest
-      # ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/prod-lambda:latest"
+      # ImageUri: callback-fn:latest
+      ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev-v2"
       ImageConfig:
         Command: ["dist/index.handler"]
     Metadata:

@@ -35,7 +35,7 @@ Resources:
                 uri:
                   Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthCallbackStack.Outputs.AuthCallbackFunctionArn}/invocations
 
-                httpMethod: GET
+                httpMethod: POST
                 type: aws_proxy
               security: []
           /graphql:
@@ -95,14 +95,14 @@ Resources:
   WaterlogGraphqlStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: functions/graphql/template.yml
+      TemplateURL: "./functions/graphql/template.yml"
       Parameters:
         AccountId: !Ref AccountId
 
   AuthCallbackStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: functions/auth-callback/template.yml
+      TemplateURL: "./functions/auth-callback/template.yml"
       Parameters:
         AccountId: !Ref AccountId
 
