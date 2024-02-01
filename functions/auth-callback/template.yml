@@ -10,7 +10,7 @@ Resources:
     Properties:
       PackageType: Image
       # ImageUri: callback-fn:latest
-      ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev-v2"
+      ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev-v3"
       ImageConfig:
         Command: ["dist/index.handler"]
     Metadata:

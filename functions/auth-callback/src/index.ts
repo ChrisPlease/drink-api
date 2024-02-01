@@ -9,7 +9,6 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
   const client_id = process.env.AUTH0_CLIENT_ID
   const client_secret = process.env.AUTH0_CLIENT_SECRET
   const redirect_uri = process.env.AUTH0_CALLBACK_URI
-  const audience = process.env.AUTH0_AUDIENCE
   const auth0Domain = process.env.AUTH0_DOMAIN
 
   try {
@@ -17,7 +16,6 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
       client_id,
       client_secret,
       redirect_uri,
-      audience,
       code,
       grant_type: 'authorization_code',
     }
