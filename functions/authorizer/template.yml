@@ -9,8 +9,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      # ImageUri: authorizer-fn:latest
-      ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/authorizer-fn:dev-v1"
+      ImageUri: !If
+        - IsLocalEnvironment
+        - authorizer-fn:latest
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/authorizer-fn:dev-v1"
       ImageConfig:
         Command: ["dist/index.handler"]
     Metadata:
@@ -24,3 +26,6 @@ Outputs:
     Value: !GetAtt [JwksRsaCustomAuthorizer, Arn]
     Export:
       Name: !Sub "${AWS::StackName}-JwksRsaCustomAuthorizerArn"
+
+Conditions:
+  IsLocalEnvironment: !Equals [!Ref Environment, local]

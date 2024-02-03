@@ -9,8 +9,10 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      # ImageUri: graphql-fn:latest
-      ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-v1"
+      ImageUri: !If
+        - IsLocalEnvironment
+        - graphql-fn:latest
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-v1"
       ImageConfig:
         Command: ["dist/index.handler"]
       Timeout: 30
@@ -25,3 +27,6 @@ Outputs:
     Value: !GetAtt [WaterlogFunction, Arn]
     Export:
       Name: !Sub "${AWS::StackName}-WaterlogFunctionArn"
+
+Conditions:
+  IsLocalEnvironment: !Equals [!Ref Environment, local]

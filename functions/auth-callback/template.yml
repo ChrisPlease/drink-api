@@ -3,14 +3,18 @@ Transform: AWS::Serverless-2016-10-31
 Parameters:
   AccountId:
     Type: String
+  Environment:
+    Type: String
 
 Resources:
   AuthCallbackFunction:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      # ImageUri: callback-fn:latest
-      ImageUri: !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev-v3"
+      ImageUri: !If
+        - IsLocalEnvironment
+        - callback-fn:latest
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev-v3"
       ImageConfig:
         Command: ["dist/index.handler"]
     Metadata:
@@ -24,3 +28,6 @@ Outputs:
     Value: !GetAtt [AuthCallbackFunction, Arn]
     Export:
       Name: !Sub "${AWS::StackName}-AuthCallbackFunctionArn"
+
+Conditions:
+  IsLocalEnvironment: !Equals [!Ref Environment, local]

@@ -14,8 +14,5 @@
     "esbuild": "0.20.0",
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.0.3"
-  },
-  "devDependencies": {
-    "aws-lambda-ric": "^3.1.0"
   }
 }
