@@ -11,4 +11,7 @@ else
     kill $PID
 fi
 
-pnpm run build:dev && ./aws-lambda-rie pnpm aws-lambda-ric dist/index.handler || exit 1
+echo "Restarting..."
+pnpm run build:dev;
+echo "Rebuilt"
+./aws-lambda-rie pnpx aws-lambda-ric dist/index.handler || exit 1
