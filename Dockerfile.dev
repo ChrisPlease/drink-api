@@ -6,13 +6,13 @@ ENV PATH="$PNPM_HOME:$PATH"
 ENV LAMBDA_TASK_ROOT="/var/task"
 RUN corepack enable
 RUN apt-get update && \
-    apt-get install -y \
-    g++ \
-    make \
-    cmake \
-    unzip \
-    libcurl4-openssl-dev \
-    lsof
+apt-get install -y \
+g++ \
+make \
+cmake \
+unzip \
+libcurl4-openssl-dev \
+lsof
 
 
 # Builder image
@@ -26,7 +26,7 @@ id=pnpm,\
 target=/pnpm/store \
 pnpm install --frozen-lockfile
 
-RUN pnpm i -r aws-lambda-ric
+# RUN pnpm i -w aws-lambda-ric
 RUN pnpm run -r --if-present build:dev
 RUN pnpm run -r --if-present alias
 
@@ -75,7 +75,9 @@ COPY --from=builder /usr/src/app/aws-lambda-rie ./aws-lambda-rie
 RUN chmod +x ./aws-lambda-rie
 RUN chmod +x ./entrypoint.sh
 
-ENTRYPOINT ["./aws-lambda-rie"]
+# RUN echo "foo"
+# ENTRYPOINT ["./aws-lambda-rie"]
 # CMD ["tail", "-f", "/dev/null"]
+# RUN echo "bar"
 
 CMD ["pnpm", "dev"]
