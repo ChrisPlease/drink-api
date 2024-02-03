@@ -5,11 +5,17 @@
   "main": "dist/index.cjs",
   "scripts": {
     "build": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
+    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node20 --outfile=dist/index.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "jsonwebtoken": "^9.0.2"
+    "esbuild": "0.20.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.0.3"
+  },
+  "devDependencies": {
+    "aws-lambda-ric": "^3.1.0"
   }
 }
