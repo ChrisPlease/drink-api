@@ -11,4 +11,4 @@ else
     kill $PID
 fi
 
-npm run dev:build && ./aws-lambda-rie npx aws-lambda-ric dist/index.handler || exit 1
+pnpm run build:dev && ./aws-lambda-rie pnpm aws-lambda-ric dist/index.handler || exit 1

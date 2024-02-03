@@ -1,0 +1,81 @@
+# Base Image
+FROM node:20-bullseye AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV LAMBDA_TASK_ROOT="/var/task"
+RUN corepack enable
+RUN apt-get update && \
+    apt-get install -y \
+    g++ \
+    make \
+    cmake \
+    unzip \
+    libcurl4-openssl-dev \
+    lsof
+
+
+# Builder image
+FROM base AS builder
+COPY . /usr/src/app
+COPY ./aws-lambda-rie ./aws-lambda-rie
+WORKDIR /usr/src/app
+
+RUN --mount=type=cache,\
+id=pnpm,\
+target=/pnpm/store \
+pnpm install --frozen-lockfile
+
+RUN pnpm i -r aws-lambda-ric
+RUN pnpm run -r --if-present build:dev
+RUN pnpm run -r --if-present alias
+
+## Package Deployments
+# # Authorizer deploy
+# RUN pnpm deploy --filter=authorizer /prod/authorizer
+
+# # GraphQL deploy
+# RUN pnpm deploy --filter=waterlog-graphql /prod/graphql
+
+RUN pnpm deploy --filter=auth-callback /prod/callback
+
+## Package Builds
+
+# Authorizer
+# FROM base AS authorizer
+
+# WORKDIR ${LAMBDA_TASK_ROOT}
+
+# COPY ./.env.production ./.env
+# COPY --from=builder /prod/authorizer ${LAMBDA_TASK_ROOT}
+
+# CMD ["dist/index.handler"]
+
+# # GraphQL
+# FROM base AS graphql
+
+# WORKDIR ${LAMBDA_TASK_ROOT}
+# COPY ./.env.production ./.env
+# COPY --from=builder /prod/graphql ${LAMBDA_TASK_ROOT}
+
+# RUN pnpx prisma generate
+
+# CMD ["dist/index.handler"]
+
+# Auth Callback
+FROM base AS auth-callback
+
+WORKDIR ${LAMBDA_TASK_ROOT}
+COPY ./scripts/entrypoint.dev.sh ./entrypoint.sh
+COPY ./.env.production ./.env
+
+COPY --from=builder /prod/callback ${LAMBDA_TASK_ROOT}
+COPY --from=builder /usr/src/app/aws-lambda-rie ./aws-lambda-rie
+
+RUN chmod +x ./aws-lambda-rie
+RUN chmod +x ./entrypoint.sh
+
+ENTRYPOINT ["./aws-lambda-rie"]
+# CMD ["tail", "-f", "/dev/null"]
+
+CMD ["pnpm", "dev"]

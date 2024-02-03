@@ -10,8 +10,12 @@ Parameters:
       - prod
       - local
     Default: dev
+  AccountId:
+    Type: String
+    Description: AWS Account ID
 
 Resources:
+
   WaterlogApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -22,6 +26,18 @@ Resources:
           title: "Waterlog GraphQL API"
           version: "1.0"
         paths:
+          /callback:
+            get:
+              produces:
+                - application/json
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthCallbackStack.Outputs.AuthCallbackFunctionArn}/invocations
+
+                httpMethod: POST
+                type: aws_proxy
+              security: []
           /graphql:
             post:
               consumes:
@@ -29,7 +45,8 @@ Resources:
               responses: {}
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogGraphqlStack.Outputs.WaterlogFunctionArn}/invocations
+
                 httpMethod: POST
                 type: aws_proxy
               security:
@@ -63,26 +80,42 @@ Resources:
         Authorizers:
           CustomJwksRsaAuthorizer:
             FunctionArn:
-              Fn::Sub: arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:jwksRsaCustomAuthorizer
+              Fn::GetAtt: [JwksRsaAuthorizerStack, Outputs.JwksRsaCustomAuthorizerArn]
             Identity:
               Header: Authorization
               ReauthorizeEvery: 300 # value in seconds
+
+  JwksRsaAuthorizerStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: functions/authorizer/template.yml
+      Parameters:
+        AccountId: !Ref AccountId
+
+  WaterlogGraphqlStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: "./functions/graphql/template.yml"
+      Parameters:
+        AccountId: !Ref AccountId
+
+  AuthCallbackStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: "./functions/auth-callback/template.yml"
+      Parameters:
+        AccountId: !Ref AccountId
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !Ref WaterlogFunction
+      FunctionName: !GetAtt WaterlogGraphqlStack.Outputs.WaterlogFunctionArn
       Principal: apigateway.amazonaws.com
 
-  WaterlogFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      PackageType: Image
-      ImageUri: lambda-dev:test
-      Timeout: 30
-      ImageConfig:
-        Command: ["npm", "start"]
-    Metadata:
-      Dockerfile: Dockerfile.dev
-      DockerContext: .
+  CallbackLambdaInvokePermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !GetAtt AuthCallbackStack.Outputs.AuthCallbackFunctionArn
+        Principal: apigateway.amazonaws.com
