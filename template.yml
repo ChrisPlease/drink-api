@@ -91,6 +91,7 @@ Resources:
       TemplateURL: functions/authorizer/template.yml
       Parameters:
         AccountId: !Ref AccountId
+        Environment: !Ref Environment
 
   WaterlogGraphqlStack:
     Type: AWS::CloudFormation::Stack
@@ -98,6 +99,7 @@ Resources:
       TemplateURL: "./functions/graphql/template.yml"
       Parameters:
         AccountId: !Ref AccountId
+        Environment: !Ref Environment
 
   AuthCallbackStack:
     Type: AWS::CloudFormation::Stack
@@ -105,6 +107,7 @@ Resources:
       TemplateURL: "./functions/auth-callback/template.yml"
       Parameters:
         AccountId: !Ref AccountId
+        Environment: !Ref Environment
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
