@@ -16,6 +16,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run -r --if-present build
 RUN pnpm run -r --if-present alias
 
+## Package Deployments
 # Authorizer deploy
 RUN pnpm deploy --filter=authorizer --prod /prod/authorizer
 
@@ -26,7 +27,8 @@ RUN pnpm deploy --filter=waterlog-graphql --prod /prod/graphql
 RUN pnpm deploy --filter=auth-callback --prod /prod/callback
 
 
-## Authorizer Build
+## Package Builds
+# Authorizer
 FROM base AS authorizer
 
 WORKDIR ${LAMBDA_TASK_ROOT}
@@ -36,7 +38,8 @@ COPY --from=builder /prod/authorizer ${LAMBDA_TASK_ROOT}
 
 CMD ["dist/index.handler"]
 
-## GraphQL Build
+
+# GraphQL
 FROM base AS graphql
 
 WORKDIR ${LAMBDA_TASK_ROOT}
@@ -47,7 +50,8 @@ RUN pnpx prisma generate
 
 CMD ["dist/index.handler"]
 
-## Auth Callback Build
+
+# Auth Callback
 FROM base AS auth-callback
 
 WORKDIR ${LAMBDA_TASK_ROOT}
