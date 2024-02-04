@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  db:
+    container_name: postgres
+    image: postgres:16.1-alpine
+    restart: always
+    ports:
+      - '${PGPORT}:${PGPORT}'
+    volumes:
+      - data:/var/lib/postgres/data
+    environment:
+      - POSTGRES_PASSWORD=${PGPASSWORD}
+      - POSTGRES_DB=${PGDATABASE}
+      - POSTGRES_USER=${PGUSER}
+volumes:
+  data: {}
