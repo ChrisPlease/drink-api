@@ -1,3 +1,5 @@
+
+
 # Base Image
 FROM public.ecr.aws/lambda/nodejs:20 AS base
 
@@ -6,6 +8,8 @@ ENV PATH="$PNPM_HOME:$PATH"
 ENV LAMBDA_TASK_ROOT="/var/task"
 RUN corepack enable
 
+ARG ENV=develop
+ARG ENV_FILE=".env.${ENV}"
 
 # Builder image
 FROM base AS builder
@@ -33,7 +37,7 @@ FROM base AS authorizer
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 
-COPY ./.env.production ./.env
+COPY ./$ENV_FILE ./.env
 COPY --from=builder /prod/authorizer ${LAMBDA_TASK_ROOT}
 
 CMD ["dist/index.handler"]
@@ -43,7 +47,7 @@ CMD ["dist/index.handler"]
 FROM base AS graphql
 
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY ./.env.production ./.env
+COPY ./$ENV_FILE ./.env
 COPY --from=builder /prod/graphql ${LAMBDA_TASK_ROOT}
 
 RUN pnpx prisma generate
@@ -55,7 +59,7 @@ CMD ["dist/index.handler"]
 FROM base AS auth-callback
 
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY ./.env.production ./.env
+COPY ./$ENV_FILE ./.env
 
 COPY --from=builder /prod/callback ${LAMBDA_TASK_ROOT}
 

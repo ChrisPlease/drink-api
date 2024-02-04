@@ -32,7 +32,7 @@ Resources:
               responses: {}
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthCallbackApp.Outputs.AuthCallbackFunctionArn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthCallbackFunction.Arn}/invocations
 
                 httpMethod: POST
                 type: aws_proxy
@@ -44,7 +44,7 @@ Resources:
               responses: {}
               x-amazon-apigateway-integration:
                 uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogGraphqlApp.Outputs.WaterlogFunctionArn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
 
                 httpMethod: POST
                 type: aws_proxy
@@ -75,52 +75,92 @@ Resources:
                   application/json: "{ \"statusCode\": 204 }"
                 type: mock
                 security: []
+        securityDefinitions:
+          CustomJwksRsaAuthorizer:
+            type: "apiKey"
+            name: "Authorization"
+            in: "header"
+            x-amazon-apigateway-authtype: "custom"
+            x-amazon-apigateway-authorizer:
+              type: "token"
+              authorizerUri:
+                Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${JwksRsaCustomAuthorizer.Arn}/invocations
+              identitySource: "method.request.header.Authorization"
+              authorizerResultTtlInSeconds: 300
       Auth:
         Authorizers:
           CustomJwksRsaAuthorizer:
             FunctionArn:
-              Fn::GetAtt: [JwksRsaAuthorizerApp, Outputs.JwksRsaCustomAuthorizerArn]
+              Fn::GetAtt: [JwksRsaCustomAuthorizer, Arn]
             Identity:
               Header: Authorization
-              ReauthorizeEvery: 300 # value in seconds
+            ReauthorizeEvery: 300 # value in seconds
+            Type: TOKEN
 
   # functions/authorizer
-  JwksRsaAuthorizerApp:
-    Type: AWS::Serverless::Application
+  JwksRsaCustomAuthorizer:
+    Type: AWS::Serverless::Function
     Properties:
-      Location: ./functions/authorizer/template.yml
-      Parameters:
-        AccountId: !Ref AccountId
-        Environment: !Ref Environment
+      PackageType: Image
+      ImageUri: !If
+        - IsLocalEnvironment
+        - authorizer-fn:latest
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/authorizer-fn:dev-v1"
+      ImageConfig:
+        Command: ["dist/index.handler"]
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerTarget: authorizer
+      DockerContext: .
+
 
   ## functions/grahql
-  WaterlogGraphqlApp:
-    Type: AWS::Serverless::Application
+  WaterlogFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      Location: ./functions/graphql/template.yml
-      Parameters:
-        AccountId: !Ref AccountId
-        Environment: !Ref Environment
+      PackageType: Image
+      ImageUri: !If
+        - IsLocalEnvironment
+        - graphql-fn:latest
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-v1"
+      ImageConfig:
+        Command: ["dist/index.handler"]
+      Timeout: 30
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerTarget: graphql
+      DockerContext: .
 
   ## functions/auth-callback
-  AuthCallbackApp:
-    Type: AWS::Serverless::Application
+  AuthCallbackFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      Location: ./functions/auth-callback/template.yml
-      Parameters:
-        AccountId: !Ref AccountId
-        Environment: !Ref Environment
+      PackageType: Image
+      ImageUri: !If
+        - IsLocalEnvironment
+        - callback-fn:latest
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev-v3"
+      ImageConfig:
+        Command: ["dist/index.handler"]
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerTarget: auth-callback
+      DockerContext: .
+
 
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !GetAtt WaterlogGraphqlApp.Outputs.WaterlogFunctionArn
+      FunctionName: !GetAtt WaterlogFunction.Arn
       Principal: apigateway.amazonaws.com
 
   CallbackLambdaInvokePermission:
       Type: AWS::Lambda::Permission
       Properties:
         Action: lambda:InvokeFunction
-        FunctionName: !GetAtt AuthCallbackApp.Outputs.AuthCallbackFunctionArn
+        FunctionName: !GetAtt AuthCallbackFunction.Arn
         Principal: apigateway.amazonaws.com
+
+Conditions:
+  IsLocalEnvironment: !Equals [!Ref Environment, local]
