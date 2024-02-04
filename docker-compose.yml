@@ -7,7 +7,7 @@ services:
     ports:
       - '${PGPORT}:${PGPORT}'
     volumes:
-      - data:/var/lib/postgres/data
+      - data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=${PGPASSWORD}
       - POSTGRES_DB=${PGDATABASE}
