@@ -5,3 +5,4 @@ node_modules
 *.md
 dist
 .pnpm-store
+**/dist
