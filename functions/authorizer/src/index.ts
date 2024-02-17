@@ -38,7 +38,7 @@ const getToken = (params: APIGatewayAuthorizerEvent) => {
 
 const jwtOptions = {
   audience: process.env.AUDIENCE,
-  issuer: process.env.TOKEN_ISSUER,
+  issuer: process.env.AUTH0_DOMAIN,
 }
 
 const authenticate = async (params: APIGatewayAuthorizerEvent) => {
@@ -65,7 +65,7 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
 const client = jwksClient({
   cache: true,
   rateLimit: true,
-  jwksRequestsPerMinute: 10, // Default value
+  jwksRequestsPerMinute: 10,
   jwksUri: process.env.JWKS_URI,
 })
 
@@ -80,3 +80,4 @@ export const handler: Handler = async (event) => {
   }
   return data
 }
+
