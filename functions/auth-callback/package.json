@@ -19,6 +19,7 @@
     "esbuild": "0.20.0"
   },
   "devDependencies": {
+    "aws-lambda-ric": "^3.1.0",
     "nodemon": "^3.0.3"
   }
 }

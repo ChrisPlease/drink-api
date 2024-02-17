@@ -12,10 +12,11 @@
   "license": "ISC",
   "dependencies": {
     "esbuild": "0.20.0",
-    "jsonwebtoken": "^9.0.2",
-    "nodemon": "^3.0.3"
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.5"
+    "@types/jsonwebtoken": "^9.0.5",
+    "aws-lambda-ric": "^3.1.0",
+    "nodemon": "^3.0.3"
   }
 }
