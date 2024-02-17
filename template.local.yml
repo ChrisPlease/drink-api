@@ -102,12 +102,15 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
+      Architectures:
+        - arm64
       ImageUri: !If
         - IsLocalEnvironment
         - authorizer-fn:latest
         - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/authorizer-fn:dev-v1"
       ImageConfig:
         Command: ["dist/index.handler"]
+      Timeout: 30
     Metadata:
       Dockerfile: Dockerfile
       DockerTarget: authorizer
@@ -118,6 +121,8 @@ Resources:
   WaterlogFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Architectures:
+        - arm64
       PackageType: Image
       ImageUri: !If
         - IsLocalEnvironment
@@ -136,12 +141,15 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
+      Architectures:
+        - arm64
       ImageUri: !If
         - IsLocalEnvironment
         - callback-fn:latest
         - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev-v3"
       ImageConfig:
         Command: ["dist/index.handler"]
+      Timeout: 30
     Metadata:
       Dockerfile: Dockerfile
       DockerTarget: auth-callback
