@@ -20,11 +20,6 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
       grant_type: 'authorization_code',
     }
 
-    console.log('here?')
-    console.log('or here?')
-    console.log('or also maybe here?')
-    console.log('but not here')
-
     const response = await axios.post(
       `${auth0Domain}/oauth/token`,
       payload,
