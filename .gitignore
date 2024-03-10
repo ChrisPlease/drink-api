@@ -22,4 +22,4 @@ sample.*
 # nginx certs
 certs
 
-dump_*
+backups

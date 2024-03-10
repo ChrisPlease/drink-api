@@ -341,7 +341,6 @@ describe('Drink Model', () => {
           nutrition: {
             create: {
               ...mockPayload.nutrition,
-              imperialSize: 9,
             },
           },
         },
@@ -403,7 +402,6 @@ describe('Drink Model', () => {
           ...payload,
           nutrition: {
             create: {
-              imperialSize: 12,
               ...nutrition,
             },
           },

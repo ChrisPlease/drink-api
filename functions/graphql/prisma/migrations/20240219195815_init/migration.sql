@@ -1,27 +1,49 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS extensions;
+
 -- CreateExtension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
 -- CreateTable
 CREATE TABLE "drinks" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT extensions.uuid_generate_v4(),
     "name" VARCHAR NOT NULL,
     "icon" VARCHAR NOT NULL,
-    "coefficient" DOUBLE PRECISION DEFAULT 0,
-    "caffeine" DOUBLE PRECISION DEFAULT 0,
-    "sugar" DOUBLE PRECISION DEFAULT 0,
-    "serving_size" DOUBLE PRECISION NOT NULL,
     "user_id" VARCHAR,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deleted" TIMESTAMP(3),
+    "upc" VARCHAR(12),
 
     CONSTRAINT "drinks_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "ingredients" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "parts" INTEGER NOT NULL,
+CREATE TABLE "nutrition" (
+    "coefficient" DOUBLE PRECISION DEFAULT 100,
+    "calories" DOUBLE PRECISION DEFAULT 0,
+    "saturated_fat" DOUBLE PRECISION DEFAULT 0,
+    "total_fat" DOUBLE PRECISION DEFAULT 0,
+    "cholesterol" DOUBLE PRECISION DEFAULT 0,
+    "sodium" DOUBLE PRECISION DEFAULT 0,
+    "carbohydrates" DOUBLE PRECISION DEFAULT 0,
+    "fiber" DOUBLE PRECISION DEFAULT 0,
+    "sugar" DOUBLE PRECISION DEFAULT 0,
+    "protein" DOUBLE PRECISION DEFAULT 0,
+    "potassium" DOUBLE PRECISION DEFAULT 0,
+    "caffeine" DOUBLE PRECISION DEFAULT 0,
     "drink_id" UUID NOT NULL,
+    "added_sugar" DOUBLE PRECISION DEFAULT 0,
+    "serving_size" DOUBLE PRECISION NOT NULL,
+    "metric_size" INTEGER NOT NULL,
+    "serving_unit" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "ingredients" (
+    "id" UUID NOT NULL DEFAULT extensions.uuid_generate_v4(),
+    "parts" DOUBLE PRECISION,
+    "drink_id" UUID NOT NULL,
+    "volume" DOUBLE PRECISION,
 
     CONSTRAINT "ingredients_pkey" PRIMARY KEY ("id")
 );
@@ -36,7 +58,7 @@ CREATE TABLE "drink_ingredients" (
 
 -- CreateTable
 CREATE TABLE "entries" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT extensions.uuid_generate_v4(),
     "volume" DOUBLE PRECISION NOT NULL,
     "timestamp" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "drink_id" UUID NOT NULL,
@@ -57,6 +79,9 @@ CREATE TABLE "users" (
 CREATE UNIQUE INDEX "drinks_created_at_key" ON "drinks"("created_at");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "drinks_upc_key" ON "drinks"("upc");
+
+-- CreateIndex
 CREATE INDEX "drinks_name_idx" ON "drinks"("name");
 
 -- CreateIndex
@@ -73,6 +98,9 @@ CREATE UNIQUE INDEX "drinks_id_user_id_key" ON "drinks"("id", "user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "drinks_name_user_id_key" ON "drinks"("name", "user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "nutrition_drink_id_key" ON "nutrition"("drink_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "entries_timestamp_key" ON "entries"("timestamp");
@@ -93,13 +121,16 @@ CREATE UNIQUE INDEX "entries_timestamp_user_id_key" ON "entries"("timestamp", "u
 ALTER TABLE "drinks" ADD CONSTRAINT "drinks_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "drink_ingredients" ADD CONSTRAINT "drink_ingredients_ingredient_id_fkey" FOREIGN KEY ("ingredient_id") REFERENCES "ingredients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "nutrition" ADD CONSTRAINT "nutrition_drink_id_fkey" FOREIGN KEY ("drink_id") REFERENCES "drinks"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "drink_ingredients" ADD CONSTRAINT "drink_ingredients_drink_id_fkey" FOREIGN KEY ("drink_id") REFERENCES "drinks"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "entries" ADD CONSTRAINT "entries_drink_id_fkey" FOREIGN KEY ("drink_id") REFERENCES "drinks"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "drink_ingredients" ADD CONSTRAINT "drink_ingredients_ingredient_id_fkey" FOREIGN KEY ("ingredient_id") REFERENCES "ingredients"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "entries" ADD CONSTRAINT "entries_drink_id_fkey" FOREIGN KEY ("drink_id") REFERENCES "drinks"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "entries" ADD CONSTRAINT "entries_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;

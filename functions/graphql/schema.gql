@@ -114,17 +114,22 @@ interface Nutrition {
   caffeine: Float
 }
 
+
+"""
+Drink Serving Size field
+"""
+type DrinkServingSize {
+  servingSize: Float
+  servingUnit: String
+  metricSize: Float
+}
+
 """
 Drink Health Nutrition field
 """
 # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type DrinkNutrition implements Nutrition {
   coefficient: Float
-
-  servingSize: Float
-  servingUnit: String
-  metricSize: Int
-  imperialSize: Int
 
   calories: Float
   saturatedFat: Float
@@ -174,6 +179,7 @@ interface Drink {
   id: ID!
   icon: Icon
   name: String!
+  serving: DrinkServingSize!
   nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
@@ -195,6 +201,7 @@ type ScanDrink implements Drink {
   upc: String
   icon: Icon
   name: String!
+  serving: DrinkServingSize!
   nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
@@ -215,6 +222,7 @@ type BaseDrink implements Drink & Node {
   upc: String
   name: String!
   icon: Icon
+  serving: DrinkServingSize!
   nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,
@@ -235,6 +243,7 @@ type MixedDrink implements Drink & Node {
   id: ID!
   name: String!
   icon: Icon
+  serving: DrinkServingSize!
   nutrition: DrinkNutrition!
   entries(
     sort: EntrySort,

@@ -74,7 +74,7 @@ Resources:
                 requestTemplates:
                   application/json: "{ \"statusCode\": 204 }"
                 type: mock
-                security: []
+              security: []
         securityDefinitions:
           CustomJwksRsaAuthorizer:
             type: "apiKey"
@@ -97,7 +97,7 @@ Resources:
             ReauthorizeEvery: 300 # value in seconds
             Type: TOKEN
 
-  # functions/authorizer
+  ## functions/authorizer
   JwksRsaCustomAuthorizer:
     Type: AWS::Serverless::Function
     Properties:

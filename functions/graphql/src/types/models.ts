@@ -1,5 +1,5 @@
 import { Drink, Entry } from '@prisma/client'
-import { DrinkNutrition } from '@/__generated__/graphql'
+import { DrinkNutrition, DrinkServingSize } from '@/__generated__/graphql'
 
 export interface ScanDrink extends Omit<DrinkResult, 'userId' | 'deleted' | 'icon' | 'createdAt'> {
   icon?: string | null;
@@ -7,6 +7,7 @@ export interface ScanDrink extends Omit<DrinkResult, 'userId' | 'deleted' | 'ico
 
 export interface DrinkResult extends Drink {
   nutrition?: DrinkNutrition | null;
+  serving: DrinkServingSize;
 }
 
 export interface ResolvedEntry extends Entry {

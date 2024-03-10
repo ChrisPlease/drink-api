@@ -1,5 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
+  // output          = "../node_modules/.prisma/client"
   previewFeatures = ["postgresqlExtensions"]
   binaryTargets   = ["native", "rhel-openssl-1.0.x"]
 }
@@ -35,7 +36,6 @@ model Drink {
 
 model Nutrition {
   coefficient   Float? @default(100)
-  servingSize   Float  @map("serving_size")
   calories      Float? @default(0)
   saturatedFat  Float? @default(0) @map("saturated_fat")
   totalFat      Float? @default(0) @map("total_fat")
@@ -49,7 +49,9 @@ model Nutrition {
   caffeine      Float? @default(0)
   drinkId       String @unique @map("drink_id") @db.Uuid
   addedSugar    Float? @default(0) @map("added_sugar")
-  imperialSize  Int    @map("imperial_size")
+
+
+  servingSize   Float  @map("serving_size")
   metricSize    Int    @map("metric_size")
   servingUnit   String @map("serving_unit")
   drink         Drink  @relation(fields: [drinkId], references: [id], onDelete: Cascade)

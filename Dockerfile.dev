@@ -1,10 +1,20 @@
 # Base Image
 FROM node:20-bullseye AS base
 
+ARG ENV=develop
+ARG ENV_FILE=".env"
+
+# Optionally override the .env file based on the ENV if ENV_FILE is not provided explicitly
+ENV ENV_FILE=${ENV_FILE:-.env.${ENV}}
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 ENV LAMBDA_TASK_ROOT="/var/task"
+
 RUN corepack enable
+
+# Builder image
+FROM base AS builder
+
 RUN apt-get update && \
 apt-get install -y \
 g++ \
@@ -14,70 +24,40 @@ unzip \
 libcurl4-openssl-dev \
 lsof
 
-
-# Builder image
-FROM base AS builder
 COPY . /usr/src/app
-COPY ./aws-lambda-rie ./aws-lambda-rie
+COPY ./aws-lambda-rie /usr/local/bin/aws-lambda-rie
 WORKDIR /usr/src/app
+COPY ./${ENV_FILE} ./.env
 
-RUN --mount=type=cache,\
-id=pnpm,\
-target=/pnpm/store \
-pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# RUN pnpm i -w aws-lambda-ric
 RUN pnpm run -r --if-present build:dev
 RUN pnpm run -r --if-present alias
+RUN pnpm i -r aws-lambda-ric
 
-## Package Deployments
-# # Authorizer deploy
-# RUN pnpm deploy --filter=authorizer /prod/authorizer
-
-# # GraphQL deploy
-# RUN pnpm deploy --filter=waterlog-graphql /prod/graphql
-
-RUN pnpm deploy --filter=auth-callback /prod/callback
-
-## Package Builds
-
-# Authorizer
-# FROM base AS authorizer
-
-# WORKDIR ${LAMBDA_TASK_ROOT}
-
-# COPY ./.env.production ./.env
-# COPY --from=builder /prod/authorizer ${LAMBDA_TASK_ROOT}
-
-# CMD ["dist/index.handler"]
-
-# # GraphQL
-# FROM base AS graphql
-
-# WORKDIR ${LAMBDA_TASK_ROOT}
-# COPY ./.env.production ./.env
-# COPY --from=builder /prod/graphql ${LAMBDA_TASK_ROOT}
-
-# RUN pnpx prisma generate
-
-# CMD ["dist/index.handler"]
-
-# Auth Callback
-FROM base AS auth-callback
+### Service Setup
+FROM builder AS service-setup
 
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY ./scripts/entrypoint.dev.sh ./entrypoint.sh
-COPY ./.env.production ./.env
 
-COPY --from=builder /prod/callback ${LAMBDA_TASK_ROOT}
-COPY --from=builder /usr/src/app/aws-lambda-rie ./aws-lambda-rie
+COPY --from=builder /usr/src/app ${LAMBDA_TASK_ROOT}
+COPY --from=builder /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
+COPY ./scripts/entrypoint.docker.sh ./entrypoint.sh
+COPY ./scripts/entrypoint.dev.sh ./dev.sh
 
-RUN chmod +x ./aws-lambda-rie
 RUN chmod +x ./entrypoint.sh
 
-# RUN echo "foo"
-# ENTRYPOINT ["./aws-lambda-rie"]
-# CMD ["tail", "-f", "/dev/null"]
-# RUN echo "bar"
+## Auth Callback
+FROM service-setup AS auth-callback
+RUN pnpm --filter @waterlog/auth-callback install
+ENTRYPOINT ["./entrypoint.sh", "functions/auth-callback", "pnpm run dev"]
 
-CMD ["pnpm", "dev"]
+## GraphQL
+FROM service-setup AS graphql
+RUN pnpm --filter @waterlog/graphql-lambda install
+ENTRYPOINT ["./entrypoint.sh", "functions/graphql", "pnpm run dev"]
+
+# Authorizer
+FROM service-setup AS authorizer
+RUN pnpm --filter @waterlog/authorizer install
+ENTRYPOINT ["./entrypoint.sh", "functions/authorizer", "pnpm run dev"]

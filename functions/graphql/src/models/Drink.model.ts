@@ -21,13 +21,13 @@ import { rangeFilter, stringFilter } from '@/utils/filters'
 import { queryIngredientNutrition } from '@/utils/queries'
 import { DrinkWithIngredientCountPayload } from '@/types/drinks'
 import { DrinkResult, NutritionResult } from '@/types/models'
-import { mLToOz } from '@/utils/unit-conversions'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
+type ReturnedDrinkResult = Omit<DrinkResult, 'nutrition' | 'serving'>
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {
-    async findUniqueById(drinkId: string) {
+    async findUniqueById(drinkId: string): Promise<ReturnedDrinkResult | null> {
       const [,id] = deconstructId(drinkId)
       const response = <DrinkWithIngredientCountPayload>await prismaDrink.findUnique({
         where: { id },
@@ -114,7 +114,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           : ([
             {
               [sortKey]: (sortKey === 'entries'
-                ? { _count: sortValue.toLowerCase() }
+                ? { timestamp: sortValue.toLowerCase() }
                 : sortValue),
             }, {
               name: Sort.Asc.toLowerCase(),
@@ -138,7 +138,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         orderBy,
       }
 
-      return await findManyCursorConnection<DrinkResult, Prisma.DrinkWhereUniqueInput>(
+      return await findManyCursorConnection<ReturnedDrinkResult, Prisma.DrinkWhereUniqueInput>(
         (args) => prismaDrink
           .findMany({ ...args, include, orderBy: orderByArg, ...baseArgs })
           .then(drinks => drinks.map(({ _count, id, ...drink }) => ({
@@ -150,7 +150,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         () => prismaDrink.count(baseArgs as Prisma.DrinkCountArgs),
         { first, last, after, before },
         {
-          getCursor: (record) => getCursor<DrinkResult, Prisma.DrinkWhereUniqueInput>(record, cursorKey),
+          getCursor: (record) => getCursor<ReturnedDrinkResult, Prisma.DrinkWhereUniqueInput>(record, cursorKey),
           encodeCursor: (cursor) => toCursorHash(JSON.stringify(encodeCursor(cursor, ['id']))),
           decodeCursor: (cursorString) => JSON.parse(fromCursorHash(cursorString)),
         },
@@ -171,7 +171,6 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
             nutrition: {
               create: {
                 ...data.nutrition,
-                imperialSize: Math.ceil(data.nutrition.metricSize / 29.57373),
               },
             },
           },
@@ -200,7 +199,6 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
             ...data,
             nutrition: {
               create: {
-                imperialSize: Math.ceil(mLToOz(nutrition.metricSize)),
                 ...nutrition,
               },
 

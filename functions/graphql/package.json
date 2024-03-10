@@ -1,5 +1,5 @@
 {
-  "name": "waterlog-graphql",
+  "name": "@waterlog/graphql-lambda",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.cjs",
@@ -7,10 +7,12 @@
     "build": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node20 --outfile=dist/index.cjs",
     "alias": "tsc-alias",
+    "dev": "nodemon",
     "test": "npm run test:unit -- --run; npm run test:int -- --run",
     "test:unit": "vitest -c ./vitest.config.unit.ts",
     "test:int": "./scripts/run-integration.sh",
-    "postinstall": "prisma generate"
+    "postinstall": "pnpm exec prisma generate --schema=./prisma/schema.prisma",
+    "generate": "graphql-codegen --config codegen.yml"
   },
   "author": "",
   "license": "ISC",
@@ -18,27 +20,27 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
-    "@apollo/server": "^4.10.0",
+    "@apollo/server": "^4.10.1",
     "@apollo/utils.keyvadapter": "^3.1.0",
     "@as-integrations/aws-lambda": "^3.1.0",
     "@devoxa/prisma-relay-cursor-connection": "^3.1.1",
-    "@prisma/client": "^5.9.1",
-    "esbuild": "0.20.0",
+    "@prisma/client": "^5.10.2",
     "graphql": "^16.8.1",
-    "prisma-extension-soft-delete": "^1.0.0",
+    "prisma-extension-soft-delete": "^1.0.1",
+    "undici": "^6.7.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.0",
-    "@graphql-codegen/introspection": "^4.0.0",
-    "@graphql-codegen/typescript": "^4.0.1",
-    "@graphql-codegen/typescript-document-nodes": "^4.0.1",
-    "@graphql-codegen/typescript-resolvers": "^4.0.1",
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/introspection": "^4.0.3",
+    "@graphql-codegen/typescript": "^4.0.6",
+    "@graphql-codegen/typescript-document-nodes": "^4.0.6",
+    "@graphql-codegen/typescript-resolvers": "^4.0.6",
     "@graphql-eslint/eslint-plugin": "^3.20.1",
     "@types/uuid": "^9.0.8",
-    "aws-lambda-ric": "^3.1.0",
+    "esbuild": "^0.20.1",
     "graphql-tag": "^2.12.6",
-    "nodemon": "^3.0.3",
-    "prisma": "^5.9.1"
+    "nodemon": "^3.1.0",
+    "prisma": "^5.10.2"
   }
 }

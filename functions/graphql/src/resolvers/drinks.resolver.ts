@@ -52,6 +52,9 @@ export const drinkResolvers: DrinkResolvers = {
     return await Drinks(prisma.drink).findDrinkUser(parent.id)
   },
 
+  async serving(parent, args, { prisma }) {
+    console.log('here')
+  },
 }
 
 export const baseDrinkResolvers: BaseDrinkResolvers = {
