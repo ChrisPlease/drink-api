@@ -14,7 +14,7 @@ import { ingredientResolvers, ingredientTypeResolvers } from './ingredients.reso
 import { entryResolvers } from './entries.resolver'
 import { historyResolvers } from './history.resolver'
 import { usersResolver } from './users.resolver'
-import { NodeResolvers, Resolvers } from '@/graphql/src/__generated__/graphql'
+import { NodeResolvers, Resolvers } from '@/__generated__/graphql'
 
 /* istanbul ignore file -- @preserve */
 

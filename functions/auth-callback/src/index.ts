@@ -20,8 +20,6 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
       grant_type: 'authorization_code',
     }
 
-    console.log('here?')
-
     const response = await axios.post(
       `${auth0Domain}/oauth/token`,
       payload,
@@ -34,10 +32,6 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
 
     const { access_token, id_token, token_type, expires_in } = response.data
 
-    console.log('changed?')
-    console.log('changed again')
-
-    return {'foo': 'bar'}
     return {
       statusCode: 302,
       headers: {

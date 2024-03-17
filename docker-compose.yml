@@ -1,45 +1,45 @@
 version: '3.8'
 services:
-  callback:
-    container_name: callback
-    image: callback:test
-    ports:
-      - 9000:8080
-    volumes:
-      - ./functions/auth-callback/src:/var/task/functions/auth-callback/src
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-      target: auth-callback
-      args:
-        - ENV=local
-    env_file: .env.local
+  # callback:
+  #   container_name: callback
+  #   image: callback:test
+  #   ports:
+  #     - 9000:8080
+  #   volumes:
+  #     - ./functions/auth-callback/src:/var/task/functions/auth-callback/src
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #     target: auth-callback
+  #     args:
+  #       - ENV=local
+  #   env_file: .env.local
 
-  graphql:
-    container_name: graphql
-    image: graphql:test
-    ports:
-      - 9001:8080
-    volumes:
-      - ./functions/graphql/src:/var/task/functions/graphql/src
-    env_file: .env.local
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-      target: graphql
+  # graphql:
+  #   container_name: graphql
+  #   image: graphql:test
+  #   ports:
+  #     - 9001:8080
+  #   volumes:
+  #     - ./functions/graphql/src:/var/task/src
+  #   env_file: .env.local
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #     target: graphql
 
-  authorizer:
-    container_name: authorizer
-    image: authorizer:test
-    ports:
-      - 9002:8080
-    volumes:
-      - ./functions/authorizer/src:/var/task/functions/authorizer/src
-    env_file: .env.local
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-      target: authorizer
+  # authorizer:
+  #   container_name: authorizer
+  #   image: authorizer:test
+  #   ports:
+  #     - 9002:8080
+  #   volumes:
+  #     - ./functions/authorizer/src:/var/task/functions/authorizer/src
+  #   env_file: .env.local
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #     target: authorizer
 
   db:
     container_name: postgres

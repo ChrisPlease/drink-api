@@ -16,13 +16,13 @@ RUN corepack enable
 FROM base AS builder
 
 RUN apt-get update && \
-apt-get install -y \
-g++ \
-make \
-cmake \
-unzip \
-libcurl4-openssl-dev \
-lsof
+  apt-get install -y \
+  g++ \
+  make \
+  cmake \
+  unzip \
+  libcurl4-openssl-dev \
+  lsof
 
 COPY . /usr/src/app
 COPY ./aws-lambda-rie /usr/local/bin/aws-lambda-rie
@@ -38,26 +38,44 @@ RUN pnpm i -r aws-lambda-ric
 ### Service Setup
 FROM builder AS service-setup
 
-WORKDIR ${LAMBDA_TASK_ROOT}
+WORKDIR /usr/app
 
-COPY --from=builder /usr/src/app ${LAMBDA_TASK_ROOT}
+COPY --from=builder /usr/src/app /usr/app
 COPY --from=builder /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
-COPY ./scripts/entrypoint.docker.sh ./entrypoint.sh
 COPY ./scripts/entrypoint.dev.sh ./dev.sh
 
-RUN chmod +x ./entrypoint.sh
+RUN pnpm deploy --filter=@waterlog/authorizer /prod/authorizer
+
+RUN pnpm deploy --filter=@waterlog/graphql-lambda /prod/graphql
+
+RUN pnpm deploy --filter=@waterlog/auth-callback /prod/callback
 
 ## Auth Callback
-FROM service-setup AS auth-callback
-RUN pnpm --filter @waterlog/auth-callback install
-ENTRYPOINT ["./entrypoint.sh", "functions/auth-callback", "pnpm run dev"]
+# FROM service-setup AS auth-callback
+
+# WORKDIR ${LAMBDA_TASK_ROOT}
+# COPY --from=service-setup /usr/app/dev.sh ${LAMBDA_TASK_ROOT}
+# COPY --from=service-setup /prod/callback ${LAMBDA_TASK_ROOT}
+
+# RUN chmod +x ./dev.sh
+
+# ENTRYPOINT ["./docker.sh", "functions/auth-callback", "pnpm run dev"]
 
 ## GraphQL
 FROM service-setup AS graphql
-RUN pnpm --filter @waterlog/graphql-lambda install
-ENTRYPOINT ["./entrypoint.sh", "functions/graphql", "pnpm run dev"]
+
+COPY ./tsconfig.json ./tsconfig.json
+WORKDIR ${LAMBDA_TASK_ROOT}
+COPY --from=service-setup /usr/app/dev.sh ${LAMBDA_TASK_ROOT}
+COPY --from=service-setup /prod/graphql ${LAMBDA_TASK_ROOT}
+
+RUN chmod +x ./dev.sh
+
+# CMD ["tail", "-f", "/dev/null"]
+# ENTRYPOINT ["./docker.sh", "functions/graphql", "pnpm run dev"]
+CMD ["pnpm", "dev"]
 
 # Authorizer
-FROM service-setup AS authorizer
-RUN pnpm --filter @waterlog/authorizer install
-ENTRYPOINT ["./entrypoint.sh", "functions/authorizer", "pnpm run dev"]
+# FROM service-setup AS authorizer
+# RUN pnpm --filter @waterlog/authorizer install
+# ENTRYPOINT ["./docker.sh", "functions/authorizer", "pnpm run dev"]

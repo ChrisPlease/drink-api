@@ -12,7 +12,6 @@ import {
   volumeToServings,
 } from '@/utils/unit-conversions'
 import {
-  DrinkNutrition,
   MutationEntryCreateArgs,
   MutationEntryDeleteArgs,
   QueryEntriesArgs,
@@ -228,7 +227,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         servingSize,
         metricSize,
       } = await prismaDrink
-        .findUnique({ where: { id } }).nutrition() ?? {} as DrinkNutrition
+        .findUnique({ where: { id } }).nutrition() ?? {}
 
       const volume = convertEntryToOz(
         inputVolume,
@@ -274,7 +273,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
         const { metricSize } = await tx.drink.findUnique({
           where: { id: drinkId },
-        }).nutrition() ?? {} as DrinkNutrition
+        }).nutrition() ?? {}
 
         return {
           ...deletedEntry,

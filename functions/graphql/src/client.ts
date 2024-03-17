@@ -5,7 +5,7 @@ import { createSoftDeleteExtension } from 'prisma-extension-soft-delete'
 const isDev = process.env.NODE_ENV === 'development'
 
 const prisma = new PrismaClient({
-  log: <Prisma.LogLevel[]>['info', 'error'].concat(isDev ? [/* 'query', 'warn' */] : []),
+  log: <Prisma.LogLevel[]>['info', 'error', 'query', 'warn'].concat(isDev ? [/* 'query', 'warn' */] : []),
 })
 
 prisma.$extends(

@@ -4,6 +4,7 @@ import {
   DrinkCreateInput,
   DrinkEditInput,
   DrinkNutritionInput,
+  DrinkSort,
   IngredientInput,
   MutationDrinkDeleteArgs,
   QueryDrinksArgs,
@@ -20,14 +21,13 @@ import { snakeToCamel } from '@/utils/string-manipulation'
 import { rangeFilter, stringFilter } from '@/utils/filters'
 import { queryIngredientNutrition } from '@/utils/queries'
 import { DrinkWithIngredientCountPayload } from '@/types/drinks'
-import { DrinkResult, NutritionResult } from '@/types/models'
+import { NutritionResult, ReturnedDrinkResult } from '@/types/models'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
-type ReturnedDrinkResult = Omit<DrinkResult, 'nutrition' | 'serving'>
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {
-    async findUniqueById(drinkId: string): Promise<ReturnedDrinkResult | null> {
+    async findUniqueById(drinkId: string) {
       const [,id] = deconstructId(drinkId)
       const response = <DrinkWithIngredientCountPayload>await prismaDrink.findUnique({
         where: { id },
@@ -62,6 +62,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
     }: QueryDrinksArgs,
     reqUser?: string,
     ) {
+
       const {
         id,
         isMixedDrink,
@@ -104,17 +105,20 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       const [
         sortKey,
         sortValue,
-      ] = <[keyof Prisma.DrinkOrderByWithRelationInput, Prisma.SortOrder]>Object.entries(sort || {
+      ] = <[keyof DrinkSort, Prisma.SortOrder]>Object.entries(sort || {
         name: 'asc',
       })[0]
+
+      const mappedSortKey =
+        sortKey === 'entryCount' ? 'entries' : sortKey
 
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         ['name', 'createdAt'].includes(sortKey)
           ? { [sortKey]: sortValue.toLowerCase() }
           : ([
             {
-              [sortKey]: (sortKey === 'entries'
-                ? { timestamp: sortValue.toLowerCase() }
+              [mappedSortKey]: (mappedSortKey === 'entries'
+                ? { _count: sortValue.toLowerCase() }
                 : sortValue),
             }, {
               name: Sort.Asc.toLowerCase(),
@@ -123,9 +127,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       )
 
       const cursorKey = <keyof Prisma.DrinkWhereUniqueInput>(
-        ['name', 'createdAt', 'entries'].includes(sortKey)
-          ? sortKey === 'name' ? 'id' : 'createdAt'
-          : `id_${sortKey}`
+        ['name', 'createdAt', 'entries'].includes(mappedSortKey)
+          ? mappedSortKey === 'name' ? 'id' : 'createdAt'
+          : `id_${mappedSortKey}`
       )
 
       const { include, orderBy: orderByArg, ...baseArgs }: Prisma.DrinkFindManyArgs = {
@@ -150,7 +154,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         () => prismaDrink.count(baseArgs as Prisma.DrinkCountArgs),
         { first, last, after, before },
         {
-          getCursor: (record) => getCursor<ReturnedDrinkResult, Prisma.DrinkWhereUniqueInput>(record, cursorKey),
+          getCursor: (
+            record,
+          ) => getCursor<ReturnedDrinkResult, Prisma.DrinkWhereUniqueInput>(record, cursorKey),
           encodeCursor: (cursor) => toCursorHash(JSON.stringify(encodeCursor(cursor, ['id']))),
           decodeCursor: (cursorString) => JSON.parse(fromCursorHash(cursorString)),
         },
@@ -332,6 +338,17 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           id: toCursorHash(`MixedDrink:${drink?.id}`),
         }))
     },
+
+    // async servingSize(drinkId: string) {
+    //   const [,id] = deconstructId(drinkId)
+
+    //   const response = await prismaDrink.findUnique({
+    //     where: { id },
+    //     include: {
+    //       metricSize,
+    //     },
+    //   })
+    // },
   })
 }
 

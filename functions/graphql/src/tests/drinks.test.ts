@@ -36,7 +36,6 @@ describe('drinks', () => {
           servingSize: 12,
           servingUnit: 'fl oz',
           metricSize: 350,
-          imperialSize: 12,
         },
       },
     })))
@@ -66,7 +65,6 @@ describe('drinks', () => {
                   nutrition {
                     ... on DrinkNutrition {
                       caffeine
-                      servingSize
                     }
                   }
                 }
@@ -93,7 +91,6 @@ describe('drinks', () => {
 
         assert(res.body.kind === 'single')
         assert(res.body.singleResult.data?.drinks !== null)
-
         const result = res.body.singleResult.data?.drinks as DrinksPaginated
         expect(result.edges.length).toEqual(12)
         expect(result.edges[0].cursor).toEqual(result.pageInfo?.startCursor)
@@ -258,7 +255,6 @@ describe('drinks', () => {
               create: {
                 servingUnit: 'fl oz',
                 metricSize: 355,
-                imperialSize: 8,
                 caffeine: 0,
                 sugar: 0,
                 servingSize: 8,
@@ -314,7 +310,6 @@ describe('drinks', () => {
               create: {
                 servingUnit: 'fl oz',
                 metricSize: 350,
-                imperialSize: 12,
                 caffeine: 12,
                 sugar: 12,
                 coefficient: 1,

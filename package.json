@@ -8,7 +8,7 @@
     "start": "concurrently \"npm:dev\" \"npm:watch\"",
     "build": "docker compose build",
     "start:prod": "npm run deploy && node dist/index.js",
-    "test": "pnpm -r --if-present test:unit --run && pnpm -r --if-present test:int --run",
+    "test": "pnpm -r --if-present test",
     "lint": "eslint ."
   },
   "keywords": [

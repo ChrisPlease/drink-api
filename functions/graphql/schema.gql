@@ -54,6 +54,7 @@ Sorting input for Drink Nutrition
 """
 input DrinkNutritionSort {
   coefficient: Sort
+
   protein: Sort
 }
 
@@ -63,9 +64,18 @@ Sorting input for Drinks
 input DrinkSort {
   name: Sort
   createdAt: Sort
-  entries: Sort
+  entryCount: Sort
 
   nutrition: DrinkNutritionSort
+}
+
+"""
+Serving Input for creating and editing drinks
+"""
+input DrinkServingSizeInput {
+  servingSize: Float!
+  servingUnit: String!
+  metricSize: Float!
 }
 
 """
@@ -73,11 +83,6 @@ Nutriton Input for creating and editing drinks
 """
 input DrinkNutritionInput {
   coefficient: Float
-
-  servingSize: Float!
-  servingUnit: String!
-
-  metricSize: Int!
 
   calories: Float
   saturatedFat: Float
@@ -118,6 +123,7 @@ interface Nutrition {
 """
 Drink Serving Size field
 """
+# eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type DrinkServingSize {
   servingSize: Float
   servingUnit: String
@@ -294,13 +300,13 @@ Ingredient Union combines Absolute and Relative Ingredients
 """
 union Ingredient = RelativeIngredient | AbsoluteIngredient
 
-
 """
 Sorting input for Entries
 """
 input EntrySort {
-  timestamp: Sort
+  count: Sort
   drink: Sort
+  timestamp: Sort
   volume: Sort
 }
 
@@ -388,6 +394,8 @@ input DrinkCreateInput {
   icon: Icon!
   upc: String
 
+  serving: DrinkServingSizeInput!
+
   nutrition: DrinkNutritionInput!
 
   ingredients: [IngredientInput!]
@@ -401,6 +409,8 @@ input DrinkEditInput {
 
   name: String
   icon: Icon
+
+  serving: DrinkServingSizeInput!
 
   nutrition: DrinkNutritionInput
 

@@ -7,7 +7,7 @@
     "build": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node20 --outfile=dist/index.cjs",
     "dev": "nodemon",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "lambda-local --timeout 300 --lambda-path dist/index.cjs --event-path events/event.json"
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +20,7 @@
     "@types/aws-lambda": "^8.10.132",
     "@types/jsonwebtoken": "^9.0.5",
     "esbuild": "^0.20.1",
+    "lambda-local": "^2.1.2",
     "nodemon": "^3.0.3"
   }
 }

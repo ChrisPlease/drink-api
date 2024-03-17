@@ -1,7 +1,5 @@
-
-
 # Base Image
-FROM public.ecr.aws/lambda/nodejs:20 AS base
+FROM public.ecr.aws/lambda/nodejs:18 AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -47,6 +45,7 @@ CMD ["dist/index.handler"]
 FROM base AS graphql
 
 WORKDIR ${LAMBDA_TASK_ROOT}
+
 COPY ./$ENV_FILE ./.env
 COPY --from=builder /prod/graphql ${LAMBDA_TASK_ROOT}
 
@@ -59,8 +58,8 @@ CMD ["dist/index.handler"]
 FROM base AS auth-callback
 
 WORKDIR ${LAMBDA_TASK_ROOT}
-COPY ./$ENV_FILE ./.env
 
+COPY ./$ENV_FILE ./.env
 COPY --from=builder /prod/callback ${LAMBDA_TASK_ROOT}
 
 CMD ["dist/index.handler"]

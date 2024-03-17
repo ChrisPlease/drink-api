@@ -7,23 +7,19 @@ export async function seedDrinks(prisma: PrismaClient, drinks?: Prisma.DrinkCrea
     {
       name: 'Water',
       icon: 'glass-water',
-      nutrition: {
-        create: {
-          servingSize: 8,
-          servingUnit: 'fl oz',
-          metricSize: 230,
-        },
-      },
+      servingSize: 8,
+      servingUnit: 'fl oz',
+      metricSize: 230,
     },
     {
       name: 'Drip Coffee',
       icon: 'mug-saucer',
+      servingSize: 6,
+      servingUnit: 'fl oz',
+      metricSize: 170,
       nutrition: {
         create: {
           coefficient: 92,
-          servingSize: 6,
-          servingUnit: 'fl oz',
-          metricSize: 170,
           protein: 0.3,
         },
       },
@@ -31,12 +27,12 @@ export async function seedDrinks(prisma: PrismaClient, drinks?: Prisma.DrinkCrea
     {
       name: 'Whiskey',
       icon: 'whiskey-glass',
+      servingSize: 1.5,
+      servingUnit: 'fl oz',
+      metricSize: 45,
       nutrition: {
         create: {
           coefficient: -400,
-          servingSize: 1.5,
-          servingUnit: 'fl oz',
-          metricSize: 45,
           calories: 100,
         },
       },

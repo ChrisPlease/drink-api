@@ -23,6 +23,11 @@ model Drink {
   ingredients DrinkIngredients[]
   user        User?              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entries     Entry[]
+
+  servingSize   Float  @map("serving_size")
+  metricSize    Int    @map("metric_size")
+  servingUnit   String @map("serving_unit")
+
   nutrition   Nutrition?
 
   @@unique([id, name])
@@ -50,10 +55,6 @@ model Nutrition {
   drinkId       String @unique @map("drink_id") @db.Uuid
   addedSugar    Float? @default(0) @map("added_sugar")
 
-
-  servingSize   Float  @map("serving_size")
-  metricSize    Int    @map("metric_size")
-  servingUnit   String @map("serving_unit")
   drink         Drink  @relation(fields: [drinkId], references: [id], onDelete: Cascade)
 
   @@map("nutrition")

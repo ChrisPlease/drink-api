@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { DrinkResult as DrinkResultModel, ScanDrink as ScanDrinkModel, ResolvedEntry as EntryModel, DrinkHistory as DrinkHistoryModel } from '../types/models';
-import { Drink as DrinkModel, Drink as BaseDrinkModel, Drink as MixedDrinkModel } from '.prisma/client';
+import { ReturnedDrinkResult as DrinkResultModel, ScanDrink as ScanDrinkModel, ResolvedEntry as EntryModel, DrinkHistory as DrinkHistoryModel } from '../types/models';
+import { Drink as DrinkModel, Drink as BaseDrinkModel, Drink as MixedDrinkModel, Nutrition as NutritionModel } from '.prisma/client';
 import { AppContext } from '../types/context';
 export type Maybe<T> = T extends PromiseLike<infer U> ? Promise<U | null> : T | null;
 export type InputMaybe<T> = undefined | T;
@@ -93,6 +93,7 @@ export type DrinkCreateInput = {
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name: Scalars['String']['input'];
   nutrition: DrinkNutritionInput;
+  serving: DrinkServingSizeInput;
   upc?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -110,6 +111,7 @@ export type DrinkEditInput = {
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
   nutrition?: InputMaybe<DrinkNutritionInput>;
+  serving: DrinkServingSizeInput;
 };
 
 /** Filter for the Drinks query */
@@ -207,12 +209,9 @@ export type DrinkNutritionInput = {
   cholesterol?: InputMaybe<Scalars['Float']['input']>;
   coefficient?: InputMaybe<Scalars['Float']['input']>;
   fiber?: InputMaybe<Scalars['Float']['input']>;
-  metricSize: Scalars['Int']['input'];
   potassium?: InputMaybe<Scalars['Float']['input']>;
   protein?: InputMaybe<Scalars['Float']['input']>;
   saturatedFat?: InputMaybe<Scalars['Float']['input']>;
-  servingSize: Scalars['Float']['input'];
-  servingUnit: Scalars['String']['input'];
   sodium?: InputMaybe<Scalars['Float']['input']>;
   sugar?: InputMaybe<Scalars['Float']['input']>;
   totalFat?: InputMaybe<Scalars['Float']['input']>;
@@ -235,10 +234,17 @@ export type DrinkServingSize = {
   servingUnit?: Maybe<Scalars['String']['output']>;
 };
 
+/** Serving Input for creating and editing drinks */
+export type DrinkServingSizeInput = {
+  metricSize: Scalars['Float']['input'];
+  servingSize: Scalars['Float']['input'];
+  servingUnit: Scalars['String']['input'];
+};
+
 /** Sorting input for Drinks */
 export type DrinkSort = {
   createdAt?: InputMaybe<Sort>;
-  entries?: InputMaybe<Sort>;
+  entryCount?: InputMaybe<Sort>;
   name?: InputMaybe<Sort>;
   nutrition?: InputMaybe<DrinkNutritionSort>;
 };
@@ -315,6 +321,7 @@ export type EntryNutrition = Nutrition & {
 
 /** Sorting input for Entries */
 export type EntrySort = {
+  count?: InputMaybe<Sort>;
   drink?: InputMaybe<Sort>;
   timestamp?: InputMaybe<Sort>;
   volume?: InputMaybe<Sort>;
@@ -726,6 +733,7 @@ export type ResolversTypes = ResolversObject<{
   DrinkNutritionSort: DrinkNutritionSort;
   DrinkResult: ResolverTypeWrapper<DrinkResultModel>;
   DrinkServingSize: ResolverTypeWrapper<DrinkServingSize>;
+  DrinkServingSizeInput: DrinkServingSizeInput;
   DrinkSort: DrinkSort;
   DrinksHistoryPaginated: ResolverTypeWrapper<Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversTypes['DrinkHistoryEdge']> }>;
   DrinksPaginated: ResolverTypeWrapper<Omit<DrinksPaginated, 'edges'> & { edges: Array<ResolversTypes['DrinkEdge']> }>;
@@ -746,7 +754,7 @@ export type ResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   Node: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Node']>;
   NumberFilter: NumberFilter;
-  Nutrition: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['Nutrition']>;
+  Nutrition: ResolverTypeWrapper<NutritionModel>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PaginatedQuery: ResolverTypeWrapper<ResolversInterfaceTypes<ResolversTypes>['PaginatedQuery']>;
   Query: ResolverTypeWrapper<{}>;
@@ -779,6 +787,7 @@ export type ResolversParentTypes = ResolversObject<{
   DrinkNutritionSort: DrinkNutritionSort;
   DrinkResult: DrinkResultModel;
   DrinkServingSize: DrinkServingSize;
+  DrinkServingSizeInput: DrinkServingSizeInput;
   DrinkSort: DrinkSort;
   DrinksHistoryPaginated: Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<ResolversParentTypes['DrinkHistoryEdge']> };
   DrinksPaginated: Omit<DrinksPaginated, 'edges'> & { edges: Array<ResolversParentTypes['DrinkEdge']> };
@@ -799,7 +808,7 @@ export type ResolversParentTypes = ResolversObject<{
   Mutation: {};
   Node: ResolversInterfaceTypes<ResolversParentTypes>['Node'];
   NumberFilter: NumberFilter;
-  Nutrition: ResolversInterfaceTypes<ResolversParentTypes>['Nutrition'];
+  Nutrition: NutritionModel;
   PageInfo: PageInfo;
   PaginatedQuery: ResolversInterfaceTypes<ResolversParentTypes>['PaginatedQuery'];
   Query: {};

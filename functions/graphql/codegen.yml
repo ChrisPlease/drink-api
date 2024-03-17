@@ -13,11 +13,12 @@ generates:
       scalars:
         Date: Date
       mappers:
-        DrinkResult: ../types/models#DrinkResult as DrinkResultModel
+        DrinkResult: ../types/models#ReturnedDrinkResult as DrinkResultModel
         Drink: .prisma/client#Drink as DrinkModel
         ScanDrink: ../types/models#ScanDrink as ScanDrinkModel
         BaseDrink: .prisma/client#Drink as BaseDrinkModel
         MixedDrink: .prisma/client#Drink as MixedDrinkModel
+        Nutrition: .prisma/client#Nutrition as NutritionModel
         Entry: ../types/models#ResolvedEntry as EntryModel
         DrinkHistory: ../types/models#DrinkHistory as DrinkHistoryModel
       inputMaybeValue: undefined | T

@@ -1,13 +1,19 @@
 import { Drink, Entry } from '@prisma/client'
 import { DrinkNutrition, DrinkServingSize } from '@/__generated__/graphql'
 
-export interface ScanDrink extends Omit<DrinkResult, 'userId' | 'deleted' | 'icon' | 'createdAt'> {
-  icon?: string | null;
-}
 
 export interface DrinkResult extends Drink {
-  nutrition?: DrinkNutrition | null;
+  nutrition: DrinkNutrition;
   serving: DrinkServingSize;
+}
+
+export type ReturnedDrinkResult = Omit<DrinkResult, 'nutrition' | 'serving'> & ({
+  nutrition?: DrinkNutrition | null,
+  serving?: DrinkServingSize | null,
+})
+
+export interface ScanDrink extends Omit<ReturnedDrinkResult, 'userId' | 'deleted' | 'icon' | 'createdAt'> {
+  icon?: string | null;
 }
 
 export interface ResolvedEntry extends Entry {
