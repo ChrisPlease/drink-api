@@ -2,14 +2,11 @@ import path from 'node:path'
 import { defineConfig, mergeConfig } from 'vitest/config'
 import rootConfig from '../../vitest.config.unit'
 
-
 export default mergeConfig(rootConfig, defineConfig({
   test: {
+    setupFiles: ['dotenv/config'],
     include: [
       'src/**/*.test.ts',
-    ],
-    exclude: [
-      'src/tests/**/*',
     ],
     coverage: {
       all: true,
@@ -17,13 +14,6 @@ export default mergeConfig(rootConfig, defineConfig({
       include: [
         'src/**/*.ts',
         '!src/**/*.test.ts',
-      ],
-      exclude: [
-        'src/index.ts',
-        'src/client.ts',
-        'src/tests',
-        'src/__mocks__',
-        'src/__generated__',
       ],
       reporter: ['html', 'json', 'lcov', 'text', 'text-summary'],
       provider: 'istanbul',

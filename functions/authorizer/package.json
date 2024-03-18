@@ -3,24 +3,28 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.cjs",
+  "type": "module",
   "scripts": {
     "build": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node20 --outfile=dist/index.cjs",
     "dev": "nodemon",
-    "test": "lambda-local --timeout 300 --lambda-path dist/index.cjs --event-path events/event.json"
+    "test": "pnpm run test:unit --run",
+    "test:unit": "vitest -c vitest.config.unit.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "aws-lambda": "^1.0.7",
     "jsonwebtoken": "^9.0.2",
-    "jwks-rsa": "^3.1.0"
+    "jwks-rsa": "^3.1.0",
+    "tsconfig": "workspace:*"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.132",
     "@types/jsonwebtoken": "^9.0.5",
     "esbuild": "^0.20.1",
     "lambda-local": "^2.1.2",
+    "mock-jwks": "^3.1.0",
     "nodemon": "^3.0.3"
   }
 }

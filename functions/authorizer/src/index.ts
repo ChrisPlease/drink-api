@@ -46,7 +46,7 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
 
   const decoded = decode(token, { complete: true })
   if (!decoded || !decoded.header || !decoded.header.kid) {
-    throw new Error('invalid token')
+    throw new Error('Invalid token')
   }
   const getSigningKey = promisify(client.getSigningKey)
 
@@ -74,9 +74,8 @@ export const handler: Handler = async (event) => {
   try {
     data = await authenticate(event)
   }
-  catch (err) {
-    console.log(err)
-    return Promise.reject('Unauthorized')
+  catch (err: any) {
+    return Promise.reject(`Unauthorized: ${err.message}`)
   }
   return data
 }
