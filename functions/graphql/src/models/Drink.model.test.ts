@@ -17,7 +17,6 @@ import {
   DrinkCreateInput,
   DrinkEditInput,
   DrinkFilter,
-  DrinkNutrition,
   DrinkNutritionInput,
   DrinkSort,
   MutationDrinkDeleteArgs,

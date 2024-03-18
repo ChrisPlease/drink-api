@@ -1,4 +1,4 @@
-import { Drink, Entry } from '@prisma/client'
+import { Entry } from '@prisma/client'
 import { ModelType, ReturnedDrinkResult } from '@/types/models'
 
 export const toCursorHash = (str: string) => Buffer.from(str).toString('base64')
