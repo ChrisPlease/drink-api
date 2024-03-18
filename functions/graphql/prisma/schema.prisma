@@ -25,7 +25,7 @@ model Drink {
   entries     Entry[]
 
   servingSize   Float  @map("serving_size")
-  metricSize    Int    @map("metric_size")
+  metricSize    Float  @map("metric_size")
   servingUnit   String @map("serving_unit")
 
   nutrition   Nutrition?

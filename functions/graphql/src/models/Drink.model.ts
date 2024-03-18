@@ -145,10 +145,11 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       return await findManyCursorConnection<ReturnedDrinkResult, Prisma.DrinkWhereUniqueInput>(
         (args) => prismaDrink
           .findMany({ ...args, include, orderBy: orderByArg, ...baseArgs })
-          .then(drinks => drinks.map(({ _count, id, ...drink }) => ({
+          .then(drinks => drinks.map(({ _count, id, servingSize, servingUnit, metricSize, ...drink }) => ({
             id: toCursorHash(`${
               _count.ingredients > 0 ? 'MixedDrink' : 'BaseDrink'
             }:${id}`),
+            serving: { metricSize, servingUnit, servingSize },
             ...drink,
           }))),
         () => prismaDrink.count(baseArgs as Prisma.DrinkCountArgs),
@@ -167,13 +168,14 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       data: (Omit<DrinkCreateInput, 'ingredients'> & { userId: string }),
     ) {
 
-      const { nutrition, ...rest } = data
+      const { nutrition, serving, ...rest } = data
 
       /* istanbul ignore if -- @preserve */
       if (data.nutrition) {
         return await prismaDrink.create({
           data: {
             ...rest,
+            ...serving,
             nutrition: {
               create: {
                 ...data.nutrition,
@@ -191,6 +193,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
     async createWithIngredients({
       ingredients: drinkIngredients,
+      serving,
       nutrition,
       ...data
     }: Omit<DrinkCreateInput, 'nutrition'> & { userId: string; nutrition: DrinkNutritionInput },
@@ -199,15 +202,14 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       const ingredients = mapCreateToInputIngredients(drinkIngredients || [])
 
       return await client.$transaction(async (tx) => {
-
         const { id } = await tx.drink.create({
           data: {
             ...data,
+            ...serving,
             nutrition: {
               create: {
                 ...nutrition,
               },
-
             },
             ingredients: { create: ingredients },
           },

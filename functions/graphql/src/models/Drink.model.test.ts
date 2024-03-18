@@ -1,3 +1,4 @@
+import { afterEach } from 'node:test'
 import {
   describe,
   beforeEach,
@@ -16,6 +17,8 @@ import {
   DrinkCreateInput,
   DrinkEditInput,
   DrinkFilter,
+  DrinkNutrition,
+  DrinkNutritionInput,
   DrinkSort,
   MutationDrinkDeleteArgs,
   QueryDrinksArgs,
@@ -23,6 +26,7 @@ import {
 } from '../__generated__/graphql'
 import { DrinkWithIngredientCountPayload } from '../types/drinks'
 import { Drinks } from './Drink.model'
+import { ReturnedDrinkResult } from '@/types/models'
 
 vi.mock('../utils/queries', () => ({
   queryIngredientNutrition: vi.fn().mockResolvedValue([{}]),
@@ -106,6 +110,9 @@ describe('Drink Model', () => {
         deleted: null,
         userId: null,
         createdAt: new Date(2023, 0, 0, 0),
+        servingSize: 8,
+        servingUnit: 'fl oz',
+        metricSize: 227,
         _count: {
           ingredients: index % 2 === 0 ? 3 : 0,
         },
@@ -245,8 +252,9 @@ describe('Drink Model', () => {
 
     test('returns the nodes mapped to a hashed ID', async () => {
       const { nodes } = await drink.findManyPaginated({}, 'user-123')
-      const mappedNodes = nodes.map(({ id, ...node }) => ({
+      const mappedNodes = nodes.map(({ id, serving, ...node }) => ({
         id: deconstructId(id)[1],
+        ...serving,
         ...node,
       }))
 
@@ -260,7 +268,7 @@ describe('Drink Model', () => {
 
       test('sorts by entry count when entries is defined', async () => {
         mockSortInput = {
-          entries: Sort.Desc,
+          entryCount: Sort.Desc,
         }
         await drink.findManyPaginated({ sort: mockSortInput }, 'user-123')
 
@@ -288,13 +296,13 @@ describe('Drink Model', () => {
     let mockPayload: Omit<DrinkCreateInput, 'ingredients'> & { userId: string }
     let mockResponse: Prisma.DrinkGetPayload<{
       include: {
+        servingSize: true,
+        servingUnit: true,
+        metricSize: true,
         nutrition: {
           select: {
             coefficient: true,
             sugar: true,
-            servingSize: true,
-            servingUnit: true,
-            metricSize: true,
           },
         },
       },
@@ -306,12 +314,12 @@ describe('Drink Model', () => {
         name: 'Test Drink',
         icon: 'test-icon',
         upc: '00000000',
+        servingSize: 8,
+        servingUnit: 'fl oz',
+        metricSize: 237,
         nutrition: {
           coefficient: 100,
           sugar: 0,
-          servingSize: 8,
-          servingUnit: 'fl oz',
-          metricSize: 237,
         },
         userId: '456',
         deleted: null,
@@ -320,27 +328,35 @@ describe('Drink Model', () => {
       mockPayload = {
         name: 'Test Drink',
         icon: 'test-icon',
+        serving: {
+          servingSize: 8,
+          metricSize: 237,
+          servingUnit: 'fl oz',
+        },
         nutrition: {
           coefficient: 100,
           sugar: 0,
           caffeine: 0,
-          servingSize: 8,
-          metricSize: 237,
-          servingUnit: 'fl oz',
         },
         userId: '456',
       }
       prisma.drink.create.mockResolvedValue(mockResponse)
     })
 
+    afterEach(() => {
+      prisma.drink.create.mockReset()
+    })
+
     test('calls prisma to create a drink', async () => {
+      const { serving, nutrition, ...payload } = mockPayload
       await drink.createWithNutrition(mockPayload)
       expect(prisma.drink.create).toHaveBeenCalledWith({
         data: {
-          ...mockPayload,
+          ...payload,
+          ...serving,
           nutrition: {
             create: {
-              ...mockPayload.nutrition,
+              ...nutrition,
             },
           },
         },
@@ -357,7 +373,7 @@ describe('Drink Model', () => {
   })
 
   describe('createWithIngredients', () => {
-    let mockPayload: DrinkCreateInput & { userId: string }
+    let mockPayload: Omit<DrinkCreateInput, 'nutrition'> & { userId: string; nutrition: DrinkNutritionInput }
     let mockResponse: Drink
 
     beforeEach(async () => {
@@ -367,16 +383,22 @@ describe('Drink Model', () => {
         name: 'Test Drink',
         icon: 'test-icon',
         userId: '456',
+        servingSize: 12,
+        servingUnit: 'fl oz',
+        metricSize: 350,
         deleted: null,
         createdAt: new Date(2022, 1, 1, 0),
       }
       mockPayload = {
         name: 'Test Drink',
         icon: 'test-icon',
-        nutrition: {
+        serving: {
           servingSize: 12,
           servingUnit: 'fl oz',
           metricSize: 350,
+        },
+        nutrition: {
+          coefficient: 100,
         },
         userId: '456',
         ingredients: [
@@ -389,17 +411,23 @@ describe('Drink Model', () => {
       prisma.drink.update.mockResolvedValue(mockResponse)
     })
 
+    afterEach(() => {
+      prisma.drink.create.mockClear()
+      prisma.drink.update.mockClear()
+    })
+
     test('initiates a transaction to save the drink', async () => {
       await drink.createWithIngredients(mockPayload, prisma)
       expect(prisma.$transaction).toHaveBeenCalled()
     })
 
     test('creates the drink', async () => {
-      const { ingredients, nutrition, ...payload } = mockPayload
+      const { ingredients, nutrition, serving, ...payload } = mockPayload
       await drink.createWithIngredients(mockPayload, prisma)
       expect(prisma.drink.create).toHaveBeenCalledWith({
         data: {
           ...payload,
+          ...serving,
           nutrition: {
             create: {
               ...nutrition,
@@ -440,12 +468,20 @@ describe('Drink Model', () => {
         userId: '456',
         deleted: null,
         createdAt: new Date(2022, 1, 1, 0),
+        servingSize: 8,
+        metricSize: 227,
+        servingUnit: 'fl oz',
       }
       mockPayload = {
         name: 'Test Drink',
         icon: 'test-icon',
         userId: '456',
         id: toCursorHash('MixedDrink:123'),
+        serving: {
+          servingSize: 8,
+          metricSize: 227,
+          servingUnit: 'fl oz',
+        },
         ingredients: [
           { drinkId: toCursorHash('Ingredient:456'), parts: 1 },
           { drinkId: toCursorHash('Ingredient:567'), parts: 1 },
@@ -493,14 +529,16 @@ describe('Drink Model', () => {
   describe('updateWithNutrition', () => {
     let mockPayload: Omit<DrinkEditInput, 'ingredients'> & { userId: string }
     let mockResponse: Prisma.DrinkGetPayload<{
+      select: {
+        servingSize: true,
+        servingUnit: true,
+        metricSize: true,
+      },
       include: {
         nutrition: {
           select: {
             coefficient: true,
             sugar: true,
-            servingSize: true,
-            servingUnit: true,
-            metricSize: true,
           },
         },
       },
@@ -512,12 +550,12 @@ describe('Drink Model', () => {
         name: 'Test Drink',
         icon: 'test-icon',
         upc: null,
+        servingSize: 8,
+        metricSize: 237,
+        servingUnit: 'fl oz',
         nutrition: {
           coefficient: 1,
           sugar: 1,
-          servingSize: 8,
-          metricSize: 237,
-          servingUnit: 'fl oz',
         },
         userId: '456',
         deleted: null,
@@ -527,12 +565,14 @@ describe('Drink Model', () => {
         name: 'Test Drink',
         icon: 'test-icon',
         userId: '456',
-        nutrition: {
-          coefficient: 1,
-          sugar: 1,
+        serving: {
           servingSize: 8,
           metricSize: 237,
           servingUnit: 'fl oz',
+        },
+        nutrition: {
+          coefficient: 1,
+          sugar: 1,
         },
         id: toCursorHash('BaseDrink:123'),
       }

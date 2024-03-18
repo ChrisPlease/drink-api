@@ -10,6 +10,11 @@ export async function seedDrinks(prisma: PrismaClient, drinks?: Prisma.DrinkCrea
       servingSize: 8,
       servingUnit: 'fl oz',
       metricSize: 230,
+      nutrition: {
+        create: {
+          coefficient: 100,
+        },
+      },
     },
     {
       name: 'Drip Coffee',

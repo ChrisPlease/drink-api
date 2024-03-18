@@ -31,14 +31,10 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         where: { id_userId: { userId, id } },
         include: {
           drink: {
-            include: {
-              nutrition: {
-                select: {
-                  servingSize: true,
-                  servingUnit: true,
-                  metricSize: true,
-                },
-              },
+            select: {
+              servingSize: true,
+              servingUnit: true,
+              metricSize: true,
             },
           },
         },
@@ -53,7 +49,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
         return {
           id: entryId,
-          servings: volumeToServings(entry?.volume, drink?.nutrition?.metricSize),
+          servings: volumeToServings(entry?.volume, drink?.metricSize),
           ...entry,
         }
       }
@@ -69,23 +65,19 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         include: {
           drink: {
             select: {
-              nutrition: {
-                select: {
-                  servingSize: true,
-                  servingUnit: true,
-                  metricSize: true,
-                },
-              },
+              servingSize: true,
+              metricSize: true,
+              servingUnit: true,
             },
           },
         },
       })
 
-      return entries.map(({ id, drink: { nutrition }, ...entry }) => {
+      return entries.map(({ id, drink: { metricSize }, ...entry }) => {
 
         return {
           id: toCursorHash(`Entry:${id}`),
-          servings: volumeToServings(entry?.volume, nutrition?.metricSize),
+          servings: volumeToServings(entry?.volume, metricSize),
           ...entry,
         }
       })
@@ -227,7 +219,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         servingSize,
         metricSize,
       } = await prismaDrink
-        .findUnique({ where: { id } }).nutrition() ?? {}
+        .findUnique({ where: { id }, select: { metricSize: true , servingSize: true, servingUnit: true } }) ?? {}
 
       const volume = convertEntryToOz(
         inputVolume,
@@ -273,7 +265,8 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
         const { metricSize } = await tx.drink.findUnique({
           where: { id: drinkId },
-        }).nutrition() ?? {}
+          select: { metricSize: true },
+        }) ?? {}
 
         return {
           ...deletedEntry,

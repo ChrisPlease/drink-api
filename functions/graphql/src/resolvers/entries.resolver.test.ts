@@ -6,7 +6,7 @@ import {
   beforeEach,
 } from 'vitest'
 // import { Response } from 'express'
-import { Nutrition } from '@prisma/client'
+import { Drink, Nutrition } from '@prisma/client'
 import { GraphQLResolveInfo } from 'graphql'
 import prisma from '../__mocks__/prisma'
 // import redis from '../__mocks__/redis'
@@ -48,11 +48,8 @@ describe('entryResolvers', () => {
 
   describe('nutrition', () => {
     beforeEach(() => {
+      prisma.drink.findUnique.mockResolvedValue({ metricSize: 355 } as Drink)
       prisma.nutrition.findUnique.mockResolvedValue({
-        servingSize: 1,
-        servingUnit: 'bottle',
-        metricSize: 355,
-        imperialSize: 12,
         coefficient: 50,
         caffeine: 12,
         drinkId: 'drink-123',

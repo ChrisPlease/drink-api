@@ -1,5 +1,5 @@
 import { Drink, Entry } from '@prisma/client'
-import { ModelType } from '@/types/models'
+import { ModelType, ReturnedDrinkResult } from '@/types/models'
 
 export const toCursorHash = (str: string) => Buffer.from(str).toString('base64')
 
@@ -31,7 +31,7 @@ export const deconstructId = (id: string): [ModelType, string] => {
   return fromCursorHash(id).split(':') as [ModelType, string]
 }
 
-type RecordType = Drink | Entry
+type RecordType = ReturnedDrinkResult | Entry
 
 export const getCursor = <T extends RecordType, U>(record: T, cursorKey: string) => {
   const key = cursorKey in record ? [cursorKey] : cursorKey.split('_')

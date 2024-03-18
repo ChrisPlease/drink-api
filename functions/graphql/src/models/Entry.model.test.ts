@@ -25,11 +25,7 @@ describe('Entry Model', () => {
       include: {
         drink: {
           select: {
-            nutrition: {
-              select: {
-                metricSize: true,
-              },
-            },
+            metricSize: true,
           },
         },
       },
@@ -44,9 +40,7 @@ describe('Entry Model', () => {
         userId: '123',
         deleted: false,
         drink: {
-          nutrition: {
-            metricSize: 355,
-          },
+          metricSize: 355,
         },
       }
       prisma.entry.findUnique.mockResolvedValue(mockResult)
@@ -57,14 +51,10 @@ describe('Entry Model', () => {
       expect(prisma.entry.findUnique).toHaveBeenCalledWith({
         include: {
           drink: {
-            include: {
-              nutrition: {
-                select: {
-                  metricSize: true,
-                  servingSize: true,
-                  servingUnit: true,
-                },
-              },
+            select: {
+              metricSize: true,
+              servingSize: true,
+              servingUnit: true,
             },
           },
         },
@@ -104,13 +94,9 @@ describe('Entry Model', () => {
       include: {
         drink: {
           select: {
-            nutrition: {
-              select: {
-                metricSize: true,
-                servingUnit: true,
-                servingSize: true,
-              },
-            },
+            metricSize: true,
+            servingUnit: true,
+            servingSize: true,
           },
         },
       },
@@ -125,11 +111,9 @@ describe('Entry Model', () => {
         userId: '123',
         deleted: false,
         drink: {
-          nutrition: {
-            metricSize: 355,
-            servingUnit: 'fl oz',
-            servingSize: 12,
-          },
+          metricSize: 355,
+          servingUnit: 'fl oz',
+          servingSize: 12,
         },
       }]
 
@@ -142,13 +126,9 @@ describe('Entry Model', () => {
         include: {
           drink: {
             select: {
-              nutrition: {
-                select: {
-                  metricSize: true,
-                  servingUnit: true,
-                  servingSize: true,
-                },
-              },
+              metricSize: true,
+              servingUnit: true,
+              servingSize: true,
             },
           },
         },
@@ -323,7 +303,7 @@ describe('Entry Model', () => {
 
     test('queries prisma to find the drink nutrition', async () => {
       await entry.createEntry(mockArgs, prisma.drink)
-      expect(prisma.drink.findUnique).toHaveBeenCalledWith({ where: { id: 'drink-123' } })
+      expect(prisma.drink.findUnique).toHaveBeenCalledWith({ where: { id: 'drink-123' }, select: { metricSize: true, servingUnit: true, servingSize: true } })
     })
 
     test('creates the entry', async () => {
@@ -385,6 +365,7 @@ describe('Entry Model', () => {
       await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
       expect(prisma.drink.findUnique).toHaveBeenCalledWith({
         where: { id: mockDrinkId },
+        select: { metricSize: true },
       })
     })
 

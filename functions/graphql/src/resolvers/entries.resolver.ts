@@ -8,12 +8,16 @@ export const entryResolvers: EntryResolvers = {
   },
 
   async nutrition({ drinkId, volume }, _, { prisma }) {
+    const { metricSize } = await prisma.drink.findUnique({
+      where: {
+        id: drinkId,
+      },
+      select: {
+        metricSize: true,
+      },
+    }) ?? {}
     const {
-      servingSize,
-      metricSize,
-      servingUnit,
       coefficient,
-      imperialSize,
       drinkId: __,
       ...drinkNutrition
     } = await prisma.nutrition.findUnique({ where: { drinkId } }) ?? {}

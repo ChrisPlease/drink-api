@@ -605,13 +605,9 @@
             "name": "nutrition",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "INPUT_OBJECT",
-                "name": "DrinkNutritionInput",
-                "ofType": null
-              }
+              "kind": "INPUT_OBJECT",
+              "name": "DrinkNutritionInput",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -771,13 +767,9 @@
             "name": "serving",
             "description": null,
             "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "INPUT_OBJECT",
-                "name": "DrinkServingSizeInput",
-                "ofType": null
-              }
+              "kind": "INPUT_OBJECT",
+              "name": "DrinkServingSizeInput",
+              "ofType": null
             },
             "defaultValue": null,
             "isDeprecated": false,

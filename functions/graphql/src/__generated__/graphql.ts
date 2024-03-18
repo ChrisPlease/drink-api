@@ -92,7 +92,7 @@ export type DrinkCreateInput = {
   icon: Scalars['Icon']['input'];
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name: Scalars['String']['input'];
-  nutrition: DrinkNutritionInput;
+  nutrition?: InputMaybe<DrinkNutritionInput>;
   serving: DrinkServingSizeInput;
   upc?: InputMaybe<Scalars['String']['input']>;
 };
@@ -111,7 +111,7 @@ export type DrinkEditInput = {
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
   nutrition?: InputMaybe<DrinkNutritionInput>;
-  serving: DrinkServingSizeInput;
+  serving?: InputMaybe<DrinkServingSizeInput>;
 };
 
 /** Filter for the Drinks query */

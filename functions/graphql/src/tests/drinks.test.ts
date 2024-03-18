@@ -31,11 +31,12 @@ describe('drinks', () => {
     const { water, dripCoffee } = await seedDrinks(prisma, new Array(14).fill({}).map((item, index) => ({
       name: `Drink ${index}`,
       icon: 'glass-water',
+      servingSize: 12,
+      servingUnit: 'fl oz',
+      metricSize: 350,
       nutrition: {
         create: {
-          servingSize: 12,
-          servingUnit: 'fl oz',
-          metricSize: 350,
+          coefficient: 100,
         },
       },
     })))
@@ -174,10 +175,13 @@ describe('drinks', () => {
             drinkInput: {
               name: 'Test Drink',
               icon: 'test-icon',
-              nutrition: {
+              serving: {
                 servingSize: 12,
                 servingUnit: 'fl oz',
                 metricSize: 350,
+              },
+              nutrition: {
+                coefficient: 12,
               },
             },
           },
@@ -205,7 +209,7 @@ describe('drinks', () => {
             drinkInput: {
               name: 'Mixed drink',
               icon: 'test-mixed',
-              nutrition: {
+              serving: {
                 servingSize: 12,
                 metricSize: 350,
                 servingUnit: 'fl oz',
@@ -251,13 +255,13 @@ describe('drinks', () => {
           data: {
             name: 'New drink',
             icon: 'new-icon',
+            servingUnit: 'fl oz',
+            metricSize: 355,
+            servingSize: 8,
             nutrition: {
               create: {
-                servingUnit: 'fl oz',
-                metricSize: 355,
                 caffeine: 0,
                 sugar: 0,
-                servingSize: 8,
                 coefficient: 1,
 
               },
@@ -306,14 +310,14 @@ describe('drinks', () => {
           data: {
             name: 'Test Drink',
             icon: 'test-icon',
+            servingUnit: 'fl oz',
+            metricSize: 350,
+            servingSize: 12,
             nutrition: {
               create: {
-                servingUnit: 'fl oz',
-                metricSize: 350,
                 caffeine: 12,
                 sugar: 12,
                 coefficient: 1,
-                servingSize: 12,
               },
             },
             userId: 'user-123',

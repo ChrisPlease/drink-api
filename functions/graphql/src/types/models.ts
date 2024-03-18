@@ -2,7 +2,7 @@ import { Drink, Entry } from '@prisma/client'
 import { DrinkNutrition, DrinkServingSize } from '@/__generated__/graphql'
 
 
-export interface DrinkResult extends Drink {
+export interface DrinkResult extends Omit<Drink, 'servingSize' | 'servingUnit' | 'metricSize'> {
   nutrition: DrinkNutrition;
   serving: DrinkServingSize;
 }
