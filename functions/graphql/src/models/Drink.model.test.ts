@@ -26,7 +26,6 @@ import {
 } from '../__generated__/graphql'
 import { DrinkWithIngredientCountPayload } from '../types/drinks'
 import { Drinks } from './Drink.model'
-import { ReturnedDrinkResult } from '@/types/models'
 
 vi.mock('../utils/queries', () => ({
   queryIngredientNutrition: vi.fn().mockResolvedValue([{}]),
