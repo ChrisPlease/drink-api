@@ -10,7 +10,8 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
   const client_secret = process.env.AUTH0_CLIENT_SECRET
   const redirect_uri = process.env.AUTH0_CALLBACK_URI
   const auth0Domain = process.env.AUTH0_DOMAIN
-
+  console.log('client_id', client_id)
+  console.log('client_secret', client_secret)
   try {
     const payload = {
       client_id,

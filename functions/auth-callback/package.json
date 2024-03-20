@@ -9,7 +9,8 @@
     "dev": "nodemon",
     "watch": "pnpm build --watch",
     "start": "pnpx aws-lambda-ric dist/index.handler",
-    "test": "echo \"Error: no test specified\""
+    "test": "pnpm run test:unit --run",
+    "test:unit": "vitest -c vitest.config.unit.ts"
   },
   "keywords": [],
   "author": "",

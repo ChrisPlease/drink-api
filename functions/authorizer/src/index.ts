@@ -1,7 +1,7 @@
 import { promisify } from 'node:util'
 import { APIGatewayAuthorizerEvent, Handler } from 'aws-lambda'
 import { configDotenv } from 'dotenv'
-import jwksClient, { RsaSigningKey } from 'jwks-rsa'
+import jwksClient, { RsaSigningKey, SigningKey } from 'jwks-rsa'
 import { decode, verify, JwtPayload } from 'jsonwebtoken'
 
 configDotenv()
@@ -51,11 +51,11 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
   const getSigningKey = promisify(client.getSigningKey)
 
   return getSigningKey(decoded.header.kid)
-    .then((key) => {
+    .then((key: SigningKey | RsaSigningKey | undefined) => {
       const signingKey = key?.getPublicKey() || (key as RsaSigningKey)?.rsaPublicKey
       return verify(token, signingKey, jwtOptions) as JwtPayload
     })
-    .then((decoded)=> ({
+    .then((decoded: JwtPayload)=> ({
       principalId: decoded.sub,
       policyDocument: getPolicyDocument('Allow', params.methodArn),
       context: { scope: decoded.scope },
