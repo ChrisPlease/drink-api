@@ -5,10 +5,9 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["./node_modules/tsconfig/env.d.ts"]
+    "typeRoots": ["./node_modules/tsconfig"]
   },
   "include": [
     "./src/**/*",
-    "./node_modules/tsconfig/**/*"
   ],
 }

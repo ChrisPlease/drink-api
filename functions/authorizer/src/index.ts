@@ -2,7 +2,7 @@ import { promisify } from 'node:util'
 import { APIGatewayAuthorizerEvent, Handler } from 'aws-lambda'
 import { configDotenv } from 'dotenv'
 import jwksClient, { RsaSigningKey, SigningKey } from 'jwks-rsa'
-import { decode, verify, JwtPayload } from 'jsonwebtoken'
+import { decode, verify, JwtPayload, SignOptions } from 'jsonwebtoken'
 
 configDotenv()
 
@@ -36,8 +36,8 @@ const getToken = (params: APIGatewayAuthorizerEvent) => {
   return match[1]
 }
 
-const jwtOptions = {
-  audience: process.env.AUDIENCE,
+const jwtOptions: SignOptions = {
+  audience: process.env.AUTH0_AUDIENCE,
   issuer: process.env.AUTH0_DOMAIN,
 }
 
