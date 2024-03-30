@@ -6,7 +6,6 @@
   "scripts": {
     "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node20 --outfile=dist/index.cjs",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs",
-    "dev": "nodemon",
     "watch": "pnpm build --watch",
     "start": "pnpx aws-lambda-ric dist/index.handler",
     "test": "pnpm run test:unit --run",

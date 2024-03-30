@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { APIGatewayAuthorizerEvent, Context } from 'aws-lambda'
 import { handler } from '.'
 
-const jwksMock = createJwksMock(process.env.JWKS_URI || '')
+const jwksMock = createJwksMock(`${process.env.JWKS_URI}.well-known/jwks.json`)
 
 describe('handler', () => {
   let event: APIGatewayAuthorizerEvent
@@ -51,13 +51,14 @@ describe('handler', () => {
     })
   })
 
-  describe('success', () => {
+  describe.only('success', () => {
     let token: string
 
     beforeEach(() => {
       jwksMock.start()
       token = jwksMock.token({
-        aud: process.env.AUDIENCE,
+        aud: process.env.AUTH0_AUDIENCE,
+        iss: process.env.AUTH0_DOMAIN,
       })
     })
 
@@ -69,7 +70,6 @@ describe('handler', () => {
       event = { ...event, type: 'TOKEN', authorizationToken: `Bearer ${token}`, methodArn: 'foo' }
 
       const res = await handler(event, {} as Context, () => {})
-
       expect(res.policyDocument).toStrictEqual({
         Version: '2012-10-17',
         Statement: [

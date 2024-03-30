@@ -4,10 +4,11 @@
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["./node_modules/tsconfig/env.d.ts"]
   },
   "include": [
-    "./src/**/*",
+    "./**/*",
+    "./node_modules/tsconfig/**/*"
   ],
-  "exclude": ["./prisma"]
 }

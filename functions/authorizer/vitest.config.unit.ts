@@ -4,7 +4,6 @@ import rootConfig from '../../vitest.config.unit'
 
 export default mergeConfig(rootConfig, defineConfig({
   test: {
-    setupFiles: ['dotenv/config'],
     include: [
       'src/**/*.test.ts',
     ],
