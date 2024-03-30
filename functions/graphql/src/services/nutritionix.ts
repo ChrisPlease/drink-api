@@ -32,11 +32,12 @@ function mapNutritionixToDrinkNutrition(item: NutritionixItem, upc: string): Sca
     id: toCursorHash(`ScanDrink:${upc}`),
     name: `${item.brand_name} ${item.food_name}`,
     upc,
-    nutrition: {
+    serving: {
       servingSize: item.serving_qty || 8,
       servingUnit: item.serving_unit || 'fl oz',
       metricSize: item.nf_metric_qty,
-
+    },
+    nutrition: {
       calories: item.nf_calories,
 
       totalFat: item.nf_total_fat,
