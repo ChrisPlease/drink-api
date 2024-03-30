@@ -4,7 +4,9 @@ import { handler } from '.'
 
 vi.mock('axios', () => ({
   default: {
-    post: vi.fn().mockResolvedValue({ data: {} }),
+    post: vi.fn().mockResolvedValue({ data: {
+      access_token: '123',
+    } }),
   },
 }))
 
@@ -19,9 +21,9 @@ describe('handler', () => {
     } as unknown as APIGatewayProxyEvent
   })
 
-  test('does something', () => {
+  test('does something', async () => {
 
-    handler(event, {} as Context, () => {})
+    const res = await handler(event, {} as Context, () => {})
     expect(true).toBeTruthy()
   })
 })

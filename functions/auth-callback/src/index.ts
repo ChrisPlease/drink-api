@@ -10,6 +10,9 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
   const client_secret = process.env.AUTH0_CLIENT_SECRET
   const redirect_uri = process.env.AUTH0_CALLBACK_URI
   const auth0Domain = process.env.AUTH0_DOMAIN
+  if (!code) {
+    throw new Error('Error: `code` was not found in the query parameters')
+  }
   try {
     const payload = {
       client_id,
