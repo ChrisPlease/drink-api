@@ -3,11 +3,23 @@ dist
 .vscode
 coverage
 
-!.env.sample
+# AWS
+.aws-sam
+samconfig.*
+!env.sample.json
+*env.json
+packaged.yml
+
+sample.*
+
+*event.json
+!sample.event.json
+
 .env
 .env.*
+!.env.sample
 
 # nginx certs
 certs
 
-dump_*
+backups

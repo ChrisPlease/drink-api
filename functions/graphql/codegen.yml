@@ -1,0 +1,27 @@
+overwrite: true
+schema: "./schema.gql"
+generates:
+  src/__generated__/graphql.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
+    config:
+      maybeValue: 'T extends PromiseLike<infer U> ? Promise<U | null> : T | null'
+      useIndexSignature: true
+      makeResolverTypeCallable: true
+      contextType: "../types/context#AppContext"
+      scalars:
+        Date: Date
+      mappers:
+        DrinkResult: ../types/models#ReturnedDrinkResult as DrinkResultModel
+        Drink: .prisma/client#Drink as DrinkModel
+        ScanDrink: ../types/models#ScanDrink as ScanDrinkModel
+        BaseDrink: .prisma/client#Drink as BaseDrinkModel
+        MixedDrink: .prisma/client#Drink as MixedDrinkModel
+        Nutrition: .prisma/client#Nutrition as NutritionModel
+        Entry: ../types/models#ResolvedEntry as EntryModel
+        DrinkHistory: ../types/models#DrinkHistory as DrinkHistoryModel
+      inputMaybeValue: undefined | T
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"

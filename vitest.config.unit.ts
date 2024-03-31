@@ -1,34 +1,15 @@
-import path from 'path'
+import path from 'node:path'
 import { defineConfig } from 'vitest/config'
+import viteTsconfigPaths from 'vite-tsconfig-paths'
+import { config as dotenvConfig } from 'dotenv'
+
+dotenvConfig({ path: path.resolve(__dirname, '.env.test') })
 
 export default defineConfig({
   test: {
-    include: [
-      'src/**/*.test.ts',
-    ],
-    exclude: [
-      'src/tests/**/*',
-    ],
-    coverage: {
-      all: true,
-      reportsDirectory: './coverage/unit',
-      include: [
-        'src/**/*.ts',
-        '!src/**/*.test.ts',
-      ],
-      exclude: [
-        'src/index.ts',
-        'src/client.ts',
-        'src/tests',
-        'src/__mocks__',
-        'src/__generated__',
-        'src/middleware',
-      ],
-      reporter: ['html', 'json', 'lcov', 'text', 'text-summary'],
-      provider: 'istanbul',
-    },
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+    setupFiles: ['dotenv/config'],
   },
+  plugins: [
+    viteTsconfigPaths(),
+  ],
 })

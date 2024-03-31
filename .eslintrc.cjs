@@ -2,28 +2,11 @@
 module.exports = {
   root: true,
   "ignorePatterns": [
-    "src/__generated__/**/*",
+    "functions/graphql/src/__generated__/**/*",
     "coverage/**/*"
   ],
-  "rules": {
-
-  },
+  "rules": {},
   "overrides": [
-    {
-      "files": ["*.gql"],
-      "extends": "plugin:@graphql-eslint/schema-recommended",
-      "parserOptions": {
-        "schema": "./schema.gql",
-      },
-      "rules": {
-        "@graphql-eslint/strict-id-in-types": ["error", {
-          "exceptions": {
-            "types": ["PageInfo"],
-            "suffixes": ["Paginated", "Edge"],
-          },
-        }],
-      },
-    },
     {
       "files": ["**/*.ts"],
       "env": {
@@ -33,14 +16,15 @@ module.exports = {
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:import/recommended",
-        "plugin:import/typescript",
+        // "plugin:import/recommended",
+        // "plugin:import/typescript",
       ],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "ecmaVersion": "latest",
         "sourceType": "module",
-        "tsconfigRootDir": "./"
+        "tsconfigRootDir": "./",
+        "project": ["./packages/tsconfig/base.json", "./functions/**/*/tsconfig.json"]
       },
       "plugins": [
         "@typescript-eslint",
@@ -49,6 +33,8 @@ module.exports = {
       "rules": {
         "semi": "off",
         "comma-dangle": "off",
+        "import/namespace": "off",
+
         "import/order": ["error"],
 
         "quotes": ["error", "single", { "avoidEscape": true }],

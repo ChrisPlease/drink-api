@@ -1,0 +1,14 @@
+{
+  "extends": "tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["./node_modules/tsconfig/env.d.ts"]
+  },
+  "include": [
+    "./**/*",
+    "./node_modules/tsconfig/**/*"
+  ],
+}

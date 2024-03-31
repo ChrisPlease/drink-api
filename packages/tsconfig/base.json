@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "lib": ["es2020"],
+    "experimentalDecorators": false,
+    "emitDecoratorMetadata": false,
+    "module": "commonjs",
+    "sourceMap": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "types": ["./env.d.ts"]
+  }
+}

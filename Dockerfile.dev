@@ -1,0 +1,81 @@
+# Base Image
+FROM node:20-bullseye AS base
+
+ARG ENV=develop
+ARG ENV_FILE=".env"
+
+# Optionally override the .env file based on the ENV if ENV_FILE is not provided explicitly
+ENV ENV_FILE=${ENV_FILE:-.env.${ENV}}
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV LAMBDA_TASK_ROOT="/var/task"
+
+RUN corepack enable
+
+# Builder image
+FROM base AS builder
+
+RUN apt-get update && \
+  apt-get install -y \
+  g++ \
+  make \
+  cmake \
+  unzip \
+  libcurl4-openssl-dev \
+  lsof
+
+COPY . /usr/src/app
+COPY ./aws-lambda-rie /usr/local/bin/aws-lambda-rie
+WORKDIR /usr/src/app
+COPY ./${ENV_FILE} ./.env
+
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+RUN pnpm run -r --if-present build:dev
+RUN pnpm run -r --if-present alias
+RUN pnpm i -r aws-lambda-ric
+
+### Service Setup
+FROM builder AS service-setup
+
+WORKDIR /usr/app
+
+COPY --from=builder /usr/src/app /usr/app
+COPY --from=builder /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
+COPY ./scripts/entrypoint.dev.sh ./dev.sh
+
+RUN pnpm deploy --filter=@waterlog/authorizer /prod/authorizer
+
+RUN pnpm deploy --filter=@waterlog/graphql-lambda /prod/graphql
+
+RUN pnpm deploy --filter=@waterlog/auth-callback /prod/callback
+
+## Auth Callback
+# FROM service-setup AS auth-callback
+
+# WORKDIR ${LAMBDA_TASK_ROOT}
+# COPY --from=service-setup /usr/app/dev.sh ${LAMBDA_TASK_ROOT}
+# COPY --from=service-setup /prod/callback ${LAMBDA_TASK_ROOT}
+
+# RUN chmod +x ./dev.sh
+
+# ENTRYPOINT ["./docker.sh", "functions/auth-callback", "pnpm run dev"]
+
+## GraphQL
+FROM service-setup AS graphql
+
+COPY ./tsconfig.json ./tsconfig.json
+WORKDIR ${LAMBDA_TASK_ROOT}
+COPY --from=service-setup /usr/app/dev.sh ${LAMBDA_TASK_ROOT}
+COPY --from=service-setup /prod/graphql ${LAMBDA_TASK_ROOT}
+
+RUN chmod +x ./dev.sh
+
+# CMD ["tail", "-f", "/dev/null"]
+# ENTRYPOINT ["./docker.sh", "functions/graphql", "pnpm run dev"]
+CMD ["pnpm", "dev"]
+
+# Authorizer
+# FROM service-setup AS authorizer
+# RUN pnpm --filter @waterlog/authorizer install
+# ENTRYPOINT ["./docker.sh", "functions/authorizer", "pnpm run dev"]
