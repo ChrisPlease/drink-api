@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { APIGatewayAuthorizerEvent, Context } from 'aws-lambda'
 import { handler } from '.'
 
-console.log(process.env)
+console.log(process.env.JWKS_URI)
 const jwksMock = createJwksMock(`${process.env.JWKS_URI}`)
 
 describe('handler', () => {
