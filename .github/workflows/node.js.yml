@@ -35,6 +35,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
       - run: pnpm install --frozen-lockfile
+      - run: echo "${{ secrets.ENV_FILE }}" > .env.test
       - run: pnpm -r --if-present test:unit --run
 
   integration-tests:
