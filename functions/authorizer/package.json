@@ -20,11 +20,10 @@
     "tsconfig": "workspace:*"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.132",
-    "@types/jsonwebtoken": "^9.0.5",
-    "esbuild": "^0.20.1",
+    "@types/aws-lambda": "^8.10.136",
+    "@types/jsonwebtoken": "^9.0.6",
+    "esbuild": "^0.20.2",
     "lambda-local": "^2.1.2",
-    "mock-jwks": "^3.1.0",
-    "nodemon": "^3.0.3"
+    "mock-jwks": "^3.1.0"
   }
 }
