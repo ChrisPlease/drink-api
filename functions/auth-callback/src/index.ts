@@ -10,9 +10,15 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
   const client_secret = process.env.AUTH0_CLIENT_SECRET
   const redirect_uri = process.env.AUTH0_CALLBACK_URI
   const auth0Domain = process.env.AUTH0_DOMAIN
-  if (!code) {
-    throw new Error('Error: `code` was not found in the query parameters')
-  }
+
+  if (!code)
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        message: 'Error: `code` was missing from the request',
+      }),
+    }
+
   try {
     const payload = {
       client_id,
@@ -23,7 +29,7 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
     }
 
     const response = await axios.post(
-      `${auth0Domain}/oauth/token`,
+      `${auth0Domain}oauth/token`,
       payload,
       {
         headers: {
@@ -41,10 +47,13 @@ export const handler: Handler = async (event: APIGatewayProxyEvent) => {
       },
       body: '',
     }
-  } catch (error) {
+  } catch (error: any) {
     return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Error exchanging authorization code for token' }),
+      statusCode: error.response ? error.response.status : 500,
+      body: JSON.stringify({
+        message: 'Request failed',
+        error: error.message,
+      }),
     }
   }
 }
