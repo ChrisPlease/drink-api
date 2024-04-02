@@ -3,6 +3,7 @@ import {
   DrinkNutrition,
   DrinkResolvers,
   DrinkResultResolvers,
+  DrinkServingSize,
   MixedDrinkResolvers,
   ScanDrinkResolvers,
   ScanDrinkResultResolvers,
@@ -50,6 +51,21 @@ export const drinkResolvers: DrinkResolvers = {
 
   async user(parent, args, { prisma }) {
     return await Drinks(prisma.drink).findDrinkUser(parent.id)
+  },
+
+  async serving(parent, args, { prisma }) {
+    const drinkId = deconstructId(parent.id)[1]
+
+    return <DrinkServingSize>await prisma.drink.findUnique({
+      where: {
+        id: drinkId,
+      },
+      select: {
+        servingSize: true,
+        servingUnit: true,
+        metricSize: true,
+      },
+    })
   },
 }
 

@@ -27,6 +27,7 @@ type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' |
 
 export function Drinks(prismaDrink: PrismaClient['drink']) {
   return Object.assign(prismaDrink, {
+
     async findUniqueById(drinkId: string) {
       const [,id] = deconstructId(drinkId)
       const response = <DrinkWithIngredientCountPayload>await prismaDrink.findUnique({
@@ -340,17 +341,6 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           id: toCursorHash(`MixedDrink:${drink?.id}`),
         }))
     },
-
-    // async servingSize(drinkId: string) {
-    //   const [,id] = deconstructId(drinkId)
-
-    //   const response = await prismaDrink.findUnique({
-    //     where: { id },
-    //     include: {
-    //       metricSize,
-    //     },
-    //   })
-    // },
   })
 }
 

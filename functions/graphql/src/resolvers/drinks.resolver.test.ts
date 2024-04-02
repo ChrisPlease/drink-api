@@ -101,6 +101,23 @@ describe('drinks.resolver', () => {
         expect(res).toStrictEqual({ id: 'user-123' })
       })
     })
+
+    describe('servings', () => {
+      let expected: Drink
+      beforeEach(() => {
+        expected = { servingSize: 12, servingUnit: 'fl oz', metricSize: 255 } as Drink
+        prisma.drink.findUnique.mockResolvedValue(expected)
+      })
+      test('retrieves servings for the given drink', async () => {
+        const res = await drinkResolvers.serving?.(
+          parent,
+          args,
+          ctx,
+          info,
+        )
+        expect(res).toEqual(expected)
+      })
+    })
   })
 
   describe('mixedDrinkResolvers', () => {
