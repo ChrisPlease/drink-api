@@ -1,3 +1,6 @@
 {
-  "name": "tsconfig"
+  "name": "tsconfig",
+  "devDependencies": {
+    "@types/node": "18"
+  }
 }
