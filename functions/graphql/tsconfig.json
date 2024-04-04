@@ -8,7 +8,6 @@
     "types": ["./node_modules/tsconfig/env.d.ts"]
   },
   "include": [
-    "./**/*",
-    "./node_modules/tsconfig/**/*"
-  ],
+    "./src/*",
+  ]
 }
