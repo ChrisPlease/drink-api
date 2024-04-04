@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2016",
-    "lib": ["es2020"],
+    "lib": ["es2020", "DOM"],
     "experimentalDecorators": false,
     "emitDecoratorMetadata": false,
     "module": "commonjs",
@@ -13,6 +13,6 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
-    "types": ["./env.d.ts"]
+    "types": ["./env.d.ts", "node"]
   }
 }
