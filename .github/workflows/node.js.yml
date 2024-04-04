@@ -10,12 +10,42 @@ on:
     branches: [ "dev" ]
 
 jobs:
-  unit-tests:
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     environment: test
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [18.x]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+
+  unit-tests:
+    name: Unit Tests
+    needs: lint
+    runs-on: ubuntu-latest
+    environment: test
+    strategy:
+      matrix:
+        node-version: [18.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -39,12 +69,13 @@ jobs:
       - run: pnpm -r --if-present test:unit --run
 
   integration-tests:
+    name: Integration Tests
     needs: unit-tests
     runs-on: ubuntu-latest
     environment: test
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [18.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}
@@ -67,12 +98,13 @@ jobs:
       - run: pnpm -r --if-present test:int --run
 
   build:
+    name: Production Build
     needs: integration-tests
     runs-on: ubuntu-latest
     environment: test
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: [18.x]
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js ${{ matrix.node-version }}

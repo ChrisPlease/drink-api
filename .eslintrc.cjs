@@ -16,15 +16,15 @@ module.exports = {
       "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended",
-        // "plugin:import/recommended",
-        // "plugin:import/typescript",
+        "plugin:import/recommended",
+        "plugin:import/typescript",
       ],
       "parser": "@typescript-eslint/parser",
       "parserOptions": {
         "ecmaVersion": "latest",
         "sourceType": "module",
-        "tsconfigRootDir": "./",
-        "project": ["./packages/tsconfig/base.json", "./functions/**/*/tsconfig.json"]
+        "tsConfigRootDir": "./",
+        "project": ["./packages/tsconfig/base.json", "./functions/*/tsconfig.json"]
       },
       "plugins": [
         "@typescript-eslint",
@@ -67,7 +67,7 @@ module.exports = {
         "import/resolver": {
           "typescript": {
             "alwaysTryTypes": true,
-            "project": "<root>/tsconfig.json"
+            "project": ["./packages/tsconfig/base.json", "./functions/*/tsconfig.json"]
           },
         },
         "import/parsers": {

@@ -9,6 +9,5 @@
   },
   "include": [
     "./**/*",
-    "./node_modules/tsconfig/**/*"
   ],
 }

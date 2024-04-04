@@ -6,7 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "test": "pnpm -r --if-present test",
-    "lint": "eslint ."
+    "lint": "eslint '{packages,functions}/**/*.{ts,tsx,js,jsx}'"
   },
   "keywords": [
     "typescript",
@@ -15,9 +15,9 @@
   "author": "Chris Pruyne <chris@chrisplease.me>",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.12.2",
-    "@typescript-eslint/eslint-plugin": "^7.4.0",
-    "@typescript-eslint/parser": "^7.4.0",
+    "@types/node": "^20.12.4",
+    "@typescript-eslint/eslint-plugin": "^7.5.0",
+    "@typescript-eslint/parser": "^7.5.0",
     "@vitest/coverage-istanbul": "^1.4.0",
     "@vitest/ui": "^1.4.0",
     "concurrently": "^8.2.2",
