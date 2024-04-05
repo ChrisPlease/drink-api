@@ -32,6 +32,12 @@ declare global {
 
       DATABASE_URL: string;
       DIRECT_URL: string;
+
+      // AWS
+      AWS_REGION: string;
+      AWS_DEFAULT_REGION: string;
+
+      NUTRITIONIX_LAMBDA: string;
     }
   }
 }

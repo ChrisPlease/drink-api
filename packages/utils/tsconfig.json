@@ -1,0 +1,15 @@
+{
+  "extends": "tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "lib": ["es2020", "DOM"],
+    "noEmit": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["./node_modules/tsconfig/env.d.ts", "node"]
+  },
+  "include": [
+    "./src/*",
+  ],
+}
