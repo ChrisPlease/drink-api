@@ -180,15 +180,15 @@ importers:
 
   functions/nutritionix-api:
     dependencies:
-      '@waterlog/utils':
-        specifier: workspace:*
-        version: link:../../packages/utils
       aws-lambda:
         specifier: ^1.0.7
         version: 1.0.7
       undici:
         specifier: ^6.11.1
         version: 6.11.1
+      utils:
+        specifier: workspace:*
+        version: link:../../packages/utils
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.136

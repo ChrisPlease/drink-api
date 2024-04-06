@@ -1,7 +1,7 @@
 import { Handler } from 'aws-lambda'
 import { Headers, fetch } from 'undici'
 import * as dotEnv from 'dotenv'
-import { ApiError, Logger } from '@waterlog/utils'
+import { ApiError, Logger } from 'utils'
 import {
   NutritionixResponse,
   NutritionixItem,
