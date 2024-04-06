@@ -9,6 +9,7 @@
     "types": ["./node_modules/tsconfig/env.d.ts", "node"]
   },
   "include": [
-    "./src/**/*",
+    "./src/*",
+    "node_modules",
   ],
 }
