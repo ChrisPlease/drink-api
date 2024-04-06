@@ -36,6 +36,7 @@ declare global {
       // AWS
       AWS_REGION: string;
       AWS_DEFAULT_REGION: string;
+      AWS_LAMBDA_FUNCTION_NAME: string;
 
       NUTRITIONIX_LAMBDA: string;
     }

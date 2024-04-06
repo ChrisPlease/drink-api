@@ -1,6 +1,5 @@
 export class ApiError extends Error {
   status: number
-  // message: string
 
   constructor(status: number, message?: string) {
     const defaultMessage = ApiError.getDefaultMessageForStatus(status)

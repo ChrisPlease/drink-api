@@ -24,15 +24,13 @@ export const handler: Handler<CustomEvent> = async ({ upc }) => {
 async function baseFetch(path: string, params: Record<string, string>): Promise<NutritionixResponse | undefined> {
   const headers: Headers = new Headers()
   const queryParams = new URLSearchParams(params)
-  // headers.set('x-app-id', process.env.NUTRITIONIX_APP_ID)
-  // headers.set('x-app-key', process.env.NUTRITIONIX_API_KEY)
+  headers.set('x-app-id', process.env.NUTRITIONIX_APP_ID)
+  headers.set('x-app-key', process.env.NUTRITIONIX_API_KEY)
 
   const res = await fetch(`${process.env.NUTRITIONIX_API}/v2/${path}?${queryParams.toString()}`, {
     headers,
   })
 
-  console.log('before the logger', JSON.stringify(process.env, null, 2))
-  Logger.log(res)
   if (res.ok) {
     return await res.json() as NutritionixResponse
   } else {
@@ -43,11 +41,18 @@ async function baseFetch(path: string, params: Record<string, string>): Promise<
 }
 
 async function fetchItem(params: { upc: string }) {
-  const res = await baseFetch('search/item', params)
-  const item = res?.foods?.[0]
+  try {
 
-  if (item)
-    return mapNutritionixToDrinkNutrition(item, params.upc)
+    const res = await baseFetch('search/item', params)
+    const item = res?.foods?.[0]
+
+    if (item)
+      return mapNutritionixToDrinkNutrition(item, params.upc)
+
+  } catch (err: any) {
+    Logger.error(err)
+    throw new ApiError(err.status)
+  }
 }
 
 function mapNutritionixToDrinkNutrition(item: NutritionixItem, upc: string) {

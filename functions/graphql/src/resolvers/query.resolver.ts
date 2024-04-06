@@ -1,6 +1,6 @@
 import { LambdaClient, InvokeCommand, LambdaClientConfig } from '@aws-sdk/client-lambda'
 import { Drink, Entry, User } from '@prisma/client'
-import { DrinkHistory as DrinkHistoryModel, ScanDrink } from '@/types/models'
+import { DrinkHistory as DrinkHistoryModel } from '@/types/models'
 import { QueryResolvers } from '@/__generated__/graphql'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistory } from '@/models/History.model'
@@ -129,15 +129,29 @@ export const queryResolvers: QueryResolvers = {
     const drink = <Drink>await prisma.drink.findUnique({ where: { upc } })
 
     if (drink) return { ...drink, id: toCursorHash(`BaseDrink:${drink.id}`) } as Drink
+    try {
+      const lambdaClient = new LambdaClient(clientOptions)
+      const cmd = new InvokeCommand({
+          FunctionName: 'NutritionixApiFunction',
+          InvocationType: 'RequestResponse',
+          Payload: new TextEncoder().encode(JSON.stringify({ upc })),
+      })
+      const { Payload } = await lambdaClient.send(cmd)
 
-    const lambdaClient = new LambdaClient(clientOptions)
-    const cmd = new InvokeCommand({
-      FunctionName: 'NutritionixApiFunction',
-      InvocationType: 'RequestResponse',
-      Payload: new TextEncoder().encode(JSON.stringify({ upc })),
-    })
-    const { Payload } = await lambdaClient.send(cmd)
-    return <ScanDrink>JSON.parse(Buffer.from(Payload!).toString())
+      const response = JSON.parse(Buffer.from(Payload!).toString())
+      // Check if the response contains an error.
+      if (response.error) {
+          throw new Error(response.error) // Handle known error cases.
+      }
+      console.log(response)
+
+      return response
+  } catch (error) {
+      console.error('Error invoking NutritionixApiFunction:', error)
+      // Handle or re-throw the error based on your error handling strategy.
+      // For instance, you could return a default response or a specific error object to the caller.
+      return { error: 'Failed to fetch drink details.' }
+  }
   },
 }
 
