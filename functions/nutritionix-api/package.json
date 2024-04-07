@@ -6,6 +6,7 @@
   "scripts": {
     "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node20 --outfile=dist/index.cjs",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs",
+    "alias": "tsc-alias",
     "watch": "pnpm build:dev --watch"
   },
   "devDependencies": {
