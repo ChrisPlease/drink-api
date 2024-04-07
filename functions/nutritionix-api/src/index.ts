@@ -8,7 +8,7 @@ import {
 } from '@/types/nutritionix'
 
 
-dotEnv.config({ path: '../../.env.production'})
+dotEnv.config()
 
 interface CustomEvent {
   upc: string;

@@ -1,6 +1,6 @@
 import { config } from 'dotenv'
 
-config({ path: '../../.env.development' })
+config()
 
 export { Logger } from './Logger'
 export { ApiError } from './Error'
