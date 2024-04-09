@@ -106,7 +106,7 @@ Resources:
         - arm64
       ImageUri: !If
         - IsLocalEnvironment
-        - authorizer-fn:latest
+        - authorizer-fn:dev
         - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/authorizer-fn:dev"
       ImageConfig:
         Command: ["dist/index.handler"]
@@ -126,11 +126,14 @@ Resources:
       PackageType: Image
       ImageUri: !If
         - IsLocalEnvironment
-        - graphql-fn:latest
+        - graphql-fn:dev
         - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev"
       ImageConfig:
         Command: ["dist/index.handler"]
       Timeout: 30
+      Environment:
+        Variables:
+          NUTRITIONIX_LAMBDA: !GetAtt NutritionixApiFunction.Arn
     Metadata:
       Dockerfile: Dockerfile
       DockerTarget: graphql
@@ -145,7 +148,7 @@ Resources:
         - arm64
       ImageUri: !If
         - IsLocalEnvironment
-        - callback-fn:latest
+        - callback-fn:dev
         - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev"
       ImageConfig:
         Command: ["dist/index.handler"]
@@ -154,6 +157,23 @@ Resources:
       Dockerfile: Dockerfile
       DockerTarget: auth-callback
       DockerContext: .
+
+  ## function/nutritionix-api
+  NutritionixApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/nutritionix-api/dist/
+      Handler: index.handler
+      Runtime: nodejs18.x
+      Architectures:
+        - arm64
+      Timeout: 30
+      Environment:
+        Variables:
+          NODE_ENV: ''
+          NUTRITIONIX_API: ''
+          NUTRITIONIX_API_KEY: ''
+          NUTRITIONIX_APP_ID: ''
 
   ## Lambda Permissions
   LambdaInvokePermission:

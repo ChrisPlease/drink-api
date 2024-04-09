@@ -24,7 +24,7 @@ module.exports = {
         "ecmaVersion": "latest",
         "sourceType": "module",
         "tsConfigRootDir": "./",
-        "project": ["./packages/tsconfig/base.json", "./functions/*/tsconfig.json"]
+        "project": ["./packages/tsconfig/base.json", "./packages/*/tsconfig.json", "./functions/*/tsconfig.json"]
       },
       "plugins": [
         "@typescript-eslint",
@@ -67,7 +67,7 @@ module.exports = {
         "import/resolver": {
           "typescript": {
             "alwaysTryTypes": true,
-            "project": ["./packages/tsconfig/base.json", "./functions/*/tsconfig.json"]
+            "project": ["./packages/tsconfig/base.json", "./packages/*/tsconfig.json", "./functions/*/tsconfig.json"]
           },
         },
         "import/parsers": {

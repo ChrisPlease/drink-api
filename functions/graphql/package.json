@@ -22,6 +22,7 @@
     "@apollo/server": "^4.10.2",
     "@apollo/utils.keyvadapter": "^3.1.0",
     "@as-integrations/aws-lambda": "^3.1.0",
+    "@aws-sdk/client-lambda": "^3.549.0",
     "@devoxa/prisma-relay-cursor-connection": "^3.1.1",
     "@prisma/client": "^5.12.0",
     "graphql": "^16.8.1",

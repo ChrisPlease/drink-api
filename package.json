@@ -6,6 +6,7 @@
   "type": "commonjs",
   "scripts": {
     "test": "pnpm -r --if-present test",
+    "build": "pnpm -r build:dev && sh ./scripts/build.sh dev local",
     "lint": "eslint '{packages,functions}/**/*.{ts,tsx,js,jsx}'"
   },
   "keywords": [

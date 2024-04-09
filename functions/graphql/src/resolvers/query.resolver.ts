@@ -1,14 +1,24 @@
+import { LambdaClient, InvokeCommand, LambdaClientConfig } from '@aws-sdk/client-lambda'
 import { Drink, Entry, User } from '@prisma/client'
-import { DrinkHistory as DrinkHistoryModel, ScanDrink } from '@/types/models'
+import { DrinkHistory as DrinkHistoryModel } from '@/types/models'
 import { QueryResolvers } from '@/__generated__/graphql'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistory } from '@/models/History.model'
 import { Drinks } from '@/models/Drink.model'
-import { fetchItem } from '@/services/nutritionix'
 import {
   deconstructId,
   toCursorHash,
 } from '@/utils/cursorHash'
+
+const isLocal = process.env.AWS_SAM_LOCAL === 'true'
+
+const clientOptions: LambdaClientConfig = {
+  region: process.env.AWS_REGION,
+}
+
+if (isLocal) {
+  clientOptions.endpoint = 'http://host.docker.internal:3001'
+}
 
 export const queryResolvers: QueryResolvers = {
   async node(_, { id: argId }, { prisma, user }) {
@@ -119,8 +129,30 @@ export const queryResolvers: QueryResolvers = {
     const drink = <Drink>await prisma.drink.findUnique({ where: { upc } })
 
     if (drink) return { ...drink, id: toCursorHash(`BaseDrink:${drink.id}`) } as Drink
+    try {
+      const lambdaClient = new LambdaClient(clientOptions)
+      const cmd = new InvokeCommand({
+          FunctionName: 'NutritionixApiFunction',
+          InvocationType: 'RequestResponse',
+          Payload: new TextEncoder().encode(JSON.stringify({ upc })),
+      })
+      const { Payload } = await lambdaClient.send(cmd)
 
-    return <ScanDrink>await fetchItem({ upc })
+      const response = JSON.parse(Buffer.from(Payload!).toString())
+      // Check if the response contains an error.
+      if (response.error) {
+          throw new Error(response.error) // Handle known error cases.
+      }
+      console.log(response)
+
+      return response
+  } catch (error) {
+      console.error('Error invoking NutritionixApiFunction:', error)
+      // Handle or re-throw the error based on your error handling strategy.
+      // For instance, you could return a default response or a specific error object to the caller.
+      return { error: 'Failed to fetch drink details.' }
+  }
   },
 }
+
 
