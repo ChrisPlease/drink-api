@@ -1,10 +1,9 @@
 import { PrismaClient } from '@prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
+import { constructId, deconstructId } from '@waterlog/utils'
 import { queryDrinkHistory } from '@/utils/queries'
 import { roundNumber } from '@/utils/roundNumber'
-import { deconstructId, toCursorHash } from '@/utils/cursorHash'
 import { QueryDrinksHistoryArgs, DrinkHistory as DrinkHistoryModel } from '@/__generated__/graphql'
-import { DrinkHistory } from '@/types/models'
 
 export function DrinkHistory(client: PrismaClient) {
   return Object.assign({}, {
@@ -43,7 +42,7 @@ export function DrinkHistory(client: PrismaClient) {
         const volume = sum.volume || 0
 
         return {
-          id: toCursorHash(`DrinkHistory:${id}`),
+          id: constructId('DrinkHistory', id),
           count,
           volume,
           water: roundNumber((volume * (coefficient || 1)), 100),
@@ -65,8 +64,8 @@ export function DrinkHistory(client: PrismaClient) {
       search,
     } = filter || { hasEntries: false, limit: null, search: undefined }
 
-    return await findManyCursorConnection(
-      async (args): Promise<DrinkHistory[]> => {
+    return await findManyCursorConnection<DrinkHistoryModel, any>(
+      async (args): Promise<DrinkHistoryModel[]> => {
         const { take, cursor } = args
         const [,id] = deconstructId(cursor?.id || '')
 
@@ -87,7 +86,7 @@ export function DrinkHistory(client: PrismaClient) {
           id,
           ...entry
         }) => ({
-          id: toCursorHash(`DrinkHistory:${id}`),
+          id: constructId('DrinkHistory', id),
           water,
           volume,
           ...entry,

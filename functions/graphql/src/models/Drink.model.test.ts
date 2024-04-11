@@ -7,12 +7,12 @@ import {
   vi,
 } from 'vitest'
 import { Drink, Prisma } from '@prisma/client'
-import prisma from '../__mocks__/prisma'
 import {
   deconstructId,
   encodeCursor,
   toCursorHash,
-} from '../utils/cursorHash'
+} from '@waterlog/utils'
+import prisma from '../__mocks__/prisma'
 import {
   DrinkCreateInput,
   DrinkEditInput,

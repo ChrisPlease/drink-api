@@ -6,10 +6,10 @@ import {
 } from 'vitest'
 import { Drink } from '@prisma/client'
 import { GraphQLResolveInfo } from 'graphql'
+import { deconstructId } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
 // import redis from '../__mocks__/redis'
 import { AppContext } from '../types/context'
-import { deconstructId } from '../utils/cursorHash'
 import { ingredientResolvers, ingredientTypeResolvers } from './ingredients.resolver'
 
 describe('ingredients.resolver', () => {

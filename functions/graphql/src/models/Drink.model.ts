@@ -1,6 +1,14 @@
 import { PrismaClient, Drink, Prisma } from '@prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import {
+  constructId,
+  deconstructId,
+  toCursorHash,
+  getCursor,
+  encodeCursor,
+  fromCursorHash,
+} from '@waterlog/utils'
+import {
   DrinkCreateInput,
   DrinkEditInput,
   DrinkNutritionInput,
@@ -10,13 +18,6 @@ import {
   QueryDrinksArgs,
   Sort,
 } from '@/__generated__/graphql'
-import {
-  deconstructId,
-  toCursorHash,
-  getCursor,
-  encodeCursor,
-  fromCursorHash,
-} from '@/utils/cursorHash'
 import { snakeToCamel } from '@/utils/string-manipulation'
 import { rangeFilter, stringFilter } from '@/utils/filters'
 import { queryIngredientNutrition } from '@/utils/queries'
@@ -43,9 +44,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         const { _count: count, ...rest } = response
         return {
           ...rest,
-          id: toCursorHash(`${
+          id: constructId(
             count?.ingredients > 0 ? 'MixedDrink' : 'BaseDrink'
-          }:${id}`),
+          , id),
         }
       }
 
@@ -147,9 +148,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         (args) => prismaDrink
           .findMany({ ...args, include, orderBy: orderByArg, ...baseArgs })
           .then(drinks => drinks.map(({ _count, id, servingSize, servingUnit, metricSize, ...drink }) => ({
-            id: toCursorHash(`${
-              _count.ingredients > 0 ? 'MixedDrink' : 'BaseDrink'
-            }:${id}`),
+            id: constructId(_count.ingredients > 0 ? 'MixedDrink' : 'BaseDrink', id),
             serving: { metricSize, servingUnit, servingSize },
             ...drink,
           }))),
@@ -185,7 +184,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
           },
         })
         .then(({ id, ...rest }) => ({
-          id: toCursorHash(`BaseDrink:${id}`),
+          id: constructId('BaseDrink', id),
           ...rest,
         }))
 
@@ -280,7 +279,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         },
       })
         .then(({ id, ...rest }) => ({
-          id: toCursorHash(`BaseDrink:${id}`),
+          id: constructId('BaseDrink', id),
           ...rest,
         }))
     },

@@ -40,14 +40,14 @@ async function baseFetch(path: string, params: Record<string, string>): Promise<
 
 }
 
-async function fetchItem(params: { upc: string }) {
+async function fetchItem<T>(params: { upc: string }): Promise<T | undefined> {
   try {
 
     const res = await baseFetch('search/item', params)
     const item = res?.foods?.[0]
 
     if (item)
-      return mapNutritionixToDrinkNutrition(item, params.upc)
+      return mapNutritionixToDrinkNutrition(item, params.upc) as T
 
   } catch (err: any) {
     Logger.error(err)

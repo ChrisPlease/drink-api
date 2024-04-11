@@ -6,8 +6,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node20 --outfile=dist/index.cjs",
-    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs",
+    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs && pnpm types",
     "types": "tsc -d --declarationDir dist --declarationMap --emitDeclarationOnly",
+    "dev": "concurrently \"pnpm build:dev --watch\" \"pnpm types --watch\"",
     "watch": "NODE_ENV=development pnpm build:dev --watch"
   },
   "devDependencies": {

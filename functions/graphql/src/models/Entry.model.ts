@@ -5,8 +5,9 @@ import {
   fromCursorHash,
   encodeCursor,
   getCursor,
+  constructId,
   deconstructId,
-} from '@/utils/cursorHash'
+} from '@waterlog/utils'
 import {
   convertEntryToOz,
   volumeToServings,
@@ -19,13 +20,14 @@ import {
 import { ResolvedEntry } from '@/types/models'
 import { entriesDistinctCount } from '@/utils/queries'
 
+
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
 
     async findUniqueWithNutrition(
       entryId: string,
       userId: string,
-    ): Promise<ResolvedEntry | null> {
+    ) {
       const [,id] = deconstructId(entryId)
       const res = await prismaEntry.findUnique({
         where: { id_userId: { userId, id } },
@@ -76,7 +78,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       return entries.map(({ id, drink: { metricSize }, ...entry }) => {
 
         return {
-          id: toCursorHash(`Entry:${id}`),
+          id: constructId('Entry', id),
           servings: volumeToServings(entry?.volume, metricSize),
           ...entry,
         }
@@ -94,7 +96,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
       return {
         ...drink,
-        id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${drink.id}`),
+        id: constructId(ingredients > 0 ? 'Mixed' : 'Base', drink.id),
       }
     },
 
@@ -108,7 +110,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
         }).user()
         .then(({ ...user }) => ({
           ...user,
-          id: toCursorHash(`User:${user.id}`),
+          id: constructId('User', `${user.id}`),
         }))
     },
 
@@ -244,7 +246,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       })
 
       return {
-        id: toCursorHash(`Entry:${entryId}`),
+        id: constructId('Entry', entryId),
         volume,
         servings: volumeToServings(volume, metricSize),
         ...rest,
