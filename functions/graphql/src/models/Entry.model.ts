@@ -96,7 +96,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
       return {
         ...drink,
-        id: constructId(ingredients > 0 ? 'Mixed' : 'Base', drink.id),
+        id: constructId(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink`, drink.id),
       }
     },
 
