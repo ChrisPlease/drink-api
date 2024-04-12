@@ -79,6 +79,9 @@ importers:
 
   functions/authorizer:
     dependencies:
+      '@waterlog/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       aws-lambda:
         specifier: ^1.0.7
         version: 1.0.7
