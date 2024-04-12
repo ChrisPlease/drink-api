@@ -1,6 +1,7 @@
 import { promisify } from 'node:util'
 import { APIGatewayAuthorizerEvent, Handler } from 'aws-lambda'
 import { configDotenv } from 'dotenv'
+import { ApiError } from '@waterlog/utils'
 import jwksClient, { RsaSigningKey, SigningKey } from 'jwks-rsa'
 import { decode, verify, JwtPayload, SignOptions } from 'jsonwebtoken'
 
@@ -21,17 +22,17 @@ const getPolicyDocument = (effect: string, resource: string) => {
 // extract and return the Bearer Token from the Lambda event parameters
 const getToken = (params: APIGatewayAuthorizerEvent) => {
   if (!params.type || params.type !== 'TOKEN') {
-    throw new Error('Expected "event.type" parameter to have value "TOKEN"')
+    throw new ApiError(400, 'Expected "event.type" parameter to have value "TOKEN"')
   }
 
   const tokenString = params.authorizationToken
   if (!tokenString) {
-    throw new Error('Expected "event.authorizationToken" parameter to be set')
+    throw new ApiError(400, 'Expected "event.authorizationToken" parameter to be set')
   }
 
   const match = tokenString.match(/^Bearer (.*)$/)
   if (!match || match.length < 2) {
-    throw new Error(`Invalid Authorization token - ${tokenString} does not match "Bearer .*"`)
+    throw new ApiError(400, `Invalid Authorization token - ${tokenString} does not match "Bearer .*"`)
   }
   return match[1]
 }
@@ -46,7 +47,7 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
 
   const decoded = decode(token, { complete: true })
   if (!decoded || !decoded.header || !decoded.header.kid) {
-    throw new Error('Invalid token')
+    throw new ApiError(403, 'Invalid token')
   }
   const getSigningKey = promisify(client.getSigningKey)
 

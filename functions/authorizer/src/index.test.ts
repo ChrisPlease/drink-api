@@ -46,7 +46,6 @@ describe('handler', () => {
     test('rejects when the token is invalid', async () => {
       expectedError += 'Invalid token'
       event = { ...event, type: 'TOKEN', authorizationToken: 'Bearer foo' }
-
       await expect(handler(event, {} as Context, () => {})).rejects.toThrowError(expectedError)
     })
   })
