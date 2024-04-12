@@ -7,7 +7,7 @@ const mockAgent = new MockAgent()
 
 setGlobalDispatcher(mockAgent)
 
-const mockPool = mockAgent.get(`${process.env.NUTRITIONIX_API}/v2`)
+const mockPool = mockAgent.get(`${process.env.NUTRITIONIX_API}`)
 
 mockPool.intercept({
   path: '/search/item',
