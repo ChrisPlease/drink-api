@@ -1,5 +1,5 @@
 import { Handler } from 'aws-lambda'
-import { Headers, fetch } from 'undici'
+import { fetch as undiciFetch, Headers } from 'undici'
 import * as dotEnv from 'dotenv'
 import { ApiError, Logger } from '@waterlog/utils'
 import {
@@ -27,7 +27,7 @@ async function baseFetch(path: string, params: Record<string, string>): Promise<
   headers.set('x-app-id', process.env.NUTRITIONIX_APP_ID)
   headers.set('x-app-key', process.env.NUTRITIONIX_API_KEY)
 
-  const res = await fetch(`${process.env.NUTRITIONIX_API}/v2/${path}?${queryParams.toString()}`, {
+  const res = await undiciFetch(`${process.env.NUTRITIONIX_API}/v2/${path}?${queryParams.toString()}`, {
     headers,
   })
 
@@ -44,6 +44,8 @@ async function fetchItem<T>(params: { upc: string }): Promise<T | undefined> {
   try {
 
     const res = await baseFetch('search/item', params)
+
+    console.log('RES', res)
     const item = res?.foods?.[0]
 
     if (item)
