@@ -162,6 +162,7 @@ Resources:
   NutritionixApiFunction:
     Type: AWS::Serverless::Function
     Properties:
+      PackageType: Zip
       CodeUri: functions/nutritionix-api/dist/
       Handler: index.handler
       Runtime: nodejs18.x
