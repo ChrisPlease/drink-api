@@ -5,8 +5,8 @@
   "main": "dist/index.cjs",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
-    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node20 --outfile=dist/index.cjs",
+    "build": "esbuild src/index.ts --platform=node --bundle --minify --target=node18 --outfile=dist/index.cjs",
+    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
     "dev": "pnpm build:dev --watch",
     "test": "pnpm run test:unit --run",
     "test:unit": "vitest -c vitest.config.unit.ts"
