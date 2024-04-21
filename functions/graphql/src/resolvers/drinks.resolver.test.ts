@@ -7,9 +7,9 @@ import {
   beforeEach,
 } from 'vitest'
 import { Drink } from '@prisma/client'
+import { toCursorHash } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
 import redis from '../__mocks__/redis'
-import { toCursorHash } from '../utils/cursorHash'
 import { AppContext } from '../types/context'
 import { Drinks } from '../models/Drink.model'
 import { Entries } from '../models/Entry.model'

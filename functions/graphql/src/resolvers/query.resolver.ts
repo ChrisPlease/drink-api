@@ -1,14 +1,14 @@
 import { LambdaClient, InvokeCommand, LambdaClientConfig } from '@aws-sdk/client-lambda'
 import { Drink, Entry, User } from '@prisma/client'
+import {
+  deconstructId,
+  toCursorHash,
+} from '@waterlog/utils'
 import { DrinkHistory as DrinkHistoryModel } from '@/types/models'
 import { QueryResolvers } from '@/__generated__/graphql'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistory } from '@/models/History.model'
 import { Drinks } from '@/models/Drink.model'
-import {
-  deconstructId,
-  toCursorHash,
-} from '@/utils/cursorHash'
 
 const isLocal = process.env.AWS_SAM_LOCAL === 'true'
 
@@ -132,7 +132,7 @@ export const queryResolvers: QueryResolvers = {
     try {
       const lambdaClient = new LambdaClient(clientOptions)
       const cmd = new InvokeCommand({
-          FunctionName: 'NutritionixApiFunction',
+          FunctionName: process.env.NUTRITIONIX_LAMBDA,
           InvocationType: 'RequestResponse',
           Payload: new TextEncoder().encode(JSON.stringify({ upc })),
       })

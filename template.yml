@@ -101,67 +101,42 @@ Resources:
   JwksRsaCustomAuthorizer:
     Type: AWS::Serverless::Function
     Properties:
-      PackageType: Image
+      PackageType: Zip
+      CodeUri: functions/authorizer/dist/
+      Handler: index.handler
+      Runtime: nodejs18.x
       Architectures:
         - arm64
-      ImageUri: !If
-        - IsLocalEnvironment
-        - authorizer-fn:dev
-        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/authorizer-fn:dev"
-      ImageConfig:
-        Command: ["dist/index.handler"]
-      Timeout: 30
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerTarget: authorizer
-      DockerContext: .
-
-
-  ## functions/grahql
-  WaterlogFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Architectures:
-        - arm64
-      PackageType: Image
-      ImageUri: !If
-        - IsLocalEnvironment
-        - graphql-fn:dev
-        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev"
-      ImageConfig:
-        Command: ["dist/index.handler"]
       Timeout: 30
       Environment:
         Variables:
-          NUTRITIONIX_LAMBDA: !GetAtt NutritionixApiFunction.Arn
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerTarget: graphql
-      DockerContext: .
+          AUTH0_AUDIENCE: ''
+          AUTH0_DOMAIN: ''
+          JWKS_URI: ''
 
   ## functions/auth-callback
   AuthCallbackFunction:
     Type: AWS::Serverless::Function
     Properties:
-      PackageType: Image
+      PackageType: Zip
+      CodeUri: functions/auth-callback/dist/
+      Handler: index.handler
+      Runtime: nodejs18.x
       Architectures:
         - arm64
-      ImageUri: !If
-        - IsLocalEnvironment
-        - callback-fn:dev
-        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/callback-fn:dev"
-      ImageConfig:
-        Command: ["dist/index.handler"]
       Timeout: 30
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerTarget: auth-callback
-      DockerContext: .
+      Environment:
+        Variables:
+          AUTH0_CLIENT_ID: ''
+          AUTH0_CLIENT_SECRET: ''
+          AUTH0_CALLBACK_URI: ''
+          AUTH0_DOMAIN: ''
 
   ## function/nutritionix-api
   NutritionixApiFunction:
     Type: AWS::Serverless::Function
     Properties:
+      PackageType: Zip
       CodeUri: functions/nutritionix-api/dist/
       Handler: index.handler
       Runtime: nodejs18.x
@@ -174,6 +149,29 @@ Resources:
           NUTRITIONIX_API: ''
           NUTRITIONIX_API_KEY: ''
           NUTRITIONIX_APP_ID: ''
+
+  ## functions/grahql (Docker image)
+  WaterlogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Architectures:
+        - arm64
+      PackageType: Image
+      ImageUri: !If
+        - IsLocalEnvironment
+        - graphql-fn:dev
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-0.1"
+      ImageConfig:
+        Command: ["dist/index.handler"]
+      Timeout: 30
+      Role: !GetAtt WaterlogFunctionRole.Arn
+      Environment:
+        Variables:
+          NUTRITIONIX_LAMBDA: !GetAtt NutritionixApiFunction.Arn
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerTarget: graphql
+      DockerContext: .
 
   ## Lambda Permissions
   LambdaInvokePermission:
@@ -190,6 +188,26 @@ Resources:
         Action: lambda:InvokeFunction
         FunctionName: !GetAtt AuthCallbackFunction.Arn
         Principal: apigateway.amazonaws.com
+
+  WaterlogFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "InvokeNutritionixFunction"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "lambda:InvokeFunction"
+                Resource: !GetAtt NutritionixApiFunction.Arn
+
 
 Conditions:
   IsLocalEnvironment: !Equals [!Ref Environment, local]

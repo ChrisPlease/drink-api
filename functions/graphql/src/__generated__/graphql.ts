@@ -1,6 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { ReturnedDrinkResult as DrinkResultModel, ScanDrink as ScanDrinkModel, ResolvedEntry as EntryModel, DrinkHistory as DrinkHistoryModel } from '../types/models';
-import { Drink as DrinkModel, Drink as BaseDrinkModel, Drink as MixedDrinkModel, Nutrition as NutritionModel } from '.prisma/client';
+import { Drink as DrinkModel, Drink as BaseDrinkModel, Drink as MixedDrinkModel, Nutrition as NutritionModel } from '@prisma/client';
 import { AppContext } from '../types/context';
 export type Maybe<T> = T extends PromiseLike<infer U> ? Promise<U | null> : T | null;
 export type InputMaybe<T> = undefined | T;

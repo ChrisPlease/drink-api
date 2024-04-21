@@ -8,6 +8,7 @@ import {
   afterEach,
 } from 'vitest'
 // import redis from '../__mocks__/redis'
+import { constructId, toCursorHash } from '@waterlog/utils'
 import {
   MutationDrinkCreateArgs,
   MutationDrinkDeleteArgs,
@@ -19,7 +20,6 @@ import { AppContext } from '../types/context'
 import prisma from '../__mocks__/prisma'
 import { Drinks } from '../models/Drink.model'
 import { Entries } from '../models/Entry.model'
-import { toCursorHash } from '../utils/cursorHash'
 import {
   mutationResolvers,
 } from './mutation.resolver'
@@ -95,7 +95,7 @@ describe('mutationResolvers', () => {
           drinkInput: {
             name: 'Test',
             icon: 'test',
-            nutrition: {
+            serving: {
               metricSize: 100,
               servingSize: 1,
               servingUnit: 'cup',
@@ -169,7 +169,7 @@ describe('mutationResolvers', () => {
       beforeEach(() => {
         args = {
           drinkInput: {
-            id: toCursorHash('foo:123'),
+            id: constructId('foo', '123'),
             name: 'Test',
             icon: 'test',
           },

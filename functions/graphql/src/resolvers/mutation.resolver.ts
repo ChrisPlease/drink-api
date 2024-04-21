@@ -1,8 +1,8 @@
 import { Drink } from '@prisma/client'
+import { deconstructId } from '@waterlog/utils'
 import { Drinks } from '@/models/Drink.model'
 import { Entries } from '@/models/Entry.model'
-import { MutationResolvers } from '@/__generated__/graphql'
-import { deconstructId } from '@/utils/cursorHash'
+import { DrinkNutritionInput, MutationResolvers } from '@/__generated__/graphql'
 
 export const mutationResolvers: MutationResolvers = {
   async entryCreate(_, args, { prisma, user }) {
@@ -38,7 +38,7 @@ export const mutationResolvers: MutationResolvers = {
 
     if (ingredients && ingredients.length) {
       res = await drink.createWithIngredients(
-        { userId, nutrition, ingredients, ...rest },
+        { userId, nutrition: nutrition as DrinkNutritionInput, ingredients, ...rest },
         prisma,
       )
     } else {
@@ -57,6 +57,7 @@ export const mutationResolvers: MutationResolvers = {
     {
       drinkInput: {
         nutrition,
+        serving,
         ingredients,
         ...drinkInput
       },
@@ -96,7 +97,7 @@ export const mutationResolvers: MutationResolvers = {
     } else if (type === 'BaseDrink') {
       if (ingredients) throw new Error('Cannot add ingredients to a Base Drink')
 
-      if (Object.values(nutrition || {}).some(item => item) && !nutrition?.servingSize) {
+      if (Object.values(nutrition || {}).some(item => item) && !serving?.servingSize) {
         throw new Error('Serving size is required when editing nutritional values')
       }
 

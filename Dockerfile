@@ -20,25 +20,25 @@ RUN pnpm run -r --if-present alias
 
 ## Package Deployments
 # Authorizer deploy
-RUN pnpm deploy --filter=@waterlog/authorizer --prod /prod/authorizer
+# RUN pnpm deploy --filter=@waterlog/authorizer --prod /prod/authorizer
 
 # GraphQL deploy
 RUN pnpm deploy --filter=@waterlog/graphql-lambda --prod /prod/graphql
 
 # Callback deploy
-RUN pnpm deploy --filter=@waterlog/auth-callback --prod /prod/callback
+# RUN pnpm deploy --filter=@waterlog/auth-callback --prod /prod/callback
 
 
-## Package Builds
-# Authorizer
-FROM base AS authorizer
+# ## Package Builds
+# # Authorizer
+# FROM base AS authorizer
 
-WORKDIR ${LAMBDA_TASK_ROOT}
+# WORKDIR ${LAMBDA_TASK_ROOT}
 
-COPY ./$ENV_FILE ./.env
-COPY --from=builder /prod/authorizer ${LAMBDA_TASK_ROOT}
+# COPY ./$ENV_FILE ./.env
+# COPY --from=builder /prod/authorizer ${LAMBDA_TASK_ROOT}
 
-CMD ["dist/index.handler"]
+# CMD ["dist/index.handler"]
 
 
 # GraphQL
@@ -54,12 +54,12 @@ RUN pnpx prisma generate
 CMD ["dist/index.handler"]
 
 
-# Auth Callback
-FROM base AS auth-callback
+# # Auth Callback
+# FROM base AS auth-callback
 
-WORKDIR ${LAMBDA_TASK_ROOT}
+# WORKDIR ${LAMBDA_TASK_ROOT}
 
-COPY ./$ENV_FILE ./.env
-COPY --from=builder /prod/callback ${LAMBDA_TASK_ROOT}
+# COPY ./$ENV_FILE ./.env
+# COPY --from=builder /prod/callback ${LAMBDA_TASK_ROOT}
 
-CMD ["dist/index.handler"]
+# CMD ["dist/index.handler"]

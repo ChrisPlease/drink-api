@@ -1,4 +1,5 @@
 import { Drink } from '@prisma/client'
+import { constructId } from '@waterlog/utils'
 import {
   AbsoluteIngredient,
   AbsoluteIngredientResolvers,
@@ -6,7 +7,6 @@ import {
   RelativeIngredientResolvers,
 } from '@/__generated__/graphql'
 import { queryIngredientCount } from '@/utils/queries'
-import { toCursorHash } from '@/utils/cursorHash'
 
 
 export const ingredientTypeResolvers: IngredientResolvers = {
@@ -29,7 +29,7 @@ export const ingredientResolvers: AbsoluteIngredientResolvers & RelativeIngredie
     }] = await queryIngredientCount(prisma, parent.id)
 
     return {
-      id: toCursorHash(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink:${id}`),
+      id: constructId(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink`, id),
       ...drink,
     }
   },

@@ -6,8 +6,8 @@ import {
   expect,
 } from 'vitest'
 import { Prisma } from '@prisma/client'
+import { constructId, deconstructId, encodeCursor, toCursorHash } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
-import { deconstructId, encodeCursor, toCursorHash } from '../utils/cursorHash'
 import { MutationEntryCreateArgs, QueryEntriesArgs, Sort } from '../__generated__/graphql'
 import { entriesDistinctCount } from '../utils/queries'
 import { ResolvedEntry } from '../types/models'
@@ -33,10 +33,10 @@ describe('Entry Model', () => {
 
     beforeEach(() => {
       mockResult = {
-        id: toCursorHash('Entry:123'),
+        id: constructId('Entry', '123'),
         volume: 12,
         timestamp: new Date(2022, 0, 0, 0),
-        drinkId: toCursorHash('BaseDrink:123'),
+        drinkId: constructId('BaseDrink', '123'),
         userId: '123',
         deleted: false,
         drink: {
@@ -78,7 +78,7 @@ describe('Entry Model', () => {
 
     test('base64 encodes the ID in the response', async () => {
       const res = await entry.findUniqueWithNutrition(mockResult.id, 'user-123')
-      expect(res?.id).toEqual(toCursorHash('Entry:123'))
+      expect(res?.id).toEqual(constructId('Entry', '123'))
     })
 
     test('returns null when entry is not found', async () => {
@@ -104,10 +104,10 @@ describe('Entry Model', () => {
 
     beforeEach(() => {
       mockResult = [{
-        id: toCursorHash('Entry:123'),
+        id: constructId('Entry', '123'),
         volume: 12,
         timestamp: new Date(2022, 0, 0, 0),
-        drinkId: toCursorHash('BaseDrink:123'),
+        drinkId: constructId('BaseDrink', '123'),
         userId: '123',
         deleted: false,
         drink: {
@@ -146,7 +146,7 @@ describe('Entry Model', () => {
 
     test('queries entry for the drink id and checks ingredients', async () => {
       expect.assertions(2)
-      const res = await entry.findDrinkByEntryId(toCursorHash('drink:drink-123'))
+      const res = await entry.findDrinkByEntryId(constructId('drink', 'drink-123'))
 
       expect(prisma.entry.findUnique).toHaveBeenCalledWith({ where: { id: 'drink-123' }})
       expect(deconstructId(res.id)?.[0]).toEqual('MixedDrink')
@@ -156,7 +156,7 @@ describe('Entry Model', () => {
       prisma.entry.findUnique.mockReturnValue({
         drink: vi.fn().mockResolvedValue({ _count: { ingredients: 0 }, id: 'drink-123' }),
       } as any)
-      const res = await entry.findDrinkByEntryId(toCursorHash('drink:drink-123'))
+      const res = await entry.findDrinkByEntryId(constructId('drink', 'drink-123'))
 
       expect(prisma.entry.findUnique).toHaveBeenCalledWith({ where: { id: 'drink-123' }})
       expect(deconstructId(res.id)?.[0]).toEqual('BaseDrink')
@@ -170,7 +170,7 @@ describe('Entry Model', () => {
         user: vi.fn().mockResolvedValue({ id: 'user-123' }),
       } as any)
       expect.assertions(2)
-      const res = await entry.findUserByEntryId(toCursorHash('user:user-123'))
+      const res = await entry.findUserByEntryId(constructId('user', 'user-123'))
 
       expect(prisma.entry.findUnique).toHaveBeenCalledWith({ where: { id: 'user-123' }})
       expect(deconstructId(res.id)?.[0]).toEqual('User')
@@ -182,11 +182,11 @@ describe('Entry Model', () => {
     let mockArgs: QueryEntriesArgs & { userId: string }
 
     beforeEach(() => {
-      mockDrinkId = toCursorHash('BaseDrink:drink-123')
+      mockDrinkId = constructId('BaseDrink', 'drink-123')
 
       vi.spyOn(entry, 'findWithNutrition').mockResolvedValue(
         new Array(4).fill({}).map((_, index) => ({
-          id: toCursorHash(`entry:entry-${index}`),
+          id: constructId('entry',`entry-${index}`),
           volume: 12 % index,
           servings: 2,
           drinkId: mockDrinkId,
@@ -277,7 +277,7 @@ describe('Entry Model', () => {
 
     beforeEach(() => {
       mockArgs = {
-        drinkId: toCursorHash('BaseDrink:drink-123'),
+        drinkId: constructId('BaseDrink', 'drink-123'),
         volume: 12,
         unit: 'fl oz',
         userId: 'user-123',
@@ -321,7 +321,7 @@ describe('Entry Model', () => {
       const res = await entry.createEntry(mockArgs, prisma.drink)
       expect(res).toEqual(
         expect.objectContaining({
-          id: toCursorHash('Entry:entry-123'),
+          id: constructId('Entry', 'entry-123'),
         }),
       )
     })
@@ -331,7 +331,7 @@ describe('Entry Model', () => {
     let mockDrinkId: string
 
     beforeEach(() => {
-      mockDrinkId = toCursorHash('BaseDrink:123')
+      mockDrinkId = constructId('BaseDrink', '123')
 
       prisma.$transaction.mockImplementation(callback => callback(prisma))
       prisma.entry.delete.mockResolvedValue({
@@ -345,12 +345,12 @@ describe('Entry Model', () => {
     })
 
     test('initiates a transaction', async () => {
-      await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
+      await entry.deleteAndReturn({ userId: 'user-123', id: constructId('Entry', '123') }, prisma)
       expect(prisma.$transaction).toHaveBeenCalled()
     })
 
     test('deletes the provided entry', async () => {
-      await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
+      await entry.deleteAndReturn({ userId: 'user-123', id: constructId('Entry', '123') }, prisma)
       expect(prisma.entry.delete).toHaveBeenCalledWith({
         where: {
           id_userId: {
@@ -362,7 +362,7 @@ describe('Entry Model', () => {
     })
 
     test('retrieves the nutrition of the deleted entry drink', async () => {
-      await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
+      await entry.deleteAndReturn({ userId: 'user-123', id: constructId('Entry', '123') }, prisma)
       expect(prisma.drink.findUnique).toHaveBeenCalledWith({
         where: { id: mockDrinkId },
         select: { metricSize: true },
@@ -370,7 +370,7 @@ describe('Entry Model', () => {
     })
 
     test('returns the deleted entry', async () => {
-      const res = await entry.deleteAndReturn({ userId: 'user-123', id: toCursorHash('Entry:123') }, prisma)
+      const res = await entry.deleteAndReturn({ userId: 'user-123', id: constructId('Entry', '123') }, prisma)
 
       expect(res).toEqual(
         expect.objectContaining({

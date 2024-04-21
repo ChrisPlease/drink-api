@@ -1,5 +1,5 @@
 # Base Image
-FROM node:20-bullseye AS base
+FROM node:18-bullseye AS base
 
 ARG ENV=develop
 ARG ENV_FILE=".env"
@@ -44,38 +44,16 @@ COPY --from=builder /usr/src/app /usr/app
 COPY --from=builder /usr/local/bin/aws-lambda-rie /usr/local/bin/aws-lambda-rie
 COPY ./scripts/entrypoint.dev.sh ./dev.sh
 
-RUN pnpm deploy --filter=@waterlog/authorizer /prod/authorizer
-
 RUN pnpm deploy --filter=@waterlog/graphql-lambda /prod/graphql
-
-RUN pnpm deploy --filter=@waterlog/auth-callback /prod/callback
-
-## Auth Callback
-# FROM service-setup AS auth-callback
-
-# WORKDIR ${LAMBDA_TASK_ROOT}
-# COPY --from=service-setup /usr/app/dev.sh ${LAMBDA_TASK_ROOT}
-# COPY --from=service-setup /prod/callback ${LAMBDA_TASK_ROOT}
-
-# RUN chmod +x ./dev.sh
-
-# ENTRYPOINT ["./docker.sh", "functions/auth-callback", "pnpm run dev"]
 
 ## GraphQL
 FROM service-setup AS graphql
 
-COPY ./tsconfig.json ./tsconfig.json
 WORKDIR ${LAMBDA_TASK_ROOT}
+COPY --from=builder /usr/src/app/.env ${LAMBDA_TASK_ROOT}/.env
 COPY --from=service-setup /usr/app/dev.sh ${LAMBDA_TASK_ROOT}
 COPY --from=service-setup /prod/graphql ${LAMBDA_TASK_ROOT}
 
 RUN chmod +x ./dev.sh
 
-# CMD ["tail", "-f", "/dev/null"]
-# ENTRYPOINT ["./docker.sh", "functions/graphql", "pnpm run dev"]
 CMD ["pnpm", "dev"]
-
-# Authorizer
-# FROM service-setup AS authorizer
-# RUN pnpm --filter @waterlog/authorizer install
-# ENTRYPOINT ["./docker.sh", "functions/authorizer", "pnpm run dev"]

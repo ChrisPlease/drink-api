@@ -5,8 +5,8 @@ import {
   test,
   expect,
 } from 'vitest'
+import { constructId, deconstructId } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
-import { deconstructId, toCursorHash } from '../utils/cursorHash'
 import { QueryDrinksHistoryArgs } from '../__generated__/graphql'
 import { RawEntry } from '../types/queries'
 import { queryDrinkHistory } from '../utils/queries'
@@ -33,7 +33,7 @@ describe('DrinkHistory', () => {
     let mockHistoryId: string
 
     beforeEach(() => {
-      mockHistoryId = toCursorHash('DrinkHistory:drink-123')
+      mockHistoryId = constructId('DrinkHistory', 'drink-123')
 
       // eslint-disable-next-line
       // @ts-ignore
@@ -44,13 +44,13 @@ describe('DrinkHistory', () => {
     })
 
     test('initiates a transaction to retrieve drink history', async () => {
-      await history.findUniqueDrinkHistory(toCursorHash('DrinkHistory:drink-123'), 'user-123')
+      await history.findUniqueDrinkHistory(constructId('DrinkHistory', 'drink-123'), 'user-123')
 
       expect(prisma.$transaction).toHaveBeenCalled()
     })
 
     test('makes a call to prisma to group entries', async () => {
-      await history.findUniqueDrinkHistory(toCursorHash('DrinkHistory:drink-123'), 'user-123')
+      await history.findUniqueDrinkHistory(constructId('DrinkHistory', 'drink-123'), 'user-123')
       expect(prisma.entry.groupBy).toHaveBeenCalledWith({
         _count: true,
         _max: {
@@ -69,14 +69,14 @@ describe('DrinkHistory', () => {
     })
 
     test('makes a call to prisma to retrieve nutritional information', async () => {
-      await history.findUniqueDrinkHistory(toCursorHash('DrinkHistory:drink-123'), 'user-123')
+      await history.findUniqueDrinkHistory(constructId('DrinkHistory', 'drink-123'), 'user-123')
       expect(prisma.drink.findUnique).toHaveBeenCalledWith({
         where: { id: 'drink-123' },
       })
     })
 
     test('returns a drink history object with hashed id', async () => {
-      const res = await history.findUniqueDrinkHistory(toCursorHash('DrinkHistory:drink-123'), 'user-123')
+      const res = await history.findUniqueDrinkHistory(constructId('DrinkHistory', 'drink-123'), 'user-123')
 
       expect(res).toEqual({
         id: mockHistoryId,
