@@ -160,10 +160,11 @@ Resources:
       ImageUri: !If
         - IsLocalEnvironment
         - graphql-fn:dev
-        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev"
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-0.1"
       ImageConfig:
         Command: ["dist/index.handler"]
       Timeout: 30
+      Role: !GetAtt WaterlogFunctionRole.Arn
       Environment:
         Variables:
           NUTRITIONIX_LAMBDA: !GetAtt NutritionixApiFunction.Arn
@@ -187,6 +188,26 @@ Resources:
         Action: lambda:InvokeFunction
         FunctionName: !GetAtt AuthCallbackFunction.Arn
         Principal: apigateway.amazonaws.com
+
+  WaterlogFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "InvokeNutritionixFunction"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "lambda:InvokeFunction"
+                Resource: !GetAtt NutritionixApiFunction.Arn
+
 
 Conditions:
   IsLocalEnvironment: !Equals [!Ref Environment, local]

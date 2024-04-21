@@ -132,7 +132,7 @@ export const queryResolvers: QueryResolvers = {
     try {
       const lambdaClient = new LambdaClient(clientOptions)
       const cmd = new InvokeCommand({
-          FunctionName: 'NutritionixApiFunction',
+          FunctionName: process.env.NUTRITIONIX_LAMBDA,
           InvocationType: 'RequestResponse',
           Payload: new TextEncoder().encode(JSON.stringify({ upc })),
       })
