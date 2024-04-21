@@ -10,7 +10,8 @@
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node18 --outfile=dist/index.cjs && pnpm types",
     "types": "tsc -d --declarationDir dist --declarationMap --emitDeclarationOnly",
     "dev": "concurrently \"pnpm build:dev --watch\" \"pnpm types --watch\"",
-    "watch": "NODE_ENV=development pnpm build:dev --watch"
+    "watch": "NODE_ENV=development pnpm build:dev --watch",
+    "postinstall": "pnpm build"
   },
   "devDependencies": {
     "esbuild": "^0.20.2",
