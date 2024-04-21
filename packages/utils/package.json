@@ -5,7 +5,7 @@
   "main": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node18 --outfile=dist/index.cjs",
+    "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node18 --outfile=dist/index.cjs && pnpm types",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node18 --outfile=dist/index.cjs && pnpm types",
     "types": "tsc -d --declarationDir dist --declarationMap --emitDeclarationOnly",
     "dev": "concurrently \"pnpm build:dev --watch\" \"pnpm types --watch\"",
