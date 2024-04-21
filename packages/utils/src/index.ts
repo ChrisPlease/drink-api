@@ -4,4 +4,4 @@ config()
 
 export * from './cursor'
 export * from './logger'
-export { ApiError } from './error'
+export * from './error'
