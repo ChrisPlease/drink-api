@@ -5,6 +5,7 @@
   "main": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "scripts": {
+    "prebuild": "rimraf ./dist",
     "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node18 --outfile=dist/index.cjs && pnpm types",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node18 --outfile=dist/index.cjs && pnpm types",
     "types": "tsc -d --declarationDir dist --declarationMap --emitDeclarationOnly",
@@ -13,6 +14,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.20.2",
+    "rimraf": "^5.0.5",
     "tsconfig": "workspace:*"
   },
   "keywords": [],
