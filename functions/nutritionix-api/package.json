@@ -4,8 +4,8 @@
   "description": "",
   "main": "dist/index.cjs",
   "scripts": {
-    "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node20 --outfile=dist/index.cjs",
-    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs",
+    "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node18 --outfile=dist/index.cjs",
+    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node18 --outfile=dist/index.cjs",
     "dev": "pnpm build:dev --watch",
     "test": "pnpm run test:unit --run",
     "test:unit": "vitest -c ./vitest.config.unit.ts",
