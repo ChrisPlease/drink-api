@@ -8,6 +8,14 @@ module.exports = {
   "rules": {},
   "overrides": [
     {
+      "files": ["*.graphql", "*.gql"],
+      "parser": "@graphql-eslint/eslint-plugin",
+      "plugins": ["@graphql-eslint"],
+      "rules": {
+        "@graphql-eslint/known-type-names": "error"
+      }
+    },
+    {
       "files": ["**/*.ts"],
       "env": {
         "es2021": true,
