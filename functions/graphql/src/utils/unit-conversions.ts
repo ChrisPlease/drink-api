@@ -37,4 +37,4 @@ export const convertEntryToOz = (
 export const volumeToServings = (
   volume?: number | null,
   metricSize?: number | null,
-) => roundNumber((ozToMl(volume || 1)) / (metricSize || 1), 16)
+) => roundNumber((ozToMl(volume || 1)) / (metricSize || 1), 4)

@@ -52,10 +52,10 @@ model Nutrition {
   protein       Float? @default(0)
   potassium     Float? @default(0)
   caffeine      Float? @default(0)
-  drinkId       String @unique @map("drink_id") @db.Uuid
   addedSugar    Float? @default(0) @map("added_sugar")
 
   drink         Drink  @relation(fields: [drinkId], references: [id], onDelete: Cascade)
+  drinkId       String @unique @map("drink_id") @db.Uuid
 
   @@map("nutrition")
 }

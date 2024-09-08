@@ -56,6 +56,12 @@ describe('drinks', () => {
                 ... on Drink {
                   id
                   name
+                  nutrition {
+                    ... on DrinkNutrition {
+                      coefficient
+                      caffeine
+                    }
+                  }
                   entries {
                     edges {
                       node {
@@ -94,6 +100,7 @@ describe('drinks', () => {
         assert(res.body.singleResult.data?.drinks !== null)
         const result = res.body.singleResult.data?.drinks as DrinksPaginated
         expect(result.edges.length).toEqual(12)
+        console.log(JSON.stringify(result, null, 2))
         expect(result.edges[0].cursor).toEqual(result.pageInfo?.startCursor)
         expect(
           result.edges[result.edges.length - 1].cursor,

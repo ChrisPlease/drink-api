@@ -84,6 +84,19 @@ describe('drinks.resolver', () => {
       })
     })
 
+    describe('nutrition', () => {
+      test('makes a call to Prisma.nutrition to fetch nutrition', async () => {
+        const res = await drinkResolvers.nutrition?.(
+          parent,
+          args,
+          ctx,
+          info,
+        )
+        expect(prisma.nutrition.findUnique).toHaveBeenCalledWith()
+        console.log(res)
+      })
+    })
+
     describe('user', () => {
       test('makes a call to Drink model to return the user', async () => {
         expect.assertions(3)
