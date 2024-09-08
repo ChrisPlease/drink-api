@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   # callback:
   #   container_name: callback
