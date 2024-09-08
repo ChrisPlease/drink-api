@@ -159,8 +159,8 @@ Resources:
       PackageType: Image
       ImageUri: !If
         - IsLocalEnvironment
-        - graphql-fn:dev
-        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-0.1"
+        - graphql-fn:latest
+        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-0.4"
       ImageConfig:
         Command: ["dist/index.handler"]
       Timeout: 30
