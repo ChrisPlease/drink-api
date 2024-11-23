@@ -38,18 +38,6 @@ Resources:
                 type: aws_proxy
               security: []
           /graphql:
-            post:
-              consumes:
-                - application/json
-              responses: {}
-              x-amazon-apigateway-integration:
-                uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
-
-                httpMethod: POST
-                type: aws_proxy
-              security:
-                - CustomJwksRsaAuthorizer: []
             options:
               responses:
                 '204':
@@ -64,17 +52,35 @@ Resources:
                     Content-Type:
                       type: "string"
               x-amazon-apigateway-integration:
-                responses:
-                  default:
-                    responseParameters:
-                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-                      method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-                      method.response.header.Access-Control-Allow-Origin: "'*'"
-                    statusCode: '204'
-                requestTemplates:
-                  application/json: "{ \"statusCode\": 204 }"
-                type: mock
+                Fn::If:
+                  - IsLocalEnvironment
+                  -
+                    uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OptionsHandlerFunction.Arn}/invocations
+                    httpMethod: POST
+                    type: aws_proxy
+                  -
+                    responses:
+                      default:
+                        responseParameters:
+                          method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                          method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+                          method.response.header.Access-Control-Allow-Origin: "'*'"
+                        statusCode: '204'
+                    requestTemplates:
+                      application/json: "{ \"statusCode\": 204 }"
+                    type: mock
               security: []
+            post:
+              consumes:
+                - application/json
+              responses: {}
+              x-amazon-apigateway-integration:
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${WaterlogFunction.Arn}/invocations
+                httpMethod: POST
+                type: aws_proxy
+              security:
+                - CustomJwksRsaAuthorizer: []
         securityDefinitions:
           CustomJwksRsaAuthorizer:
             type: "apiKey"
@@ -90,8 +96,8 @@ Resources:
       Auth:
         Authorizers:
           CustomJwksRsaAuthorizer:
-            FunctionArn:
-              Fn::GetAtt: [JwksRsaCustomAuthorizer, Arn]
+            FunctionPayloadType: TOKEN
+            FunctionArn: !GetAtt JwksRsaCustomAuthorizer.Arn
             Identity:
               Header: Authorization
             ReauthorizeEvery: 300 # value in seconds
@@ -107,12 +113,30 @@ Resources:
       Runtime: nodejs18.x
       Architectures:
         - arm64
-      Timeout: 30
+      Timeout: 60
+      MemorySize: 256
+      ReservedConcurrentExecutions: 5
       Environment:
         Variables:
           AUTH0_AUDIENCE: ''
           AUTH0_DOMAIN: ''
           JWKS_URI: ''
+
+  ## OptionsHandler
+  OptionsHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.optionsHandler
+      Runtime: nodejs18.x
+      Architectures:
+        - arm64
+      CodeUri: functions/options-handler
+      Timeout: 30
+      MemorySize: 256
+      ReservedConcurrentExecutions: 5
+      Environment:
+        Variables:
+          NODE_ENV: "development"
 
   ## functions/auth-callback
   AuthCallbackFunction:
@@ -136,12 +160,12 @@ Resources:
   NutritionixApiFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Architectures:
+        - arm64
       PackageType: Zip
       CodeUri: functions/nutritionix-api/dist/
       Handler: index.handler
       Runtime: nodejs18.x
-      Architectures:
-        - arm64
       Timeout: 30
       Environment:
         Variables:
@@ -156,14 +180,19 @@ Resources:
     Properties:
       Architectures:
         - arm64
-      PackageType: Image
-      ImageUri: !If
-        - IsLocalEnvironment
-        - graphql-fn:latest
-        - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-0.4"
-      ImageConfig:
-        Command: ["dist/index.handler"]
+      PackageType: Zip
+      CodeUri: functions/grahql/dist/
+      Handler: index.handler
+      Runtime: nodejs20.x
+      # PackageType: Image
+      # ImageUri: !If
+      #   - IsLocalEnvironment
+      #   - graphql-fn:latest
+      #   - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-0.4"
+      # ImageConfig:
+      #   Command: ["dist/index.handler"]
       Timeout: 30
+      MemorySize: 512
       Role: !GetAtt WaterlogFunctionRole.Arn
       Environment:
         Variables:
@@ -207,7 +236,6 @@ Resources:
               - Effect: "Allow"
                 Action: "lambda:InvokeFunction"
                 Resource: !GetAtt NutritionixApiFunction.Arn
-
 
 Conditions:
   IsLocalEnvironment: !Equals [!Ref Environment, local]
