@@ -8,13 +8,14 @@ RUN corepack enable
 
 ARG ENV=develop
 ARG ENV_FILE=".env.${ENV}"
+ARG NUTRITIONIX_LAMBDA="NutritionixApiFunction"
 
 # Builder image
 FROM base AS builder
 COPY . /usr/src/app
 WORKDIR /usr/src/app
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prod=false
 RUN pnpm run -r --if-present build
 RUN pnpm run -r --if-present alias
 
