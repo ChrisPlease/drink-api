@@ -185,6 +185,7 @@ interface Drink {
   id: ID!
   icon: Icon
   name: String!
+  brand: String
   serving: DrinkServingSize!
   nutrition: DrinkNutrition!
   entries(
@@ -207,6 +208,7 @@ type ScanDrink implements Drink {
   upc: String
   icon: Icon
   name: String!
+  brand: String
   serving: DrinkServingSize!
   nutrition: DrinkNutrition!
   entries(
@@ -227,6 +229,7 @@ type BaseDrink implements Drink & Node {
   id: ID!
   upc: String
   name: String!
+  brand: String
   icon: Icon
   serving: DrinkServingSize!
   nutrition: DrinkNutrition!
@@ -248,6 +251,7 @@ Mixed Drink when drink has ingredients
 type MixedDrink implements Drink & Node {
   id: ID!
   name: String!
+  brand: String
   icon: Icon
   serving: DrinkServingSize!
   nutrition: DrinkNutrition!
@@ -394,6 +398,8 @@ input DrinkCreateInput {
   icon: Icon!
   upc: String
 
+  brand: String
+
   serving: DrinkServingSizeInput!
 
   nutrition: DrinkNutritionInput
@@ -409,6 +415,8 @@ input DrinkEditInput {
 
   name: String
   icon: Icon
+
+  brand: String
 
   serving: DrinkServingSizeInput
 

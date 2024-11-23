@@ -1,4 +1,5 @@
 import { promisify } from 'node:util'
+import NodeCache from 'node-cache'
 import { APIGatewayAuthorizerEvent, Handler } from 'aws-lambda'
 import { configDotenv } from 'dotenv'
 import { ApiError } from '@waterlog/utils'
@@ -6,6 +7,8 @@ import jwksClient, { RsaSigningKey, SigningKey } from 'jwks-rsa'
 import { decode, verify, JwtPayload, SignOptions } from 'jsonwebtoken'
 
 configDotenv()
+
+const cache = new NodeCache({ stdTTL: 300 })
 
 const getPolicyDocument = (effect: string, resource: string) => {
   const policyDocument = {
@@ -46,21 +49,57 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
   const token = getToken(params)
 
   const decoded = decode(token, { complete: true })
-  if (!decoded || !decoded.header || !decoded.header.kid) {
-    throw new ApiError(403, 'Invalid token')
-  }
-  const getSigningKey = promisify(client.getSigningKey)
 
-  return getSigningKey(decoded.header.kid)
-    .then((key: SigningKey | RsaSigningKey | undefined) => {
-      const signingKey = key?.getPublicKey() || (key as RsaSigningKey)?.rsaPublicKey
-      return verify(token, signingKey, jwtOptions) as JwtPayload
-    })
-    .then((decoded: JwtPayload)=> ({
-      principalId: decoded.sub,
+  if (!decoded || typeof decoded !== 'object' || !decoded.header || !decoded.header.kid) {
+    throw new ApiError(403, 'Invalid token structure')
+  }
+
+  const kid = decoded.header.kid
+
+  let signingKey = cache.get<string>(kid)
+
+  if (!signingKey) {
+
+    console.log(`Cache miss for key: ${kid}`);
+    const getSigningKey = promisify(client.getSigningKey)
+
+    const key = await getSigningKey(kid)
+
+    if (!key) {
+      throw new ApiError(403, 'Signing key not found')
+    }
+
+    signingKey = key?.getPublicKey() || (key as RsaSigningKey)?.rsaPublicKey
+
+    if (!signingKey || typeof signingKey !== 'string') {
+      throw new ApiError(403, 'Invalid signing key retrieved from JWKS');
+    }
+
+    cache.set(kid, signingKey)
+  } else {
+    console.log(`Cache hit for key: ${kid}`);
+  }
+
+  console.log('==================================')
+  console.log('==================================')
+  console.log('Decoded token:', decoded);
+  console.log('Signing key:', signingKey);
+  console.log('Verifying token...');
+  console.log('==================================')
+  console.log('==================================')
+
+  try {
+    const verifiedToken = verify(token, signingKey, jwtOptions) as JwtPayload
+
+    return {
+      principalId: verifiedToken.sub,
       policyDocument: getPolicyDocument('Allow', params.methodArn),
-      context: { scope: decoded.scope },
-    }))
+      context: { scope: verifiedToken.scope }
+    }
+  } catch (err: any) {
+    console.error('Token verification error:', err);
+    throw new ApiError(403, `Token verification failed: ${err.message}`)
+  }
 }
 
 const client = jwksClient({
@@ -71,13 +110,32 @@ const client = jwksClient({
 })
 
 export const handler: Handler = async (event) => {
-  let data
+  console.log('================================')
+  console.log('================================')
+  console.log('========== AUTHORIZER ==========')
+  console.log('================================')
+  console.log('================================')
+  if (!process.env.JWKS_URI || !process.env.AUTH0_AUDIENCE || !process.env.AUTH0_DOMAIN) {
+    throw new Error('Missing required environment variables');
+  }
+
   try {
-    data = await authenticate(event)
+
+    const response = await authenticate(event)
+
+    return response
   }
   catch (err: any) {
-    return Promise.reject(`Unauthorized: ${err.message}`)
+    console.error("Error in Authorizer:", err)
+
+    // Return a Deny response with a principalId to satisfy API Gateway
+    return {
+      principalId: "unauthorized",
+      policyDocument: getPolicyDocument('Deny', event.methodArn),
+      context: {
+        message: `Unauthorized: ${err.message}`,
+      },
+    }
   }
-  return data
 }
 

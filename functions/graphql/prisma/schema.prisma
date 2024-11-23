@@ -16,6 +16,7 @@ model Drink {
   id          String             @id @default(dbgenerated("extensions.uuid_generate_v4()")) @db.Uuid
   name        String             @db.VarChar
   icon        String             @db.VarChar
+  brand       String?            @db.VarChar
   userId      String?            @map("user_id") @db.VarChar
   createdAt   DateTime           @unique @default(now()) @map("created_at") @db.Timestamp(6)
   deleted     DateTime?

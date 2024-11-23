@@ -69,7 +69,6 @@ describe('Entry Model', () => {
 
     test('computes the nutrition based on volume', async () => {
       const res = await entry.findUniqueWithNutrition(mockResult.id, 'user-123')
-
       expect(res).toStrictEqual(expect.objectContaining({
         servings: 1,
         volume: 12,
@@ -333,7 +332,7 @@ describe('Entry Model', () => {
     beforeEach(() => {
       mockDrinkId = constructId('BaseDrink', '123')
 
-      prisma.$transaction.mockImplementation(callback => callback(prisma))
+      prisma.$transaction.mockImplementation(((callback: any) => callback(prisma)) as any)
       prisma.entry.delete.mockResolvedValue({
         id: 'entry-123',
         drinkId: mockDrinkId,

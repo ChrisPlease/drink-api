@@ -131,6 +131,9 @@ export const queryResolvers: QueryResolvers = {
     if (drink) return { ...drink, id: toCursorHash(`BaseDrink:${drink.id}`) } as Drink
     try {
       const lambdaClient = new LambdaClient(clientOptions)
+      console.log('================================================')
+      console.log(process.env.NUTRITIONIX_LAMBDA)
+      console.log('================================================')
       const cmd = new InvokeCommand({
           FunctionName: process.env.NUTRITIONIX_LAMBDA,
           InvocationType: 'RequestResponse',

@@ -23,7 +23,6 @@ import { entriesDistinctCount } from '@/utils/queries'
 
 export function Entries(prismaEntry: PrismaClient['entry']) {
   return Object.assign(prismaEntry, {
-
     async findUniqueWithNutrition(
       entryId: string,
       userId: string,
@@ -76,7 +75,6 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
       })
 
       return entries.map(({ id, drink: { metricSize }, ...entry }) => {
-
         return {
           id: constructId('Entry', id),
           servings: volumeToServings(entry?.volume, metricSize),

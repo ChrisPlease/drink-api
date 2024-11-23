@@ -92,8 +92,9 @@ describe('drinks.resolver', () => {
           ctx,
           info,
         )
-        expect(prisma.nutrition.findUnique).toHaveBeenCalledWith()
-        console.log(res)
+        expect(prisma.nutrition.findUnique).toHaveBeenCalledWith({
+          where: { drinkId: "123" },
+        })
       })
     })
 

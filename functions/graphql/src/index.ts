@@ -47,7 +47,10 @@ export const handler = startServerAndCreateLambdaHandler(
   server,
   requestHandler,
   {
-    context: async ({ event }) => {
+    context: async ({ event, context }) => {
+      console.log('Event:', JSON.stringify(event))
+      console.log('Context:', JSON.stringify(context))
+
       return {
         user: event.requestContext.authorizer?.principalId,
         prisma,

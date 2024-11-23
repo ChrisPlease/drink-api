@@ -13,12 +13,12 @@ prisma.$extends(
     models: {
       Drink: {
         field: 'deleted',
-        createValue: (value) => value ? new Date() : null,
+        createValue: (value: any) => value ? new Date() : null,
         allowCompoundUniqueIndexWhere: true,
       },
       Entry: {
         field: 'deleted',
-        createValue: (value) => value,
+        createValue: (value: any) => value,
         allowCompoundUniqueIndexWhere: true,
       },
     },
