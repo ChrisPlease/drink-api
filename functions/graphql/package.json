@@ -19,31 +19,32 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
-    "@apollo/server": "^4.10.2",
+    "@apollo/server": "^4.11.2",
     "@apollo/utils.keyvadapter": "^3.1.0",
     "@as-integrations/aws-lambda": "^3.1.0",
-    "@aws-sdk/client-lambda": "^3.549.0",
+    "@aws-sdk/client-lambda": "^3.688.0",
     "@devoxa/prisma-relay-cursor-connection": "^3.1.1",
-    "@prisma/client": "^5.12.0",
+    "@prisma/client": "^5.22.0",
     "@waterlog/utils": "workspace:*",
-    "graphql": "^16.8.1",
+    "graphql": "^16.9.0",
     "prisma-extension-soft-delete": "^1.0.1",
-    "redis": "^4.6.13",
+    "redis": "^4.7.0",
     "tsconfig": "workspace:*",
-    "undici": "^6.11.1",
+    "undici": "^6.20.1",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/cli": "^5.0.3",
     "@graphql-codegen/introspection": "^4.0.3",
-    "@graphql-codegen/typescript": "^4.0.6",
-    "@graphql-codegen/typescript-document-nodes": "^4.0.6",
-    "@graphql-codegen/typescript-resolvers": "^4.0.6",
+    "@graphql-codegen/typescript": "^4.1.1",
+    "@graphql-codegen/typescript-document-nodes": "^4.0.11",
+    "@graphql-codegen/typescript-resolvers": "^4.4.0",
     "@graphql-eslint/eslint-plugin": "^3.20.1",
-    "@types/node": "^20.12.7",
+    "@types/aws-lambda": "^8.10.145",
+    "@types/node": "^20.17.6",
     "@types/uuid": "^9.0.8",
     "esbuild": "^0.20.2",
     "graphql-tag": "^2.12.6",
-    "prisma": "^5.12.0"
+    "prisma": "^5.22.0"
   }
 }

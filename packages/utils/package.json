@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.20.2",
-    "rimraf": "^5.0.5",
+    "rimraf": "^5.0.10",
     "tsconfig": "workspace:*"
   },
   "keywords": [],
