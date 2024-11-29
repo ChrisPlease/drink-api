@@ -1,5 +1,5 @@
 import { LambdaClient, InvokeCommand, LambdaClientConfig } from '@aws-sdk/client-lambda'
-import { Drink, Entry, User } from '@prisma/client'
+import { Drink, Entry, User } from '/opt/prisma/node_modules/.prisma/client'
 import {
   deconstructId,
   toCursorHash,

@@ -7,7 +7,7 @@
   "packageManager": "pnpm@9.0.6",
   "scripts": {
     "test": "pnpm -r --if-present test",
-    "build": "pnpm -r build && sh ./scripts/build.sh latest local",
+    "build": "pnpm -r build",
     "lint": "eslint '{packages,functions}/**/*.{ts,tsx,js,jsx}'"
   },
   "keywords": [
@@ -23,6 +23,7 @@
     "@vitest/coverage-istanbul": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "concurrently": "^8.2.2",
+    "dotenv-cli": "^7.4.4",
     "eslint": "^8.57.1",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.31.0",

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '/opt/nodejs/node_modules/.prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import { constructId, deconstructId } from '@waterlog/utils'
 import { queryDrinkHistory } from '@/utils/queries'

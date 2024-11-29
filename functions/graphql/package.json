@@ -4,13 +4,12 @@
   "description": "",
   "main": "dist/index.cjs",
   "scripts": {
-    "build": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
+    "build": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node20 --external:@prisma/client --external:.prisma/client --outfile=dist/index.cjs",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node20 --outfile=dist/index.cjs",
     "alias": "tsc-alias",
     "test": "pnpm run test:unit --run; pnpm run test:int --run",
     "test:unit": "vitest -c ./vitest.config.unit.ts",
     "test:int": "./scripts/run-integration.sh",
-    "postinstall": "pnpm exec prisma generate --schema=./prisma/schema.prisma",
     "generate": "graphql-codegen --config codegen.yml"
   },
   "author": "",
@@ -24,10 +23,8 @@
     "@as-integrations/aws-lambda": "^3.1.0",
     "@aws-sdk/client-lambda": "^3.688.0",
     "@devoxa/prisma-relay-cursor-connection": "^3.1.1",
-    "@prisma/client": "^5.22.0",
     "@waterlog/utils": "workspace:*",
     "graphql": "^16.9.0",
-    "prisma-extension-soft-delete": "^1.0.1",
     "redis": "^4.7.0",
     "tsconfig": "workspace:*",
     "undici": "^6.20.1",
@@ -44,7 +41,7 @@
     "@types/node": "^20.17.6",
     "@types/uuid": "^9.0.8",
     "esbuild": "^0.20.2",
-    "graphql-tag": "^2.12.6",
-    "prisma": "^5.22.0"
+    "esbuild-plugin-copy": "^2.1.1",
+    "graphql-tag": "^2.12.6"
   }
 }

@@ -54,12 +54,10 @@ Resources:
               x-amazon-apigateway-integration:
                 Fn::If:
                   - IsLocalEnvironment
-                  -
-                    uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OptionsHandlerFunction.Arn}/invocations
+                  - uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${OptionsHandlerFunction.Arn}/invocations
                     httpMethod: POST
                     type: aws_proxy
-                  -
-                    responses:
+                  - responses:
                       default:
                         responseParameters:
                           method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
@@ -181,8 +179,8 @@ Resources:
       Architectures:
         - arm64
       PackageType: Zip
-      CodeUri: functions/grahql/dist/
-      Handler: index.handler
+      CodeUri: functions/graphql
+      Handler: dist/index.handler
       Runtime: nodejs20.x
       # PackageType: Image
       # ImageUri: !If
@@ -196,12 +194,24 @@ Resources:
       Role: !GetAtt WaterlogFunctionRole.Arn
       Environment:
         Variables:
+          DATABASE_URL: 'postgresql://admin:password@db:5432/api'
           NUTRITIONIX_LAMBDA: !GetAtt NutritionixApiFunction.Arn
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerTarget: graphql
-      DockerContext: .
+          NODE_PATH: /opt/nodejs/node_modules:/var/task/node_modules
+          PRISMA_QUERY_ENGINE_LIBRARY: /opt/nodejs/node_modules/.prisma/client/libquery_engine-linux-arm64-openssl-3.0.x.so.node
+    # Metadata:
+    #   Dockerfile: Dockerfile
+    #   DockerTarget: graphql
+    #   DockerContext: .
+      Layers:
+       - !Ref PrismaLayer
 
+  ## Prisma Layer
+  PrismaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: prisma-layer
+      Description: Layer containing Prisma ORM client and extensions
+      ContentUri: layers/prisma
   ## Lambda Permissions
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission

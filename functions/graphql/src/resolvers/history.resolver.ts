@@ -1,4 +1,4 @@
-import { Drink } from '@prisma/client'
+import { Drink } from '/opt/prisma/node_modules/.prisma/client'
 import { Entries } from '@/models/Entry.model'
 import { DrinkHistoryResolvers } from '@/__generated__/graphql'
 import { Drinks } from '@/models/Drink.model'

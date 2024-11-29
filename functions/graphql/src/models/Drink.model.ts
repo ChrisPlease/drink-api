@@ -1,4 +1,4 @@
-import { PrismaClient, Drink, Prisma } from '@prisma/client'
+import { PrismaClient, Drink, Prisma } from '/opt/nodejs/node_modules/.prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import {
   constructId,
@@ -23,6 +23,8 @@ import { rangeFilter, stringFilter } from '@/utils/filters'
 import { queryIngredientNutrition } from '@/utils/queries'
 import { DrinkWithIngredientCountPayload } from '@/types/drinks'
 import { NutritionResult, ReturnedDrinkResult } from '@/types/models'
+import path from 'path'
+import { existsSync, readdirSync } from 'fs'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 

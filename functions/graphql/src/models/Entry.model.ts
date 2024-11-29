@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Entry, Drink } from '@prisma/client'
+import { Prisma, PrismaClient, Entry, Drink } from '/opt/nodejs/node_modules/.prisma/client'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import {
   toCursorHash,

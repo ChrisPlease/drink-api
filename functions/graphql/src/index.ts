@@ -1,4 +1,5 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync, existsSync } from 'node:fs'
+import path from 'path'
 import {
   startServerAndCreateLambdaHandler,
   handlers,
@@ -7,7 +8,7 @@ import {
 import * as dotenv from 'dotenv'
 import { ApolloServer } from '@apollo/server'
 // import { RedisClientType } from 'redis'
-import prisma from './client'
+import prisma from '../client'
 import { resolvers } from './resolvers'
 import { AppContext } from './types/context'
 
@@ -48,9 +49,6 @@ export const handler = startServerAndCreateLambdaHandler(
   requestHandler,
   {
     context: async ({ event, context }) => {
-      console.log('Event:', JSON.stringify(event))
-      console.log('Context:', JSON.stringify(context))
-
       return {
         user: event.requestContext.authorizer?.principalId,
         prisma,

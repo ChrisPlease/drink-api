@@ -1,4 +1,4 @@
-import { Drink } from '@prisma/client'
+import { Drink } from '/opt/prisma/node_modules/.prisma/client'
 import { deconstructId } from '@waterlog/utils'
 import { Drinks } from '@/models/Drink.model'
 import { Entries } from '@/models/Entry.model'

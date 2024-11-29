@@ -3,11 +3,15 @@
   "compilerOptions": {
     "outDir": "./dist",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@prisma/client": ["../../layers/prisma/nodejs/node_modules/.prisma/client"],
+      "/opt/nodejs/*": ["../../layers/prisma/nodejs/*"]
     },
     "types": ["node", "./node_modules/tsconfig/env.d.ts"]
   },
   "include": [
     "./**/*",
+    "../../layers/prisma/prisma",
+    "../../layers/prisma/client.ts",
   ],
 }

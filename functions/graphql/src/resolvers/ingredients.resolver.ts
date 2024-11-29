@@ -1,4 +1,4 @@
-import { Drink } from '@prisma/client'
+import { Drink } from '/opt/prisma/node_modules/.prisma/client'
 import { constructId } from '@waterlog/utils'
 import {
   AbsoluteIngredient,

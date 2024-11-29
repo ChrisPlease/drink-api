@@ -1,8 +1,8 @@
 generator client {
   provider        = "prisma-client-js"
-  // output          = "../node_modules/.prisma/client"
+  output          = "../node_modules/.prisma/client"
   previewFeatures = ["postgresqlExtensions"]
-  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+  binaryTargets   = ["linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -16,19 +16,17 @@ model Drink {
   id          String             @id @default(dbgenerated("extensions.uuid_generate_v4()")) @db.Uuid
   name        String             @db.VarChar
   icon        String             @db.VarChar
-  brand       String?            @db.VarChar
   userId      String?            @map("user_id") @db.VarChar
   createdAt   DateTime           @unique @default(now()) @map("created_at") @db.Timestamp(6)
   deleted     DateTime?
   upc         String?            @unique @db.VarChar(12)
+  metricSize  Float              @map("metric_size")
+  servingSize Float              @map("serving_size")
+  servingUnit String             @map("serving_unit")
+  brand       String?            @db.VarChar
   ingredients DrinkIngredients[]
   user        User?              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entries     Entry[]
-
-  servingSize   Float  @map("serving_size")
-  metricSize    Float  @map("metric_size")
-  servingUnit   String @map("serving_unit")
-
   nutrition   Nutrition?
 
   @@unique([id, name])
@@ -53,10 +51,9 @@ model Nutrition {
   protein       Float? @default(0)
   potassium     Float? @default(0)
   caffeine      Float? @default(0)
-  addedSugar    Float? @default(0) @map("added_sugar")
-
-  drink         Drink  @relation(fields: [drinkId], references: [id], onDelete: Cascade)
   drinkId       String @unique @map("drink_id") @db.Uuid
+  addedSugar    Float? @default(0) @map("added_sugar")
+  drink         Drink  @relation(fields: [drinkId], references: [id], onDelete: Cascade)
 
   @@map("nutrition")
 }
