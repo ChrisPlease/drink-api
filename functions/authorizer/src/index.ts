@@ -76,7 +76,7 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
       throw new ApiError(403, 'Invalid signing key retrieved from JWKS');
     }
 
-    await cache.set(kid, signingKey)
+    await cache.set(kid, signingKey, 300)
   } else {
     console.log(`Cache hit for key: ${kid}`);
   }
@@ -103,11 +103,6 @@ const client = jwksClient({
 })
 
 export const handler: Handler = async (event) => {
-  console.log('================================')
-  console.log('================================')
-  console.log('========== AUTHORIZER ==========')
-  console.log('================================')
-  console.log('================================')
   if (!process.env.JWKS_URI || !process.env.AUTH0_AUDIENCE || !process.env.AUTH0_DOMAIN) {
     throw new Error('Missing required environment variables');
   }

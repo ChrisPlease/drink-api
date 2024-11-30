@@ -13,9 +13,8 @@ export const getKeyvClient = (): Keyv => {
       ? `redis://${redisPassword}@${redisHost}:${redisPort}`
       : `redis://${redisHost}:${redisPort}`
 
-    keyvClient = new Keyv({
-      store: new KeyvRedis(redisUri)
-    })
+    const store = new KeyvRedis(redisUri)
+    keyvClient = new Keyv({ store })
 
     keyvClient.on('error',(err) => {
       console.error('Keyv connection error:', err)

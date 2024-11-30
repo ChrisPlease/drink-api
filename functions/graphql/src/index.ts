@@ -49,11 +49,10 @@ export const handler = startServerAndCreateLambdaHandler(
   server,
   requestHandler,
   {
-    context: async ({ event, context }) => {
+    context: async ({ event }) => {
       return {
         user: event.requestContext.authorizer?.principalId,
         prisma,
-        redis: getKeyvClient(),
       }
     },
     middleware: [
