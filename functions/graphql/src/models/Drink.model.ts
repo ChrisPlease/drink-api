@@ -145,7 +145,6 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         },
         orderBy,
       }
-
       return await findManyCursorConnection<ReturnedDrinkResult, Prisma.DrinkWhereUniqueInput>(
         (args) => prismaDrink
           .findMany({ ...args, include, orderBy: orderByArg, ...baseArgs })

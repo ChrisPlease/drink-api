@@ -571,7 +571,7 @@ type Query {
   node(id: ID!): Node
 
   """ Get drink by ID """
-  drink(id: ID!): DrinkResult
+  drink(id: ID!): DrinkResult @cacheControl(maxAge: 300)
 
   """ Get paginated drinks """
   drinks(
@@ -582,7 +582,7 @@ type Query {
     first: Int,
     last: Int,
     userId: ID
-  ): DrinksPaginated
+  ): DrinksPaginated @cacheControl(maxAge: 240)
 
   """ Get Entry by ID """
   entry(id: ID!): Entry

@@ -7,6 +7,7 @@ import {
 import * as dotenv from 'dotenv'
 import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheControl'
+import responseCachePlugin from '@apollo/server-plugin-response-cache'
 // import { RedisClientType } from 'redis'
 import { getKeyvClient } from '/opt/nodejs/client'
 import prisma from '../client'
@@ -23,7 +24,12 @@ const server = new ApolloServer<AppContext>({
   introspection: process.env.NODE_ENV === 'development',
   resolvers,
   cache: redisCache,
-  plugins: [ApolloServerPluginCacheControl({ defaultMaxAge: 5 })]
+  plugins: [
+    ApolloServerPluginCacheControl({
+      calculateHttpHeaders: true,
+    }),
+    responseCachePlugin(),
+  ]
 })
 
 const requestHandler = handlers.createAPIGatewayProxyEventRequestHandler()
