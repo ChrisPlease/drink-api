@@ -3,7 +3,7 @@ import NodeCache from 'node-cache'
 import { APIGatewayAuthorizerEvent, Handler } from 'aws-lambda'
 import { configDotenv } from 'dotenv'
 import { ApiError } from '@waterlog/utils'
-import jwksClient, { RsaSigningKey, SigningKey } from 'jwks-rsa'
+import jwksClient, { RsaSigningKey } from 'jwks-rsa'
 import { decode, verify, JwtPayload, SignOptions } from 'jsonwebtoken'
 
 configDotenv()

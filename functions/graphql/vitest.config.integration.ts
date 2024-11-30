@@ -11,6 +11,7 @@ export default mergeConfig(
       setupFiles: ['src/tests/helpers/setup.ts'],
       alias: {
         '@': path.resolve(__dirname, './src'),
+        '/opt/nodejs': path.resolve(__dirname, '../..', 'layers/prisma/nodejs'),
       },
       coverage: {
 

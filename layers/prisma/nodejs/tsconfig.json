@@ -1,0 +1,13 @@
+{
+  "extends": "tsconfig/base.json",
+  "compilerOptions": {
+    "baseUrl": "./",
+    "types": ["node", "./node_modules/tsconfig/env.d.ts"],
+    "paths": {
+      "@prisma/client": ["./node_modules/.prisma/client"]
+    }
+  },
+  "include": [
+    "./prisma/**/*.ts"
+, "constants.ts", "seed.ts"  ]
+}

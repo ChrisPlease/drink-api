@@ -11,36 +11,11 @@ services:
       - POSTGRES_PASSWORD=${PGPASSWORD}
       - POSTGRES_DB=${PGDATABASE}
       - POSTGRES_USER=${PGUSER}
-
   redis:
     container_name: redis
     image: redis:alpine
     restart: always
     ports:
       - "6379:6379"
-
-  # graphql-lambda:
-  #   container_name: graphql-lambda
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.dev
-  #   ports:
-  #     - "3000:3000" # Expose for Postman
-  #   environment:
-  #     - NODE_ENV=development
-  #     - PGHOST=db
-  #     - PGPORT=${PGPORT}
-  #     - PGUSER=${PGUSER}
-  #     - PGPASSWORD=${PGPASSWORD}
-  #     - PGDATABASE=${PGDATABASE}
-  #     - REDIS_HOST=redis
-  #     - REDIS_PORT=6379
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - ./functions/graphql/.env.local:/var/task/.env.local # Mount .env.local for Prisma
-  #   depends_on:
-  #     - db
-  #     - redis
-
 volumes:
   data: {}

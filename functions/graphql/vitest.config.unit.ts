@@ -30,6 +30,7 @@ export default mergeConfig(rootConfig, defineConfig({
     },
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '/opt/nodejs': path.resolve(__dirname, '../..', 'layers/prisma/nodejs'),
     },
   },
 }))

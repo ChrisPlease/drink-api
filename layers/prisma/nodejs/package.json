@@ -2,9 +2,10 @@
   "name": "@waterlog/prisma",
   "version": "1.0.0",
   "description": "",
-  "main": "client.ts",
   "scripts": {
-    "build": "PRISMA_CLI_BINARY_TARGETS=linux-arm64-openssl-3.0.x pnpm --filter ./ prisma generate",
+    "build": "pnpm generate",
+    "generate": "PRISMA_CLI_BINARY_TARGETS=linux-arm64-openssl-3.0.x pnpm --filter ./ exec prisma generate",
+    "seed": "ts-node seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,16 +15,16 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "devDependencies": {
-    "@types/node": "^18.19.65",
+    "@types/node": "^18.19.67",
     "@types/uuid": "^9.0.8",
-    "esbuild": "^0.20.2",
     "prisma": "^5.22.0",
-    "tsconfig": "workspace:*",
-    "typescript": "^5.7.2"
+    "ts-node": "^10.9.2",
+    "tsconfig": "workspace:^",
+    "tsconfig-paths": "^4.2.0"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "prisma-extension-soft-delete": "^1.0.1",
+    "prisma-extension-soft-delete": "^2.0.0",
     "uuid": "^9.0.1"
   }
 }

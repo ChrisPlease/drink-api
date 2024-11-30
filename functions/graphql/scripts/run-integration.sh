@@ -9,6 +9,6 @@ echo '🟡 - Waiting for database to be ready...'
 
 $DIR/wait-for-it.sh "${DATABASE_URL}" -- echo '🟢 - Database is ready!'
 
-npx prisma migrate dev --name init
+pnpm --filter @waterlog/prisma exec -- prisma migrate dev --name init
 
 vitest -c ./vitest.config.integration.ts "$@";
