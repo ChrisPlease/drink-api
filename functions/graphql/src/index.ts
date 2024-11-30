@@ -26,9 +26,13 @@ const server = new ApolloServer<AppContext>({
   cache: redisCache,
   plugins: [
     ApolloServerPluginCacheControl({
-      calculateHttpHeaders: true,
+      defaultMaxAge: 60,
     }),
-    responseCachePlugin(),
+    responseCachePlugin({
+      async sessionId(requestContext) {
+        return requestContext.contextValue.user || null
+      },
+    }),
   ]
 })
 

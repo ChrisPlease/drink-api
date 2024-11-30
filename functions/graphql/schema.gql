@@ -582,10 +582,10 @@ type Query {
     first: Int,
     last: Int,
     userId: ID
-  ): DrinksPaginated @cacheControl(maxAge: 240)
+  ): DrinksPaginated @cacheControl(maxAge: 300, scope: PRIVATE)
 
   """ Get Entry by ID """
-  entry(id: ID!): Entry
+  entry(id: ID!): Entry @cacheControl(maxAge: 300, scope: PRIVATE)
 
   """ Get paginated entries """
   entries(
@@ -596,20 +596,20 @@ type Query {
     first: Int,
     last: Int,
     drinkId: ID
-  ): EntriesPaginated
+  ): EntriesPaginated @cacheControl(maxAge: 300, scope: PRIVATE)
   users: [User!]
   me: User
   user(id: ID!): User
-  drinkHistory(id: ID!): DrinkHistory
+  drinkHistory(id: ID!): DrinkHistory @cacheControl(maxAge: 600, scope: PRIVATE)
   drinksHistory(
     before: String,
     after: String,
     first: Int,
     last: Int,
     filter: DrinkHistoryFilter,
-  ): DrinksHistoryPaginated
+  ): DrinksHistoryPaginated @cacheControl(maxAge: 600, scope: PRIVATE)
 
-  drinkScan(upc: String!): ScanDrinkResult
+  drinkScan(upc: String!): ScanDrinkResult @cacheControl(maxAge: 300)
 }
 
 """

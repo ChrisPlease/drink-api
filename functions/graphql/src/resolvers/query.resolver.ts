@@ -61,10 +61,7 @@ export const queryResolvers: QueryResolvers = {
     return drink
   },
 
-  async drinks(_, args, { prisma, user }, info) {
-    console.log('===========================')
-    console.log(JSON.stringify(info, null, 2))
-    console.log('===========================')
+  async drinks(_, args, { prisma, user }) {
     return await Drinks(prisma.drink).findManyPaginated({ ...args }, <string>user)
   },
 
