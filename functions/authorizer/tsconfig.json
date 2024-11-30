@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "/opt/nodejs/*": ["../../layers/redis/nodejs/*"]
     },
     "types": ["./node_modules/tsconfig/env.d.ts"]
   },

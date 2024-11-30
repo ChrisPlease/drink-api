@@ -119,6 +119,8 @@ Resources:
           AUTH0_AUDIENCE: ''
           AUTH0_DOMAIN: ''
           JWKS_URI: ''
+      Layers:
+        - !Ref RedisLayer
 
   ## OptionsHandler
   OptionsHandlerFunction:
@@ -212,6 +214,15 @@ Resources:
       LayerName: prisma-layer
       Description: Layer containing Prisma ORM client and extensions
       ContentUri: layers/prisma
+
+  ## Redis Layer
+  RedisLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: redis-layer
+      Description: Layer containing Redis cache
+      ContentUri: layers/redis
+
   ## Lambda Permissions
   LambdaInvokePermission:
     Type: AWS::Lambda::Permission

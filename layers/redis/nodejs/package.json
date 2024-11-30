@@ -1,0 +1,22 @@
+{
+  "name": "@waterlog/redis",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild client.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "esbuild": "^0.20.2",
+    "tsconfig": "workspace:^"
+  },
+  "dependencies": {
+    "@keyv/redis": "^4.0.2",
+    "keyv": "^5.2.1"
+  }
+}

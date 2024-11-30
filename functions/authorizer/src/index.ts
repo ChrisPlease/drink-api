@@ -5,10 +5,11 @@ import { configDotenv } from 'dotenv'
 import { ApiError } from '@waterlog/utils'
 import jwksClient, { RsaSigningKey } from 'jwks-rsa'
 import { decode, verify, JwtPayload, SignOptions } from 'jsonwebtoken'
+import { getKeyvClient } from '/opt/nodejs/client'
 
 configDotenv()
 
-const cache = new NodeCache({ stdTTL: 300 })
+const cache = getKeyvClient()
 
 const getPolicyDocument = (effect: string, resource: string) => {
   const policyDocument = {
@@ -56,7 +57,7 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
 
   const kid = decoded.header.kid
 
-  let signingKey = cache.get<string>(kid)
+  let signingKey = await cache.get<string>(kid)
 
   if (!signingKey) {
 
@@ -75,18 +76,10 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
       throw new ApiError(403, 'Invalid signing key retrieved from JWKS');
     }
 
-    cache.set(kid, signingKey)
+    await cache.set(kid, signingKey)
   } else {
     console.log(`Cache hit for key: ${kid}`);
   }
-
-  console.log('==================================')
-  console.log('==================================')
-  console.log('Decoded token:', decoded);
-  console.log('Signing key:', signingKey);
-  console.log('Verifying token...');
-  console.log('==================================')
-  console.log('==================================')
 
   try {
     const verifiedToken = verify(token, signingKey, jwtOptions) as JwtPayload

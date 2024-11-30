@@ -12,6 +12,7 @@
         "kind": "OBJECT",
         "name": "AbsoluteIngredient",
         "description": "Absolute ingredient used in drink, size is based on absolute volume (ounces)",
+        "isOneOf": null,
         "fields": [
           {
             "name": "drink",
@@ -69,7 +70,20 @@
         "kind": "OBJECT",
         "name": "BaseDrink",
         "description": "Base Drink used for all drinks",
+        "isOneOf": null,
         "fields": [
+          {
+            "name": "brand",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "createdAt",
             "description": null,
@@ -292,6 +306,7 @@
         "kind": "SCALAR",
         "name": "Boolean",
         "description": "The `Boolean` scalar type represents `true` or `false`.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -300,8 +315,33 @@
       },
       {
         "kind": "ENUM",
+        "name": "CacheControlScope",
+        "description": "Cache Control Enum",
+        "isOneOf": null,
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": [
+          {
+            "name": "PRIVATE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "PUBLIC",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "possibleTypes": null
+      },
+      {
+        "kind": "ENUM",
         "name": "Comparison",
         "description": "Comparison Enum",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -337,6 +377,7 @@
         "kind": "SCALAR",
         "name": "Date",
         "description": "Date scalar used for JS Date",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -347,7 +388,20 @@
         "kind": "INTERFACE",
         "name": "Drink",
         "description": "Drink Interface for all drinks",
+        "isOneOf": null,
         "fields": [
+          {
+            "name": "brand",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "entries",
             "description": null,
@@ -547,8 +601,21 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkCreateInput",
         "description": "Input for Creating a new Drink",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
+          {
+            "name": "brand",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "icon",
             "description": null,
@@ -650,6 +717,7 @@
         "kind": "OBJECT",
         "name": "DrinkEdge",
         "description": "Edge for Paginated Drinks",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -689,8 +757,21 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkEditInput",
         "description": "Input for Editing a Drink",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
+          {
+            "name": "brand",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "icon",
             "description": null,
@@ -784,6 +865,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkFilter",
         "description": "Filter for the Drinks query",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -855,6 +937,7 @@
         "kind": "OBJECT",
         "name": "DrinkHistory",
         "description": "Drink History to retreive summary of drink entries",
+        "isOneOf": null,
         "fields": [
           {
             "name": "count",
@@ -1033,6 +1116,7 @@
         "kind": "OBJECT",
         "name": "DrinkHistoryEdge",
         "description": "Edge for Paginated Drink History",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -1076,6 +1160,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkHistoryFilter",
         "description": "Filter for the Drinks History query",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1123,6 +1208,7 @@
         "kind": "INTERFACE",
         "name": "DrinkIngredient",
         "description": "Ingredient Interface to combine drink and ID",
+        "isOneOf": null,
         "fields": [
           {
             "name": "drink",
@@ -1173,6 +1259,7 @@
         "kind": "OBJECT",
         "name": "DrinkNutrition",
         "description": "Drink Health Nutrition field",
+        "isOneOf": null,
         "fields": [
           {
             "name": "addedSugar",
@@ -1346,6 +1433,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkNutritionFilter",
         "description": "Filter by drink nutrition",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1617,6 +1705,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkNutritionInput",
         "description": "Nutriton Input for creating and editing drinks",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1784,6 +1873,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkNutritionSort",
         "description": "Sorting input for Drink Nutrition",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1819,6 +1909,7 @@
         "kind": "UNION",
         "name": "DrinkResult",
         "description": "Union of Mixed and Base Drinks",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -1840,6 +1931,7 @@
         "kind": "OBJECT",
         "name": "DrinkServingSize",
         "description": "Drink Serving Size field",
+        "isOneOf": null,
         "fields": [
           {
             "name": "metricSize",
@@ -1887,6 +1979,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkServingSizeInput",
         "description": "Serving Input for creating and editing drinks",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -1946,6 +2039,7 @@
         "kind": "INPUT_OBJECT",
         "name": "DrinkSort",
         "description": "Sorting input for Drinks",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2005,6 +2099,7 @@
         "kind": "OBJECT",
         "name": "DrinksHistoryPaginated",
         "description": "Paginated Drinks History list",
+        "isOneOf": null,
         "fields": [
           {
             "name": "edges",
@@ -2058,6 +2153,7 @@
         "kind": "OBJECT",
         "name": "DrinksPaginated",
         "description": "Paginated list of drinks",
+        "isOneOf": null,
         "fields": [
           {
             "name": "edges",
@@ -2111,6 +2207,7 @@
         "kind": "OBJECT",
         "name": "EntriesPaginated",
         "description": "Paginated list of entries",
+        "isOneOf": null,
         "fields": [
           {
             "name": "edges",
@@ -2164,6 +2261,7 @@
         "kind": "OBJECT",
         "name": "Entry",
         "description": "Base Entry for logged drinks",
+        "isOneOf": null,
         "fields": [
           {
             "name": "drink",
@@ -2281,6 +2379,7 @@
         "kind": "OBJECT",
         "name": "EntryEdge",
         "description": "Edge for Paginated Entries",
+        "isOneOf": null,
         "fields": [
           {
             "name": "cursor",
@@ -2320,6 +2419,7 @@
         "kind": "INPUT_OBJECT",
         "name": "EntryFilter",
         "description": "Filter for the Entries query",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2367,6 +2467,7 @@
         "kind": "OBJECT",
         "name": "EntryNutrition",
         "description": "Entry nutrition field.\n\nContains water content and servings",
+        "isOneOf": null,
         "fields": [
           {
             "name": "addedSugar",
@@ -2552,6 +2653,7 @@
         "kind": "INPUT_OBJECT",
         "name": "EntrySort",
         "description": "Sorting input for Entries",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2611,6 +2713,7 @@
         "kind": "SCALAR",
         "name": "Float",
         "description": "The `Float` scalar type represents signed double-precision fractional values as specified by [IEEE 754](https://en.wikipedia.org/wiki/IEEE_floating_point).",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2621,6 +2724,7 @@
         "kind": "SCALAR",
         "name": "ID",
         "description": "The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `\"4\"`) or integer (such as `4`) input value will be accepted as an ID.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2631,6 +2735,7 @@
         "kind": "INPUT_OBJECT",
         "name": "IDFilter",
         "description": "ID Filter",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2662,6 +2767,7 @@
         "kind": "SCALAR",
         "name": "Icon",
         "description": "Icon scalar mapped to FontAwesome `IconName` type",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2672,6 +2778,7 @@
         "kind": "UNION",
         "name": "Ingredient",
         "description": "Ingredient Union combines Absolute and Relative Ingredients",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2693,6 +2800,7 @@
         "kind": "INPUT_OBJECT",
         "name": "IngredientInput",
         "description": "Input for Ingredient type",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -2744,6 +2852,7 @@
         "kind": "SCALAR",
         "name": "Int",
         "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -2754,7 +2863,20 @@
         "kind": "OBJECT",
         "name": "MixedDrink",
         "description": "Mixed Drink when drink has ingredients",
+        "isOneOf": null,
         "fields": [
+          {
+            "name": "brand",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "createdAt",
             "description": null,
@@ -2989,6 +3111,7 @@
         "kind": "OBJECT",
         "name": "Mutation",
         "description": "Root Mutations",
+        "isOneOf": null,
         "fields": [
           {
             "name": "drinkCreate",
@@ -3202,6 +3325,7 @@
         "kind": "INTERFACE",
         "name": "Node",
         "description": "Node interface for Paginated Queries",
+        "isOneOf": null,
         "fields": [
           {
             "name": "id",
@@ -3255,6 +3379,7 @@
         "kind": "INPUT_OBJECT",
         "name": "NumberFilter",
         "description": "Number filter to allow gte, or lte comparison",
+        "isOneOf": false,
         "fields": null,
         "inputFields": [
           {
@@ -3298,6 +3423,7 @@
         "kind": "INTERFACE",
         "name": "Nutrition",
         "description": "Nutrition interface for both drinks and entries",
+        "isOneOf": null,
         "fields": [
           {
             "name": "addedSugar",
@@ -3464,6 +3590,7 @@
         "kind": "OBJECT",
         "name": "PageInfo",
         "description": "Pagination List metadata",
+        "isOneOf": null,
         "fields": [
           {
             "name": "endCursor",
@@ -3523,6 +3650,7 @@
         "kind": "INTERFACE",
         "name": "PaginatedQuery",
         "description": "Interface for paginated queries",
+        "isOneOf": null,
         "fields": [
           {
             "name": "pageInfo",
@@ -3562,6 +3690,7 @@
         "kind": "OBJECT",
         "name": "Query",
         "description": "Root Queries",
+        "isOneOf": null,
         "fields": [
           {
             "name": "drink",
@@ -4046,6 +4175,7 @@
         "kind": "OBJECT",
         "name": "RelativeIngredient",
         "description": "Relative Ingredient used in drink, size is based on total drink serving size (parts)",
+        "isOneOf": null,
         "fields": [
           {
             "name": "drink",
@@ -4103,7 +4233,20 @@
         "kind": "OBJECT",
         "name": "ScanDrink",
         "description": "Result form scanning a drink upc",
+        "isOneOf": null,
         "fields": [
+          {
+            "name": "brand",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "String",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
           {
             "name": "entries",
             "description": null,
@@ -4305,6 +4448,7 @@
         "kind": "UNION",
         "name": "ScanDrinkResult",
         "description": "Union type for Drink scan result, or Base Drink if drink exists",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4326,6 +4470,7 @@
         "kind": "ENUM",
         "name": "Sort",
         "description": "Sort Enum",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4349,6 +4494,7 @@
         "kind": "SCALAR",
         "name": "String",
         "description": "The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4359,6 +4505,7 @@
         "kind": "OBJECT",
         "name": "User",
         "description": "Base user type",
+        "isOneOf": null,
         "fields": [
           {
             "name": "drinks",
@@ -4647,6 +4794,7 @@
         "kind": "OBJECT",
         "name": "__Directive",
         "description": "A Directive provides a way to describe alternate runtime execution and type validation behavior in a GraphQL document.\n\nIn some cases, you need to provide options to alter GraphQL's execution behavior in ways field arguments will not suffice, such as conditionally including or skipping a field. Directives provide this by describing additional information to the executor.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -4763,6 +4911,7 @@
         "kind": "ENUM",
         "name": "__DirectiveLocation",
         "description": "A Directive can be adjacent to many parts of the GraphQL language, a __DirectiveLocation describes one such possible adjacencies.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -4888,6 +5037,7 @@
         "kind": "OBJECT",
         "name": "__EnumValue",
         "description": "One possible value for a given Enum. Enum values are unique values, not a placeholder for a string or numeric value. However an Enum value is returned in a JSON response as a string.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -4955,6 +5105,7 @@
         "kind": "OBJECT",
         "name": "__Field",
         "description": "Object and Interface types are described by a list of Fields, each of which has a name, potentially a list of arguments, and a return type.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -5075,6 +5226,7 @@
         "kind": "OBJECT",
         "name": "__InputValue",
         "description": "Arguments provided to Fields or Directives and the input fields of an InputObject are represented as Input Values which describe their type and optionally a default value.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "name",
@@ -5170,6 +5322,7 @@
         "kind": "OBJECT",
         "name": "__Schema",
         "description": "A GraphQL Schema defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, as well as the entry points for query, mutation, and subscription operations.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "description",
@@ -5281,6 +5434,7 @@
         "kind": "OBJECT",
         "name": "__Type",
         "description": "The fundamental unit of any GraphQL Schema is the type. There are many kinds of types in GraphQL as represented by the `__TypeKind` enum.\n\nDepending on the kind of a type, certain fields describe information about that type. Scalar types provide no information beyond a name, description and optional `specifiedByURL`, while Enum types provide their values. Object and Interface types provide the fields they describe. Abstract types, Union and Interface, provide the Object types possible at runtime. List and NonNull types compose other types.",
+        "isOneOf": null,
         "fields": [
           {
             "name": "kind",
@@ -5484,6 +5638,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "isOneOf",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -5495,6 +5661,7 @@
         "kind": "ENUM",
         "name": "__TypeKind",
         "description": "An enum describing what kind of type a given `__Type` is.",
+        "isOneOf": null,
         "fields": null,
         "inputFields": null,
         "interfaces": null,
@@ -5553,6 +5720,55 @@
     ],
     "directives": [
       {
+        "name": "cacheControl",
+        "description": "@cacheControl Directive",
+        "isRepeatable": false,
+        "locations": [
+          "FIELD_DEFINITION",
+          "INTERFACE",
+          "OBJECT",
+          "UNION"
+        ],
+        "args": [
+          {
+            "name": "inheritMaxAge",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "maxAge",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Int",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "scope",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "CacheControlScope",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ]
+      },
+      {
         "name": "deprecated",
         "description": "Marks an element of a GraphQL schema as no longer supported.",
         "isRepeatable": false,
@@ -5604,6 +5820,15 @@
             "deprecationReason": null
           }
         ]
+      },
+      {
+        "name": "oneOf",
+        "description": "Indicates exactly one field must be supplied and this field must not be `null`.",
+        "isRepeatable": false,
+        "locations": [
+          "INPUT_OBJECT"
+        ],
+        "args": []
       },
       {
         "name": "skip",

@@ -5,7 +5,10 @@
     "paths": {
       "@/*": ["./src/*"],
       "@prisma/client": ["../../layers/prisma/nodejs/node_modules/.prisma/client"],
-      "/opt/nodejs/*": ["../../layers/prisma/nodejs/*"]
+      "/opt/nodejs/*": [
+        "../../layers/prisma/nodejs/*",
+        "../../layers/redis/nodejs/*"
+      ]
     },
     "types": ["node", "./node_modules/tsconfig/env.d.ts"]
   },

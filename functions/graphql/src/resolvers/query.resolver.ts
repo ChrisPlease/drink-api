@@ -1,5 +1,5 @@
 import { LambdaClient, InvokeCommand, LambdaClientConfig } from '@aws-sdk/client-lambda'
-import { Drink, Entry, User } from '/opt/prisma/node_modules/.prisma/client'
+import { Drink, Entry, User } from '/opt/nodejs/node_modules/.prisma/client'
 import {
   deconstructId,
   toCursorHash,
@@ -61,7 +61,10 @@ export const queryResolvers: QueryResolvers = {
     return drink
   },
 
-  async drinks(_, args, { prisma, user }) {
+  async drinks(_, args, { prisma, user }, info) {
+    console.log('===========================')
+    console.log(JSON.stringify(info, null, 2))
+    console.log('===========================')
     return await Drinks(prisma.drink).findManyPaginated({ ...args }, <string>user)
   },
 

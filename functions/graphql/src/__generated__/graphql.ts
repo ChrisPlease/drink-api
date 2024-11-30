@@ -35,6 +35,7 @@ export type AbsoluteIngredient = DrinkIngredient & {
 /** Base Drink used for all drinks */
 export type BaseDrink = Drink & Node & {
   __typename?: 'BaseDrink';
+  brand?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   entries?: Maybe<EntriesPaginated>;
   icon?: Maybe<Scalars['Icon']['output']>;
@@ -57,6 +58,12 @@ export type BaseDrinkEntriesArgs = {
   sort?: InputMaybe<EntrySort>;
 };
 
+/** Cache Control Enum */
+export enum CacheControlScope {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
+}
+
 /** Comparison Enum */
 export enum Comparison {
   Gt = 'GT',
@@ -67,6 +74,7 @@ export enum Comparison {
 
 /** Drink Interface for all drinks */
 export type Drink = {
+  brand?: Maybe<Scalars['String']['output']>;
   entries?: Maybe<EntriesPaginated>;
   icon?: Maybe<Scalars['Icon']['output']>;
   id: Scalars['ID']['output'];
@@ -89,6 +97,7 @@ export type DrinkEntriesArgs = {
 
 /** Input for Creating a new Drink */
 export type DrinkCreateInput = {
+  brand?: InputMaybe<Scalars['String']['input']>;
   icon: Scalars['Icon']['input'];
   ingredients?: InputMaybe<Array<IngredientInput>>;
   name: Scalars['String']['input'];
@@ -106,6 +115,7 @@ export type DrinkEdge = {
 
 /** Input for Editing a Drink */
 export type DrinkEditInput = {
+  brand?: InputMaybe<Scalars['String']['input']>;
   icon?: InputMaybe<Scalars['Icon']['input']>;
   id: Scalars['ID']['input'];
   ingredients?: InputMaybe<Array<IngredientInput>>;
@@ -345,6 +355,7 @@ export type IngredientInput = {
 /** Mixed Drink when drink has ingredients */
 export type MixedDrink = Drink & Node & {
   __typename?: 'MixedDrink';
+  brand?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   entries?: Maybe<EntriesPaginated>;
   icon?: Maybe<Scalars['Icon']['output']>;
@@ -559,6 +570,7 @@ export type RelativeIngredient = DrinkIngredient & {
 /** Result form scanning a drink upc */
 export type ScanDrink = Drink & {
   __typename?: 'ScanDrink';
+  brand?: Maybe<Scalars['String']['output']>;
   entries?: Maybe<EntriesPaginated>;
   icon?: Maybe<Scalars['Icon']['output']>;
   id: Scalars['ID']['output'];
@@ -696,19 +708,19 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 ) => TResult | Promise<TResult>;
 
 /** Mapping of union types */
-export type ResolversUnionTypes<RefType extends Record<string, unknown>> = ResolversObject<{
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
   DrinkResult: ( BaseDrinkModel ) | ( MixedDrinkModel );
-  Ingredient: ( Omit<AbsoluteIngredient, 'drink'> & { drink?: Maybe<RefType['DrinkResult']> } ) | ( Omit<RelativeIngredient, 'drink'> & { drink?: Maybe<RefType['DrinkResult']> } );
+  Ingredient: ( Omit<AbsoluteIngredient, 'drink'> & { drink?: Maybe<_RefType['DrinkResult']> } ) | ( Omit<RelativeIngredient, 'drink'> & { drink?: Maybe<_RefType['DrinkResult']> } );
   ScanDrinkResult: ( BaseDrinkModel ) | ( ScanDrinkModel );
 }>;
 
 /** Mapping of interface types */
-export type ResolversInterfaceTypes<RefType extends Record<string, unknown>> = ResolversObject<{
+export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
   Drink: ( BaseDrinkModel ) | ( MixedDrinkModel ) | ( ScanDrinkModel );
-  DrinkIngredient: ( Omit<AbsoluteIngredient, 'drink'> & { drink?: Maybe<RefType['DrinkResult']> } ) | ( Omit<RelativeIngredient, 'drink'> & { drink?: Maybe<RefType['DrinkResult']> } );
-  Node: ( BaseDrinkModel ) | ( DrinkHistoryModel ) | ( EntryModel ) | ( MixedDrinkModel ) | ( Omit<User, 'drinks' | 'drinksHistory' | 'entries'> & { drinks?: Maybe<RefType['DrinksPaginated']>, drinksHistory?: Maybe<RefType['DrinksHistoryPaginated']>, entries?: Maybe<RefType['EntriesPaginated']> } );
+  DrinkIngredient: ( Omit<AbsoluteIngredient, 'drink'> & { drink?: Maybe<_RefType['DrinkResult']> } ) | ( Omit<RelativeIngredient, 'drink'> & { drink?: Maybe<_RefType['DrinkResult']> } );
+  Node: ( BaseDrinkModel ) | ( DrinkHistoryModel ) | ( EntryModel ) | ( MixedDrinkModel ) | ( Omit<User, 'drinks' | 'drinksHistory' | 'entries'> & { drinks?: Maybe<_RefType['DrinksPaginated']>, drinksHistory?: Maybe<_RefType['DrinksHistoryPaginated']>, entries?: Maybe<_RefType['EntriesPaginated']> } );
   Nutrition: ( DrinkNutrition ) | ( EntryNutrition );
-  PaginatedQuery: ( Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<RefType['DrinkHistoryEdge']> } ) | ( Omit<DrinksPaginated, 'edges'> & { edges: Array<RefType['DrinkEdge']> } ) | ( Omit<EntriesPaginated, 'edges'> & { edges: Array<RefType['EntryEdge']> } );
+  PaginatedQuery: ( Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<_RefType['DrinkHistoryEdge']> } ) | ( Omit<DrinksPaginated, 'edges'> & { edges: Array<_RefType['DrinkEdge']> } ) | ( Omit<EntriesPaginated, 'edges'> & { edges: Array<_RefType['EntryEdge']> } );
 }>;
 
 /** Mapping between all available schema types and the resolvers types */
@@ -716,6 +728,7 @@ export type ResolversTypes = ResolversObject<{
   AbsoluteIngredient: ResolverTypeWrapper<Omit<AbsoluteIngredient, 'drink'> & { drink?: Maybe<ResolversTypes['DrinkResult']> }>;
   BaseDrink: ResolverTypeWrapper<BaseDrinkModel>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  CacheControlScope: CacheControlScope;
   Comparison: Comparison;
   Date: ResolverTypeWrapper<Scalars['Date']['output']>;
   Drink: ResolverTypeWrapper<DrinkModel>;
@@ -819,6 +832,14 @@ export type ResolversParentTypes = ResolversObject<{
   User: Omit<User, 'drinks' | 'drinksHistory' | 'entries'> & { drinks?: Maybe<ResolversParentTypes['DrinksPaginated']>, drinksHistory?: Maybe<ResolversParentTypes['DrinksHistoryPaginated']>, entries?: Maybe<ResolversParentTypes['EntriesPaginated']> };
 }>;
 
+export type CacheControlDirectiveArgs = {
+  inheritMaxAge?: Maybe<Scalars['Boolean']['input']>;
+  maxAge?: Maybe<Scalars['Int']['input']>;
+  scope?: Maybe<CacheControlScope>;
+};
+
+export type CacheControlDirectiveResolver<Result, Parent, ContextType = AppContext, Args = CacheControlDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+
 export type AbsoluteIngredientResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['AbsoluteIngredient'] = ResolversParentTypes['AbsoluteIngredient']> = ResolversObject<{
   drink?: Resolver<Maybe<ResolversTypes['DrinkResult']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -827,6 +848,7 @@ export type AbsoluteIngredientResolvers<ContextType = AppContext, ParentType ext
 }>;
 
 export type BaseDrinkResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['BaseDrink'] = ResolversParentTypes['BaseDrink']> = ResolversObject<{
+  brand?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   entries?: Resolver<Maybe<ResolversTypes['EntriesPaginated']>, ParentType, ContextType, Partial<BaseDrinkEntriesArgs>>;
   icon?: Resolver<Maybe<ResolversTypes['Icon']>, ParentType, ContextType>;
@@ -845,6 +867,7 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type DrinkResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Drink'] = ResolversParentTypes['Drink']> = ResolversObject<{
   __resolveType: TypeResolveFn<'BaseDrink' | 'MixedDrink' | 'ScanDrink', ParentType, ContextType>;
+  brand?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   entries?: Resolver<Maybe<ResolversTypes['EntriesPaginated']>, ParentType, ContextType, Partial<DrinkEntriesArgs>>;
   icon?: Resolver<Maybe<ResolversTypes['Icon']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -972,6 +995,7 @@ export type IngredientResolvers<ContextType = AppContext, ParentType extends Res
 }>;
 
 export type MixedDrinkResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['MixedDrink'] = ResolversParentTypes['MixedDrink']> = ResolversObject<{
+  brand?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   entries?: Resolver<Maybe<ResolversTypes['EntriesPaginated']>, ParentType, ContextType, Partial<MixedDrinkEntriesArgs>>;
   icon?: Resolver<Maybe<ResolversTypes['Icon']>, ParentType, ContextType>;
@@ -1049,6 +1073,7 @@ export type RelativeIngredientResolvers<ContextType = AppContext, ParentType ext
 }>;
 
 export type ScanDrinkResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['ScanDrink'] = ResolversParentTypes['ScanDrink']> = ResolversObject<{
+  brand?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   entries?: Resolver<Maybe<ResolversTypes['EntriesPaginated']>, ParentType, ContextType, Partial<ScanDrinkEntriesArgs>>;
   icon?: Resolver<Maybe<ResolversTypes['Icon']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -1105,3 +1130,6 @@ export type Resolvers<ContextType = AppContext> = ResolversObject<{
   User?: UserResolvers<ContextType>;
 }>;
 
+export type DirectiveResolvers<ContextType = AppContext> = ResolversObject<{
+  cacheControl?: CacheControlDirectiveResolver<any, any, ContextType>;
+}>;

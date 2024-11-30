@@ -28,6 +28,23 @@ enum Comparison {
 }
 
 """
+Cache Control Enum
+"""
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+"""
+@cacheControl Directive
+"""
+directive @cacheControl(
+  maxAge: Int
+  scope: CacheControlScope
+  inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+"""
 Number filter to allow gte, or lte comparison
 """
 input NumberFilter {
@@ -181,7 +198,7 @@ type EntryNutrition implements Nutrition {
 """
 Drink Interface for all drinks
 """
-interface Drink {
+interface Drink @cacheControl(maxAge: 300) {
   id: ID!
   icon: Icon
   name: String!
@@ -371,7 +388,7 @@ type User implements Node {
     after: String,
     first: Int,
     last: Int,
-  ): DrinksPaginated
+  ): DrinksPaginated @cacheControl(maxAge: 300)
   drinksHistory(
     before: String,
     after: String,
