@@ -26,7 +26,7 @@ describe('DrinkHistory', () => {
   const history = DrinkHistory(prisma)
 
   beforeEach(() => {
-    prisma.$transaction.mockImplementation(callback => callback(prisma))
+    prisma.$transaction.mockImplementation(((callback: any) => callback(prisma)) as any)
   })
 
   describe('findUniqueDrinkHistory', () => {

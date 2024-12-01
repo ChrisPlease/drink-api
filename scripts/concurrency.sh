@@ -18,8 +18,9 @@ invoke_function() {
   {
     echo "================ Invoke $invoke_id ==============="
     echo "=================================================="
-    sam local invoke OptionsHandlerFunction \
+    sam local invoke JwksRsaCustomAuthorizer \
       --parameter-overrides Environment=local \
+      --env-vars env.json \
       --docker-network api_default \
       --event "$event_file_path"
     echo "=================================================="

@@ -34,8 +34,7 @@ describe('Drink Model', () => {
   const drink = Drinks(prisma.drink)
 
   beforeEach(() => {
-    prisma.$transaction
-      .mockImplementation((callback) => callback(prisma))
+    prisma.$transaction.mockImplementation(((callback: any) => callback(prisma)) as any)
   })
 
   describe('findUniqueById', () => {
@@ -103,6 +102,7 @@ describe('Drink Model', () => {
       mockResponse = Array.from(new Array(12)).map((_, index) => ({
         id: `drink-${index}`,
         name: `Test drink ${index}`,
+        brand: `Brand ${index}`,
         upc: '000000000000',
         icon: 'test-icon',
         deleted: null,
@@ -310,6 +310,7 @@ describe('Drink Model', () => {
       mockResponse = {
         id: '123',
         name: 'Test Drink',
+        brand: 'Test Brand',
         icon: 'test-icon',
         upc: '00000000',
         servingSize: 8,
@@ -379,6 +380,7 @@ describe('Drink Model', () => {
         id: '123',
         upc: null,
         name: 'Test Drink',
+        brand: 'Test Brand',
         icon: 'test-icon',
         userId: '456',
         servingSize: 12,
@@ -461,6 +463,7 @@ describe('Drink Model', () => {
       mockResponse = {
         id: '123',
         name: 'Test Drink',
+        brand: 'Test Brand',
         icon: 'test-icon',
         upc: null,
         userId: '456',
@@ -546,6 +549,7 @@ describe('Drink Model', () => {
       mockResponse = {
         id: '123',
         name: 'Test Drink',
+        brand: 'Test Brand',
         icon: 'test-icon',
         upc: null,
         servingSize: 8,

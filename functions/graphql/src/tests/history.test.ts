@@ -12,7 +12,6 @@ import { seedDrinks } from '@waterlog/prisma/seeders/drinks'
 import { seedEntries } from '@waterlog/prisma/seeders/entries'
 import { AppContext } from '../types/context'
 import { DrinksHistoryPaginated } from '../__generated__/graphql'
-// import redis from '../__mocks__/redis'
 import prisma from './helpers/prisma'
 import { testServer } from './helpers/server'
 

@@ -13,7 +13,6 @@ import { seedDrinks } from '@waterlog/prisma/seeders/drinks'
 import { AppContext } from '../types/context'
 import { DrinkResult, DrinksPaginated, MixedDrink } from '../__generated__/graphql'
 import prisma from './helpers/prisma'
-// import { redis } from './helpers/redis'
 import { testServer } from './helpers/server'
 
 describe('drinks', () => {

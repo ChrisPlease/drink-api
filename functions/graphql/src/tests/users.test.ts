@@ -10,7 +10,6 @@ import { DocumentNode } from 'graphql'
 import { toCursorHash } from '@waterlog/utils'
 import { AppContext } from '../types/context'
 import prisma from './helpers/prisma'
-// import { redis } from './helpers/redis'
 import { testServer } from './helpers/server'
 
 describe('users', () => {

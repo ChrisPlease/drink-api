@@ -108,12 +108,14 @@ Resources:
       PackageType: Zip
       CodeUri: functions/authorizer/dist/
       Handler: index.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs20.x
       Architectures:
         - arm64
       Timeout: 60
       MemorySize: 256
-      ReservedConcurrentExecutions: 5
+      ReservedConcurrentExecutions: 40
+      ProvisionedConcurrencyConfig:
+        ProvisionedConcurrentExecutions: 40
       Environment:
         Variables:
           AUTH0_AUDIENCE: ''
@@ -127,7 +129,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.optionsHandler
-      Runtime: nodejs18.x
+      Runtime: nodejs20.x
       Architectures:
         - arm64
       CodeUri: functions/options-handler
@@ -145,7 +147,7 @@ Resources:
       PackageType: Zip
       CodeUri: functions/auth-callback/dist/
       Handler: index.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs20.x
       Architectures:
         - arm64
       Timeout: 30
@@ -165,7 +167,7 @@ Resources:
       PackageType: Zip
       CodeUri: functions/nutritionix-api/dist/
       Handler: index.handler
-      Runtime: nodejs18.x
+      Runtime: nodejs20.x
       Timeout: 30
       Environment:
         Variables:
@@ -184,13 +186,6 @@ Resources:
       CodeUri: functions/graphql
       Handler: dist/index.handler
       Runtime: nodejs20.x
-      # PackageType: Image
-      # ImageUri: !If
-      #   - IsLocalEnvironment
-      #   - graphql-fn:latest
-      #   - !Sub "${AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/graphql-fn:dev-0.4"
-      # ImageConfig:
-      #   Command: ["dist/index.handler"]
       Timeout: 30
       MemorySize: 512
       Role: !GetAtt WaterlogFunctionRole.Arn
@@ -200,10 +195,6 @@ Resources:
           NUTRITIONIX_LAMBDA: !GetAtt NutritionixApiFunction.Arn
           NODE_PATH: /opt/nodejs/node_modules:/var/task/node_modules
           PRISMA_QUERY_ENGINE_LIBRARY: /opt/nodejs/node_modules/.prisma/client/libquery_engine-linux-arm64-openssl-3.0.x.so.node
-    # Metadata:
-    #   Dockerfile: Dockerfile
-    #   DockerTarget: graphql
-    #   DockerContext: .
       Layers:
        - !Ref PrismaLayer
 

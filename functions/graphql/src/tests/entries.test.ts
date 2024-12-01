@@ -12,7 +12,6 @@ import { seedDrinks } from '@waterlog/prisma/seeders/drinks'
 import { seedEntries } from '@waterlog/prisma/seeders/entries'
 import { EntriesPaginated } from '../__generated__/graphql'
 import { AppContext } from '../types/context'
-// import redis from '../__mocks__/redis'
 import { testServer } from './helpers/server'
 import prisma from './helpers/prisma'
 
@@ -38,7 +37,6 @@ describe('entries', () => {
     })))
 
     contextValue = {
-      // redis,
       prisma,
       user: 'user-123',
     }

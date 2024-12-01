@@ -9,7 +9,6 @@ import {
 import { Drink } from '@prisma/client'
 import { toCursorHash } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
-import redis from '../__mocks__/redis'
 import { AppContext } from '../types/context'
 import { Drinks } from '../models/Drink.model'
 import { Entries } from '../models/Entry.model'
@@ -44,7 +43,6 @@ describe('drinks.resolver', () => {
 
   beforeEach(() => {
     ctx = {
-      redis,
       prisma,
       user: 'mock-user',
     } as AppContext
