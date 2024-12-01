@@ -33,7 +33,7 @@ const server = new ApolloServer<AppContext>({
         return requestContext.contextValue.user || null
       },
     }),
-  ]
+  ],
 })
 
 const requestHandler = handlers.createAPIGatewayProxyEventRequestHandler()

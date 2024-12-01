@@ -5,7 +5,7 @@ import { seedUsers } from './seeders/users'
 import { seedDrinks } from './seeders/drinks'
 
 config({
-  path: resolve(__dirname, '../../..', '.env.local')
+  path: resolve(__dirname, '../../..', '.env.local'),
 })
 
 const prisma = new PrismaClient()

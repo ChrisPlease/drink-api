@@ -1,6 +1,7 @@
 import graphqlPlugin from "@graphql-eslint/eslint-plugin";
 import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import stylistic from '@stylistic/eslint-plugin'
 import _import from "eslint-plugin-import";
 import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
@@ -12,9 +13,9 @@ import { FlatCompat } from "@eslint/eslintrc";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all
 });
 
 export default [{
@@ -49,6 +50,7 @@ export default [{
     plugins: {
         "@typescript-eslint": fixupPluginRules(typescriptEslint),
         import: fixupPluginRules(_import),
+        '@stylistic': stylistic,
     },
 
     languageOptions: {
@@ -92,6 +94,7 @@ export default [{
     },
 
     rules: {
+
         semi: "off",
         "comma-dangle": "off",
         "import/namespace": "off",
@@ -101,23 +104,23 @@ export default [{
             avoidEscape: true,
         }],
 
-        // "@typescript-eslint/semi": ["error", "never"],
+        "@stylistic/semi": ["error", "never"],
 
-        // "@typescript-eslint/member-delimiter-style": ["error", {
-        //     multiline: {
-        //         delimiter: "comma",
-        //         requireLast: true,
-        //     },
+        "@stylistic/member-delimiter-style": ["error", {
+            multiline: {
+                delimiter: "comma",
+                requireLast: true,
+            },
 
-        //     overrides: {
-        //         interface: {
-        //             multiline: {
-        //                 delimiter: "semi",
-        //                 requireLast: true,
-        //             },
-        //         },
-        //     },
-        // }],
+            overrides: {
+                interface: {
+                    multiline: {
+                        delimiter: "semi",
+                        requireLast: true,
+                    },
+                },
+            },
+        }],
 
         "@typescript-eslint/no-unused-vars": ["warn", {
             destructuredArrayIgnorePattern: "^_",
@@ -125,6 +128,6 @@ export default [{
         }],
 
         "@typescript-eslint/no-explicit-any": "off",
-        // "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
+        "@stylistic/comma-dangle": ["error", "always-multiline"],
     },
 }];

@@ -60,7 +60,7 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
 
   if (!signingKey) {
 
-    console.log(`Cache miss for key: ${kid}`);
+    console.log(`Cache miss for key: ${kid}`)
     const getSigningKey = promisify(client.getSigningKey)
 
     const key = await getSigningKey(kid)
@@ -72,12 +72,12 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
     signingKey = key?.getPublicKey() || (key as RsaSigningKey)?.rsaPublicKey
 
     if (!signingKey || typeof signingKey !== 'string') {
-      throw new ApiError(403, 'Invalid signing key retrieved from JWKS');
+      throw new ApiError(403, 'Invalid signing key retrieved from JWKS')
     }
 
     await cache.set(kid, signingKey, 300)
   } else {
-    console.log(`Cache hit for key: ${kid}`);
+    console.log(`Cache hit for key: ${kid}`)
   }
 
   try {
@@ -86,10 +86,10 @@ const authenticate = async (params: APIGatewayAuthorizerEvent) => {
     return {
       principalId: verifiedToken.sub,
       policyDocument: getPolicyDocument('Allow', params.methodArn),
-      context: { scope: verifiedToken.scope }
+      context: { scope: verifiedToken.scope },
     }
   } catch (err: any) {
-    console.error('Token verification error:', err);
+    console.error('Token verification error:', err)
     throw new ApiError(403, `Token verification failed: ${err.message}`)
   }
 }
@@ -103,7 +103,7 @@ const client = jwksClient({
 
 export const handler: Handler = async (event) => {
   if (!process.env.JWKS_URI || !process.env.AUTH0_AUDIENCE || !process.env.AUTH0_DOMAIN) {
-    throw new Error('Missing required environment variables');
+    throw new Error('Missing required environment variables')
   }
 
   try {
