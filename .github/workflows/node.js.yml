@@ -35,6 +35,8 @@ jobs:
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-
+      - run: ls -la
+      - run: cat pnpm-lock.yaml || echo "pnpm-lock.yaml not found"
       - run: pnpm install --frozen-lockfile
       - run: echo "${{ secrets.ENV_FILE }}" > .env.test
       - run: pnpm -r --if-present build && pnpm -r --if-present types && pnpm -r --if-present alias
