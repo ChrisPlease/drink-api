@@ -10,10 +10,10 @@ import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheContr
 import responseCachePlugin from '@apollo/server-plugin-response-cache'
 // import { RedisClientType } from 'redis'
 import { getKeyvClient } from '/opt/nodejs/client'
+import { KeyvAdapter } from '@apollo/utils.keyvadapter'
 import prisma from '../client'
 import { resolvers } from './resolvers'
 import { AppContext } from './types/context'
-import { KeyvAdapter } from '@apollo/utils.keyvadapter'
 
 dotenv.config()
 

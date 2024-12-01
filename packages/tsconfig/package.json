@@ -1,6 +1,6 @@
 {
   "name": "tsconfig",
   "devDependencies": {
-    "@types/node": "^18.19.67"
+    "@types/node": "^20.17.9"
   }
 }

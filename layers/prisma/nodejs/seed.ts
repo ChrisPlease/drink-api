@@ -1,8 +1,8 @@
+import { resolve } from 'path'
 import { config } from 'dotenv'
 import { PrismaClient } from './node_modules/.prisma/client'
 import { seedUsers } from './seeders/users'
 import { seedDrinks } from './seeders/drinks'
-import { resolve } from 'path'
 
 config({
   path: resolve(__dirname, '../../..', '.env.local')

@@ -75,12 +75,12 @@ describe('cursorHash', () => {
     })
     test('creates a key from the record property when the key is a property', () => {
       cursorKey = 'id'
-      expect(getCursor<Drink, any>(record, cursorKey)).toStrictEqual({ id: '123' })
+      expect(getCursor<Drink, string>(record, cursorKey)).toStrictEqual({ id: '123' })
     })
 
     test('creates a nested key from the record when the key is not a property', () => {
       cursorKey = 'id_name'
-      expect(getCursor<Drink, any>(record, cursorKey)).toStrictEqual({
+      expect(getCursor<Drink, string>(record, cursorKey)).toStrictEqual({
         id_name: {
           id: '123',
           name: 'Test',

@@ -15,7 +15,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "devDependencies": {
-    "@types/node": "^18.19.67",
+    "@types/node": "^20.17.9",
     "@types/uuid": "^9.0.8",
     "prisma": "^5.22.0",
     "ts-node": "^10.9.2",

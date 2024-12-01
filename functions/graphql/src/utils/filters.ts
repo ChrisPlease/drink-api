@@ -1,4 +1,4 @@
-import { Prisma } from '/opt/prisma/node_modules/.prisma/client'
+import { Prisma } from '/opt/nodejs/node_modules/.prisma/client'
 import { NumberFilter } from '@/__generated__/graphql'
 
 export const stringFilter = (key: string, str?: string) =>

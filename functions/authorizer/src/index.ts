@@ -1,5 +1,4 @@
 import { promisify } from 'node:util'
-import NodeCache from 'node-cache'
 import { APIGatewayAuthorizerEvent, Handler } from 'aws-lambda'
 import { configDotenv } from 'dotenv'
 import { ApiError } from '@waterlog/utils'
@@ -114,11 +113,11 @@ export const handler: Handler = async (event) => {
     return response
   }
   catch (err: any) {
-    console.error("Error in Authorizer:", err)
+    console.error('Error in Authorizer:', err)
 
     // Return a Deny response with a principalId to satisfy API Gateway
     return {
-      principalId: "unauthorized",
+      principalId: 'unauthorized',
       policyDocument: getPolicyDocument('Deny', event.methodArn),
       context: {
         message: `Unauthorized: ${err.message}`,

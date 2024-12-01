@@ -1,9 +1,9 @@
-import Keyv from 'keyv'
+import KeyvStore from 'keyv'
 import KeyvRedis from '@keyv/redis'
 
-let keyvClient: Keyv<Record<string, unknown>> | null = null
+let keyvClient: KeyvStore<Record<string, unknown>> | null = null
 
-export const getKeyvClient = (): Keyv => {
+export const getKeyvClient = (): KeyvStore => {
   if (!keyvClient) {
     const redisHost = process.env.REDIS_HOST || 'redis'
     const redisPort = process.env.REDIS_PORT || '6379'
@@ -14,7 +14,7 @@ export const getKeyvClient = (): Keyv => {
       : `redis://${redisHost}:${redisPort}`
 
     const store = new KeyvRedis(redisUri)
-    keyvClient = new Keyv({ store })
+    keyvClient = new KeyvStore({ store })
 
     keyvClient.on('error',(err) => {
       console.error('Keyv connection error:', err)

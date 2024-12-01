@@ -34,4 +34,4 @@ export const ingredientResolvers: AbsoluteIngredientResolvers & RelativeIngredie
     }
   },
 }
-6
+

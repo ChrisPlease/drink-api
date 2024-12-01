@@ -84,14 +84,14 @@ describe('drinks.resolver', () => {
 
     describe('nutrition', () => {
       test('makes a call to Prisma.nutrition to fetch nutrition', async () => {
-        const res = await drinkResolvers.nutrition?.(
+        await drinkResolvers.nutrition?.(
           parent,
           args,
           ctx,
           info,
         )
         expect(prisma.nutrition.findUnique).toHaveBeenCalledWith({
-          where: { drinkId: "123" },
+          where: { drinkId: '123' },
         })
       })
     })
