@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild client.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "esbuild client.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs"
   },
   "keywords": [],
   "author": "",
