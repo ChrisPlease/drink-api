@@ -11,4 +11,4 @@ $DIR/wait-for-it.sh "${DATABASE_URL}" -- echo '🟢 - Database is ready!'
 
 pnpm --filter @waterlog/prisma exec -- prisma migrate dev --name init
 
-vitest -c ./vitest.config.integration.ts "$@";
+vitest -c ./vitest.config.integration.mts "$@";

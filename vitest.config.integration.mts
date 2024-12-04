@@ -7,8 +7,8 @@ export default defineConfig({
   ],
   test: {
     poolOptions: {
-      threads: {
-        singleThread: true,
+      forks: {
+        singleFork: true,
       },
     },
   },
