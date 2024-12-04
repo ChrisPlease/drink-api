@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { stringFilter, rangeFilter } from './filters'
+import { Comparison } from '@/__generated__/graphql'
 
 describe('filters', () => {
   describe('stringFilter', () => {
@@ -20,10 +21,10 @@ describe('filters', () => {
   describe('rangeFilter', () => {
     test('assigns a GraphQL number filter to a prisma filter', () => {
       expect(rangeFilter([{
-        comparison: 'LTE',
+        comparison: Comparison.Lte,
         value: 3,
       }, {
-        comparison: 'GT',
+        comparison: Comparison.Gt,
         value: 4,
       }])).toEqual(expect.objectContaining({
         GT: 4,

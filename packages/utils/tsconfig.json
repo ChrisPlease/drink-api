@@ -1,15 +1,15 @@
 {
-  "extends": "tsconfig/base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "lib": ["es2020", "DOM"],
+    "esModuleInterop": true,
+    "declaration": true,
+    "declarationMap": true,
     "noEmit": false,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-    "types": ["./node_modules/tsconfig/env.d.ts", "node"]
+    "emitDeclarationOnly": true,
+    "rootDir": "./src",
+    "types": ["../../types/env.d.ts"]
   },
-  "include": [
-    "./src/*",
-  ],
+  "include": ["src/**/*.ts", "../../types/env.d.ts"],
+  "exclude": ["node_modules"]
 }

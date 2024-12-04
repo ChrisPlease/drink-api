@@ -2,6 +2,7 @@
   "name": "@waterlog/utils",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -14,8 +15,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.20.2",
-    "rimraf": "^5.0.10",
-    "tsconfig": "workspace:*"
+    "rimraf": "^5.0.10"
   },
   "keywords": [],
   "author": "",

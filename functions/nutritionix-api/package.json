@@ -8,15 +8,14 @@
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node18 --outfile=dist/index.cjs",
     "dev": "pnpm build:dev --watch",
     "test": "pnpm run test:unit --run",
-    "test:unit": "vitest -c ./vitest.config.unit.ts",
+    "test:unit": "vitest -c ./vitest.config.unit.mts",
     "alias": "tsc-alias",
     "watch": "pnpm build:dev --watch"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
     "esbuild": "^0.20.2",
-    "nodemon": "^3.1.7",
-    "tsconfig": "workspace:*"
+    "nodemon": "^3.1.7"
   },
   "keywords": [],
   "author": "",

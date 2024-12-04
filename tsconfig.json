@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es2016",
-    "lib": ["es2020", "DOM"],
+    "rootDir": "./",
+    "target": "ESNext",
+    "lib": ["es2020"],
     "experimentalDecorators": false,
     "emitDecoratorMetadata": false,
     "module": "commonjs",
@@ -13,6 +14,14 @@
     "strict": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
-    "types": ["./env.d.ts", "node"]
-  }
+    "typeRoots": ["types", "node_modules/@types"],
+
+  },
+  "include": [
+    "types/*.d.ts",
+    "./*.mts",
+  ],
+  "exclude": [
+    "./**/*.js"
+  ]
 }

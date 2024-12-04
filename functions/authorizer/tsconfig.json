@@ -1,14 +1,16 @@
 {
-  "extends": "tsconfig/base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "types": ["../../types/env.d.ts"],
     "paths": {
       "@/*": ["./src/*"],
-      "/opt/nodejs/*": ["../../layers/redis/nodejs/*"]
-    },
-    "types": ["./node_modules/tsconfig/env.d.ts"]
+      "/opt/nodejs/*": [
+        "../../layers/prisma/nodejs/*",
+        "../../layers/redis/nodejs/*"
+      ]
+
+    }
   },
-  "include": [
-    "./**/*",
-  ],
+  "include": ["./**/*.ts", "../../types/env.d.ts", "../../layers/**/*"],
+  "exclude": ["node_modules"]
 }

@@ -19,115 +19,122 @@ const compat = new FlatCompat({
 });
 
 export default [{
-    ignores: ["functions/graphql/src/__generated__/**/*", "coverage/**/*", "**/dist/"],
+  ignores: [
+    "functions/graphql/src/__generated__/**/*",
+    "**/coverage/**/*",
+    "**/dist/",
+  ],
 }, {
-    rules: {},
+  rules: {},
 }, {
-    files: ["**/*.graphql", "**/*.gql"],
+  files: ["**/*.graphql", "**/*.gql"],
 
-    plugins: {
-        "@graphql-eslint": graphqlPlugin,
-    },
+  plugins: {
+    "@graphql-eslint": graphqlPlugin,
+  },
 
-    languageOptions: {
-        parser: graphqlPlugin.parser,
-    },
+  languageOptions: {
+    parser: graphqlPlugin.parser,
+  },
 
-    rules: {
-        "@graphql-eslint/known-type-names": "error",
-    },
-}, ...fixupConfigRules(compat.extends(
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:import/recommended",
-    "plugin:import/typescript",
+  rules: {
+    "@graphql-eslint/known-type-names": "error",
+  },
+},
+...fixupConfigRules(compat.extends(
+  "eslint:recommended",
+  "plugin:@typescript-eslint/recommended",
+  "plugin:import/recommended",
+  "plugin:import/typescript",
 )).map(config => ({
-    ...config,
-    files: ["**/*.ts"],
+  ...config,
+  files: ["**/*.ts"],
 })), {
-    files: ["**/*.ts"],
+  files: ["**/*.ts"],
 
-    plugins: {
-        "@typescript-eslint": fixupPluginRules(typescriptEslint),
-        import: fixupPluginRules(_import),
-        '@stylistic': stylistic,
+  plugins: {
+    "@typescript-eslint": fixupPluginRules(typescriptEslint),
+    import: fixupPluginRules(_import),
+    '@stylistic': stylistic,
+  },
+
+  languageOptions: {
+    globals: {
+      ...globals.node,
     },
 
-    languageOptions: {
-        globals: {
-            ...globals.node,
-        },
+    parser: tsParser,
+    ecmaVersion: "latest",
+    sourceType: "module",
 
-        parser: tsParser,
-        ecmaVersion: "latest",
-        sourceType: "module",
+    parserOptions: {
+      project: [
+        "./tsconfig.json",
+        "./functions/*/tsconfig.json",
+        "./packages/*/tsconfig.json"
+      ],
+    },
+  },
 
-        parserOptions: {
-            tsConfigRootDir: "./",
+  settings: {
+    "import/resolver": {
+      typescript: {
+        alwaysTryTypes: true,
 
-            project: [
-                "./packages/tsconfig/base.json",
-                "./packages/*/tsconfig.json",
-                "./functions/*/tsconfig.json",
-                "./layers/*/nodejs/tsconfig.json"
-            ],
-        },
+        project: [
+          "./tsconfig.json",
+          "./functions/*/tsconfig.json",
+          "./packages/*/tsconfig.json"
+        ],
+      },
+      node: {
+        paths: [
+          "./",
+          "./layers/prisma/nodejs/node_modules",
+          "./layers/redis/nodejs/client"
+        ]
+      }
     },
 
-    settings: {
-        "import/resolver": {
-            typescript: {
-                alwaysTryTypes: true,
-
-                project: [
-                    "./packages/tsconfig/base.json",
-                    "./packages/*/tsconfig.json",
-                    "./functions/*/tsconfig.json",
-                    "./layers/*/nodejs/tsconfig.json",
-                ],
-            },
-        },
-
-        "import/parsers": {
-            "@typescript-eslint/parser": [".ts", ".tsx"],
-        },
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"],
     },
+  },
+  rules: {
+    semi: "off",
+    "comma-dangle": "off",
+    "import/namespace": "off",
+    "import/order": ["error"],
 
-    rules: {
+    quotes: ["error", "single", {
+      avoidEscape: true,
+    }],
 
-        semi: "off",
-        "comma-dangle": "off",
-        "import/namespace": "off",
-        "import/order": ["error"],
+    "@stylistic/semi": ["error", "never"],
 
-        quotes: ["error", "single", {
-            avoidEscape: true,
-        }],
+    "@stylistic/member-delimiter-style": ["error", {
+      multiline: {
+        delimiter: "comma",
+        requireLast: true,
+      },
 
-        "@stylistic/semi": ["error", "never"],
+      overrides: {
+        interface: {
+          multiline: {
+            delimiter: "semi",
+            requireLast: true,
+          },
+        },
+      },
+    }],
 
-        "@stylistic/member-delimiter-style": ["error", {
-            multiline: {
-                delimiter: "comma",
-                requireLast: true,
-            },
+    "@typescript-eslint/no-unused-vars": ["warn", {
+      destructuredArrayIgnorePattern: "^_",
+      ignoreRestSiblings: true,
+    }],
 
-            overrides: {
-                interface: {
-                    multiline: {
-                        delimiter: "semi",
-                        requireLast: true,
-                    },
-                },
-            },
-        }],
+    "@typescript-eslint/no-explicit-any": "off",
+    "@stylistic/comma-dangle": ["error", "always-multiline"],
+  },
 
-        "@typescript-eslint/no-unused-vars": ["warn", {
-            destructuredArrayIgnorePattern: "^_",
-            ignoreRestSiblings: true,
-        }],
-
-        "@typescript-eslint/no-explicit-any": "off",
-        "@stylistic/comma-dangle": ["error", "always-multiline"],
-    },
 }];

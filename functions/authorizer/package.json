@@ -9,7 +9,7 @@
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
     "dev": "pnpm build:dev --watch",
     "test": "pnpm run test:unit --run",
-    "test:unit": "vitest -c vitest.config.unit.ts"
+    "test:unit": "vitest -c vitest.config.unit.mts"
   },
   "author": "",
   "license": "ISC",
@@ -17,8 +17,7 @@
     "@waterlog/utils": "workspace:*",
     "aws-lambda": "^1.0.7",
     "jsonwebtoken": "^9.0.2",
-    "jwks-rsa": "^3.1.0",
-    "tsconfig": "workspace:*"
+    "jwks-rsa": "^3.1.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",

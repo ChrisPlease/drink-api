@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { defineConfig, mergeConfig } from 'vitest/config'
-import rootConfig from '../../vitest.config.unit'
+import rootConfig from '../../vitest.config.unit.mjs'
 
 export default mergeConfig(rootConfig, defineConfig({
   test: {

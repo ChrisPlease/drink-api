@@ -1,20 +1,16 @@
 {
-  "extends": "tsconfig/base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "types": ["../../types/env.d.ts"],
     "paths": {
       "@/*": ["./src/*"],
-      "@prisma/client": ["../../layers/prisma/nodejs/node_modules/.prisma/client"],
       "/opt/nodejs/*": [
         "../../layers/prisma/nodejs/*",
         "../../layers/redis/nodejs/*"
       ]
-    },
-    "types": ["node", "./node_modules/tsconfig/env.d.ts"]
+
+    }
   },
-  "include": [
-    "./**/*",
-    "../../layers/prisma/prisma",
-    "../../layers/prisma/client.ts",
-  ],
+  "include": ["./**/*.ts", "../../types/env.d.ts", "../../layers/**/*"],
+  "exclude": ["node_modules"]
 }

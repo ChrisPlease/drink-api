@@ -9,7 +9,7 @@
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node20 --outfile=dist/index.cjs",
     "alias": "tsc-alias",
     "test": "pnpm run test:unit --run; pnpm run test:int --run",
-    "test:unit": "vitest -c ./vitest.config.unit.ts",
+    "test:unit": "vitest -c ./vitest.config.unit.mts",
     "test:int": "./scripts/run-integration.sh",
     "generate": "graphql-codegen --config codegen.yml"
   },
@@ -24,7 +24,6 @@
     "@devoxa/prisma-relay-cursor-connection": "^3.1.1",
     "@waterlog/utils": "workspace:*",
     "graphql": "^16.9.0",
-    "tsconfig": "workspace:*",
     "undici": "^6.20.1",
     "uuid": "^9.0.1"
   },

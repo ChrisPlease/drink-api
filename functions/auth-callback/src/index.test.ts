@@ -1,7 +1,7 @@
-import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 import { vi, beforeEach, describe, expect, test, Mock } from 'vitest'
-import axios from 'axios'
 import { handler } from '.'
+import { APIGatewayProxyEvent, Context } from 'aws-lambda'
+import axios from 'axios'
 
 vi.mock('axios', () => ({
   default: {

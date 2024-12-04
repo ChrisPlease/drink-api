@@ -2,17 +2,18 @@
   "name": "@waterlog/redis",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/client.cjs",
+  "type": "commonjs",
   "scripts": {
-    "build": "esbuild client.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs"
+    "build": "esbuild client.ts --platform=node --minify --bundle --target=node20 --outfile=dist/client.cjs",
+    "build:dev": "esbuild client.ts --platform=node --sourceMap --bundle --target=node20 --outfile=dist/index.cjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.17.9",
-    "esbuild": "^0.20.2",
-    "tsconfig": "workspace:^"
+    "esbuild": "^0.20.2"
   },
   "dependencies": {
     "@keyv/redis": "^4.0.2",

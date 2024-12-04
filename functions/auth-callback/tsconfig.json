@@ -1,13 +1,12 @@
 {
-  "extends": "tsconfig/base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "types": ["../../types/env.d.ts"],
     "paths": {
-      "@/*": ["./src/*"]
-    },
-    "types": ["./node_modules/tsconfig/env.d.ts"]
+      "@/*": ["./src/*"],
+
+    }
   },
-  "include": [
-    "./**/*",
-  ],
+  "include": ["./**/*.ts", "../../types/env.d.ts", "../../layers/**/*"],
+  "exclude": ["node_modules"]
 }
