@@ -4,7 +4,6 @@
     "types": ["../../types/env.d.ts"],
     "paths": {
       "@/*": ["./src/*"],
-
     }
   },
   "include": ["./**/*.ts", "../../types/env.d.ts", "../../layers/**/*"],
