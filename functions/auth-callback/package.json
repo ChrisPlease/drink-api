@@ -8,7 +8,7 @@
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs",
     "start": "pnpx aws-lambda-ric dist/index.handler",
     "test": "pnpm run test:unit --run",
-    "test:unit": "vitest -c vitest.config.unit.ts"
+    "test:unit": "vitest -c vitest.config.unit.mts"
   },
   "keywords": [],
   "author": "",
