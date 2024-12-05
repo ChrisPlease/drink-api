@@ -9,7 +9,6 @@
     "dev": "pnpm build:dev --watch",
     "test": "pnpm run test:unit --run",
     "test:unit": "vitest -c ./vitest.config.unit.mts",
-    "alias": "tsc-alias",
     "watch": "pnpm build:dev --watch"
   },
   "devDependencies": {
