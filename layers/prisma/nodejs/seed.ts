@@ -1,11 +1,16 @@
-import { PrismaClient } from '@prisma/client'
+import { resolve } from 'path'
+import { config } from 'dotenv'
+import { PrismaClient } from './node_modules/.prisma/client'
 import { seedUsers } from './seeders/users'
 import { seedDrinks } from './seeders/drinks'
+
+config({
+  path: resolve(__dirname, '../../..', '.env.local'),
+})
 
 const prisma = new PrismaClient()
 
 async function main() {
-
   await seedUsers(prisma, [
     'auth0|633cb40c15422d538368f4c6',
     'auth0|6341da849ae95d74a374a5e1',
@@ -23,3 +28,4 @@ main()
     await prisma.$disconnect()
     process.exit(1)
   })
+

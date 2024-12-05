@@ -1,14 +1,11 @@
 {
-  "extends": "tsconfig/base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "lib": ["es2020", "DOM"],
+    "types": ["../../types/env.d.ts"],
     "paths": {
-      "@/*": ["./src/*"]
-    },
-    "types": ["./node_modules/tsconfig/env.d.ts", "node"]
+      "@/*": ["./src/*"],
+    }
   },
-  "include": [
-    "./src/**/*"
-  ],
+  "include": ["./**/*.ts", "../../types/env.d.ts", "../../layers/**/*"],
+  "exclude": ["node_modules"]
 }

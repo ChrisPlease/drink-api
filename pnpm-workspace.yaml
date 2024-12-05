@@ -1,3 +1,7 @@
 packages:
   - 'functions/*'
   - 'packages/*'
+  - 'layers/**'
+packageExtensions:
+  "@prisma/client":
+    noHoist: true

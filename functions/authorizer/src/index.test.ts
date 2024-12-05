@@ -1,9 +1,20 @@
-import createJwksMock from 'mock-jwks'
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { createJWKSMock } from 'mock-jwks'
+import { vi, afterEach, beforeEach, describe, expect, test } from 'vitest'
 import { APIGatewayAuthorizerEvent, Context } from 'aws-lambda'
 import { handler } from '.'
 
-const jwksMock = createJwksMock(`${process.env.JWKS_URI}`)
+
+vi.mock('/opt/nodejs/client', () => ({
+  getKeyvClient: vi.fn(() => ({
+    get: vi.fn(),
+    set: vi.fn(),
+  })),
+}))
+
+vi.spyOn(console, 'log').mockImplementation(() => {})
+vi.spyOn(console, 'error').mockImplementation(() => {})
+
+const jwksMock = createJWKSMock(`${process.env.JWKS_URI}`)
 
 describe('handler', () => {
   let event: APIGatewayAuthorizerEvent
@@ -16,7 +27,7 @@ describe('handler', () => {
     let expectedError: string
 
     beforeEach(() => {
-      expectedError = 'Unauthorized: '
+      expectedError = ''
     })
 
     afterEach(() => {
@@ -25,29 +36,84 @@ describe('handler', () => {
 
     test('rejects when type is not provided', async () => {
       expectedError += 'Expected "event.type" parameter to have value "TOKEN"'
+      const res = await handler(event, {} as Context, () => {})
 
-      await expect(handler(event, {} as Context, () => {})).rejects.toThrowError(expectedError)
+      expect(res).toEqual({
+        principalId: 'unauthorized',
+        policyDocument: {
+          Version: '2012-10-17',
+          Statement: [{
+            Action: 'execute-api:Invoke',
+            Effect: 'Deny',
+            Resource: undefined,
+          }],
+        },
+        context: {
+          message: `Unauthorized: ${expectedError}`,
+        },
+      })
     })
 
     test('rejects when token is not provided', async () => {
       expectedError += 'Expected "event.authorizationToken" parameter to be set'
       event = { ...event, type: 'TOKEN' } as APIGatewayAuthorizerEvent
-
-      await expect(() => handler(event, {} as Context, () => {})).rejects.toThrowError(expectedError)
+      const res = await handler(event, {} as Context, () => {})
+      expect(res).toEqual({
+        principalId: 'unauthorized',
+        policyDocument: {
+          Version: '2012-10-17',
+          Statement: [{
+            Action: 'execute-api:Invoke',
+            Effect: 'Deny',
+            Resource: undefined,
+          }],
+        },
+        context: {
+          message: `Unauthorized: ${expectedError}`,
+        },
+      })
     })
 
     test('rejects when the token is not correctly formatted', async () => {
       expectedError += 'Invalid Authorization token - Foo 123 does not match "Bearer .*"'
       event = { ...event, type: 'TOKEN', authorizationToken: 'Foo 123' }
-
-      await expect(handler(event, {} as Context, () => {})).rejects.toThrowError(expectedError)
+      const res = await handler(event, {} as Context, () => {})
+      expect(res).toEqual({
+        principalId: 'unauthorized',
+        policyDocument: {
+          Version: '2012-10-17',
+          Statement: [{
+            Action: 'execute-api:Invoke',
+            Effect: 'Deny',
+            Resource: undefined,
+          }],
+        },
+        context: {
+          message: `Unauthorized: ${expectedError}`,
+        },
+      })
     })
 
     test('rejects when the token is invalid', async () => {
-      expectedError += 'Invalid token'
+      expectedError += 'Invalid token structure'
       event = { ...event, type: 'TOKEN', authorizationToken: 'Bearer foo' }
+      const res = await handler(event, {} as Context, () => {})
+      expect(res).toEqual({
 
-      await expect(handler(event, {} as Context, () => {})).rejects.toThrowError(expectedError)
+        principalId: 'unauthorized',
+        policyDocument: {
+          Version: '2012-10-17',
+          Statement: [{
+            Action: 'execute-api:Invoke',
+            Effect: 'Deny',
+            Resource: undefined,
+          }],
+        },
+        context: {
+          message: `Unauthorized: ${expectedError}`,
+        },
+
+      })
     })
   })
 
@@ -63,18 +129,19 @@ describe('handler', () => {
     })
 
     afterEach(() => {
-      jwksMock.stop()
+      jwksMock.start()
     })
 
     test('returns successful when token is valid', async () => {
       event = { ...event, type: 'TOKEN', authorizationToken: `Bearer ${token}`, methodArn: 'foo' }
-
       const res = await handler(event, {} as Context, () => {})
       expect(res.policyDocument).toStrictEqual({
         Version: '2012-10-17',
-        Statement: [
-          { Action: 'execute-api:Invoke', Effect: 'Allow', Resource: 'foo' },
-        ],
+        Statement: [{
+          Action: 'execute-api:Invoke',
+          Effect: 'Allow',
+          Resource: 'foo',
+        }],
       })
     })
   })

@@ -1,5 +1,5 @@
 import { GraphQLScalarType, Kind } from 'graphql'
-import { deconstructId } from '../utils/cursorHash'
+import { deconstructId } from '@waterlog/utils'
 import { queryResolvers } from './query.resolver'
 import { mutationResolvers } from './mutation.resolver'
 import {
@@ -15,12 +15,13 @@ import { entryResolvers } from './entries.resolver'
 import { historyResolvers } from './history.resolver'
 import { usersResolver } from './users.resolver'
 import { NodeResolvers, Resolvers } from '@/__generated__/graphql'
+import { ModelType } from '@/types/models'
 
 /* istanbul ignore file -- @preserve */
 
 const nodeResolvers: NodeResolvers = {
   __resolveType(parent) {
-    const [__typename] = deconstructId(parent.id)
+    const [__typename] = deconstructId<ModelType>(parent.id)
     return __typename
   },
 }

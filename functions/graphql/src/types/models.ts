@@ -1,5 +1,5 @@
 import { Drink, Entry } from '@prisma/client'
-import { DrinkNutrition, DrinkServingSize } from '@/__generated__/graphql'
+import { BaseDrink, DrinkNutrition, DrinkServingSize, MixedDrink } from '@/__generated__/graphql'
 
 
 export interface DrinkResult extends Omit<Drink, 'servingSize' | 'servingUnit' | 'metricSize'> {
@@ -65,7 +65,7 @@ export type ModelType = 'User' | 'MixedDrink' | 'BaseDrink' | 'Entry' | 'DrinkHi
 
 export type DrinkHistory = {
   id: string,
-  drink?: Drink,
+  drink?: BaseDrink | MixedDrink | null,
   count?: number,
   volume?: number,
   water?: number,

@@ -6,10 +6,10 @@ import {
   expect,
 } from 'vitest'
 import { GraphQLResolveInfo } from 'graphql'
+import { toCursorHash } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
 import { AppContext } from '../types/context'
 import { Drinks } from '../models/Drink.model'
-import { toCursorHash } from '../utils/cursorHash'
 import { Entries } from '../models/Entry.model'
 import { DrinkHistory } from '../models/History.model'
 import { usersResolver } from './users.resolver'

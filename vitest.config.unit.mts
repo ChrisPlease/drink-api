@@ -10,6 +10,8 @@ export default defineConfig({
     setupFiles: ['dotenv/config'],
   },
   plugins: [
-    viteTsconfigPaths(),
+    viteTsconfigPaths({
+      root: './',
+    }),
   ],
 })

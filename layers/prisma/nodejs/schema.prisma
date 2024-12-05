@@ -1,8 +1,8 @@
 generator client {
   provider        = "prisma-client-js"
-  // output          = "../node_modules/.prisma/client"
+  output          = "./node_modules/.prisma/client"
   previewFeatures = ["postgresqlExtensions"]
-  binaryTargets   = ["native", "rhel-openssl-1.0.x"]
+  binaryTargets   = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -20,14 +20,13 @@ model Drink {
   createdAt   DateTime           @unique @default(now()) @map("created_at") @db.Timestamp(6)
   deleted     DateTime?
   upc         String?            @unique @db.VarChar(12)
+  metricSize  Float              @map("metric_size")
+  servingSize Float              @map("serving_size")
+  servingUnit String             @map("serving_unit")
+  brand       String?            @db.VarChar
   ingredients DrinkIngredients[]
   user        User?              @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   entries     Entry[]
-
-  servingSize   Float  @map("serving_size")
-  metricSize    Float  @map("metric_size")
-  servingUnit   String @map("serving_unit")
-
   nutrition   Nutrition?
 
   @@unique([id, name])
@@ -54,7 +53,6 @@ model Nutrition {
   caffeine      Float? @default(0)
   drinkId       String @unique @map("drink_id") @db.Uuid
   addedSugar    Float? @default(0) @map("added_sugar")
-
   drink         Drink  @relation(fields: [drinkId], references: [id], onDelete: Cascade)
 
   @@map("nutrition")

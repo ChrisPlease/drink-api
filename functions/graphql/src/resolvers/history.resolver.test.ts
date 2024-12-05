@@ -6,11 +6,11 @@ import {
   expect,
 } from 'vitest'
 import { GraphQLResolveInfo } from 'graphql'
+import { toCursorHash } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
 import { Drinks } from '../models/Drink.model'
 import { Entries } from '../models/Entry.model'
 import { AppContext } from '../types/context'
-import { toCursorHash } from '../utils/cursorHash'
 import { historyResolvers } from './history.resolver'
 
 vi.mock('../models/Drink.model', () => ({

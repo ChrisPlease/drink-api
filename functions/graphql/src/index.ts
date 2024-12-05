@@ -6,28 +6,34 @@ import {
 } from '@as-integrations/aws-lambda'
 import * as dotenv from 'dotenv'
 import { ApolloServer } from '@apollo/server'
+import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheControl'
+import responseCachePlugin from '@apollo/server-plugin-response-cache'
 // import { RedisClientType } from 'redis'
-import prisma from './client'
+import { getKeyvClient } from '/opt/nodejs/client'
+import { KeyvAdapter } from '@apollo/utils.keyvadapter'
+import prisma from '../client'
 import { resolvers } from './resolvers'
 import { AppContext } from './types/context'
 
 dotenv.config()
 
+const redisCache = new KeyvAdapter(getKeyvClient())
+
 const server = new ApolloServer<AppContext>({
   typeDefs: readFileSync('./schema.gql', { encoding: 'utf-8' }),
   introspection: process.env.NODE_ENV === 'development',
   resolvers,
-  // cache: new KeyvAdapter(
-  //   new Keyv(
-  //     `redis://:${
-  //       process.env.REDIS_PASSWORD
-  //     }@${
-  //       process.env.REDIS_HOST
-  //     }:${
-  //       process.env.REDIS_PORT
-  //     }`,
-  //   ),
-  // ),
+  cache: redisCache,
+  plugins: [
+    ApolloServerPluginCacheControl({
+      defaultMaxAge: 60,
+    }),
+    responseCachePlugin({
+      async sessionId(requestContext) {
+        return requestContext.contextValue.user || null
+      },
+    }),
+  ],
 })
 
 const requestHandler = handlers.createAPIGatewayProxyEventRequestHandler()
@@ -51,7 +57,6 @@ export const handler = startServerAndCreateLambdaHandler(
       return {
         user: event.requestContext.authorizer?.principalId,
         prisma,
-        // redis: {} as RedisClientType,
       }
     },
     middleware: [

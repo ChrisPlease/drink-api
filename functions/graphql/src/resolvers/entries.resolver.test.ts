@@ -5,11 +5,9 @@ import {
   expect,
   beforeEach,
 } from 'vitest'
-// import { Response } from 'express'
 import { Drink, Nutrition } from '@prisma/client'
 import { GraphQLResolveInfo } from 'graphql'
 import prisma from '../__mocks__/prisma'
-// import redis from '../__mocks__/redis'
 import { Entries } from '../models/Entry.model'
 import { AppContext } from '../types/context'
 import { ResolvedEntry } from '../types/models'
@@ -32,9 +30,6 @@ describe('entryResolvers', () => {
   beforeEach(() => {
     ctx = {
       prisma,
-      /* redis, */
-      // req: {} as Request,
-      // res: {} as Response,
     }
   })
 

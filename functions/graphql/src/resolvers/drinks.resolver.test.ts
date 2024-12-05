@@ -7,9 +7,8 @@ import {
   beforeEach,
 } from 'vitest'
 import { Drink } from '@prisma/client'
+import { toCursorHash } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
-import redis from '../__mocks__/redis'
-import { toCursorHash } from '../utils/cursorHash'
 import { AppContext } from '../types/context'
 import { Drinks } from '../models/Drink.model'
 import { Entries } from '../models/Entry.model'
@@ -44,7 +43,6 @@ describe('drinks.resolver', () => {
 
   beforeEach(() => {
     ctx = {
-      redis,
       prisma,
       user: 'mock-user',
     } as AppContext
@@ -81,6 +79,20 @@ describe('drinks.resolver', () => {
           Entries(prisma.entry).findManyPaginated,
         ).toHaveBeenCalledWith(prisma, { drinkId: parent.id, userId: 'mock-user' })
         expect(res).toStrictEqual([{ id: 'mock-entry' }])
+      })
+    })
+
+    describe('nutrition', () => {
+      test('makes a call to Prisma.nutrition to fetch nutrition', async () => {
+        await drinkResolvers.nutrition?.(
+          parent,
+          args,
+          ctx,
+          info,
+        )
+        expect(prisma.nutrition.findUnique).toHaveBeenCalledWith({
+          where: { drinkId: '123' },
+        })
       })
     })
 

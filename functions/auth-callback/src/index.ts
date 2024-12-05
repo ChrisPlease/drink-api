@@ -1,5 +1,5 @@
-import { APIGatewayProxyEvent, Handler } from 'aws-lambda'
 import { configDotenv } from 'dotenv'
+import { APIGatewayProxyEvent, Handler } from 'aws-lambda'
 import axios from 'axios'
 
 configDotenv()

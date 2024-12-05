@@ -1,3 +1,4 @@
+import { deconstructId } from '@waterlog/utils'
 import {
   BaseDrinkResolvers,
   DrinkNutrition,
@@ -8,7 +9,6 @@ import {
   ScanDrinkResolvers,
   ScanDrinkResultResolvers,
 } from '@/__generated__/graphql'
-import { deconstructId } from '@/utils/cursorHash'
 import { Drinks } from '@/models/Drink.model'
 import { Entries } from '@/models/Entry.model'
 

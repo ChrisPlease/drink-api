@@ -28,6 +28,23 @@ enum Comparison {
 }
 
 """
+Cache Control Enum
+"""
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+
+"""
+@cacheControl Directive
+"""
+directive @cacheControl(
+  maxAge: Int
+  scope: CacheControlScope
+  inheritMaxAge: Boolean
+) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+"""
 Number filter to allow gte, or lte comparison
 """
 input NumberFilter {
@@ -181,10 +198,11 @@ type EntryNutrition implements Nutrition {
 """
 Drink Interface for all drinks
 """
-interface Drink {
+interface Drink @cacheControl(maxAge: 300) {
   id: ID!
   icon: Icon
   name: String!
+  brand: String
   serving: DrinkServingSize!
   nutrition: DrinkNutrition!
   entries(
@@ -207,6 +225,7 @@ type ScanDrink implements Drink {
   upc: String
   icon: Icon
   name: String!
+  brand: String
   serving: DrinkServingSize!
   nutrition: DrinkNutrition!
   entries(
@@ -227,6 +246,7 @@ type BaseDrink implements Drink & Node {
   id: ID!
   upc: String
   name: String!
+  brand: String
   icon: Icon
   serving: DrinkServingSize!
   nutrition: DrinkNutrition!
@@ -248,6 +268,7 @@ Mixed Drink when drink has ingredients
 type MixedDrink implements Drink & Node {
   id: ID!
   name: String!
+  brand: String
   icon: Icon
   serving: DrinkServingSize!
   nutrition: DrinkNutrition!
@@ -367,7 +388,7 @@ type User implements Node {
     after: String,
     first: Int,
     last: Int,
-  ): DrinksPaginated
+  ): DrinksPaginated @cacheControl(maxAge: 300)
   drinksHistory(
     before: String,
     after: String,
@@ -394,6 +415,8 @@ input DrinkCreateInput {
   icon: Icon!
   upc: String
 
+  brand: String
+
   serving: DrinkServingSizeInput!
 
   nutrition: DrinkNutritionInput
@@ -409,6 +432,8 @@ input DrinkEditInput {
 
   name: String
   icon: Icon
+
+  brand: String
 
   serving: DrinkServingSizeInput
 
@@ -546,7 +571,7 @@ type Query {
   node(id: ID!): Node
 
   """ Get drink by ID """
-  drink(id: ID!): DrinkResult
+  drink(id: ID!): DrinkResult @cacheControl(maxAge: 300)
 
   """ Get paginated drinks """
   drinks(
@@ -557,10 +582,10 @@ type Query {
     first: Int,
     last: Int,
     userId: ID
-  ): DrinksPaginated
+  ): DrinksPaginated @cacheControl(maxAge: 300, scope: PRIVATE)
 
   """ Get Entry by ID """
-  entry(id: ID!): Entry
+  entry(id: ID!): Entry @cacheControl(maxAge: 300, scope: PRIVATE)
 
   """ Get paginated entries """
   entries(
@@ -571,20 +596,20 @@ type Query {
     first: Int,
     last: Int,
     drinkId: ID
-  ): EntriesPaginated
+  ): EntriesPaginated @cacheControl(maxAge: 300, scope: PRIVATE)
   users: [User!]
   me: User
   user(id: ID!): User
-  drinkHistory(id: ID!): DrinkHistory
+  drinkHistory(id: ID!): DrinkHistory @cacheControl(maxAge: 600, scope: PRIVATE)
   drinksHistory(
     before: String,
     after: String,
     first: Int,
     last: Int,
     filter: DrinkHistoryFilter,
-  ): DrinksHistoryPaginated
+  ): DrinksHistoryPaginated @cacheControl(maxAge: 600, scope: PRIVATE)
 
-  drinkScan(upc: String!): ScanDrinkResult
+  drinkScan(upc: String!): ScanDrinkResult @cacheControl(maxAge: 300)
 }
 
 """

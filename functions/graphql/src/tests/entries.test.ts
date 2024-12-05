@@ -7,12 +7,11 @@ import {
 } from 'vitest'
 import { gql } from 'graphql-tag'
 import { DocumentNode } from 'graphql'
-import { seedUsers } from '../../prisma/seeders/users'
-import { seedDrinks } from '../../prisma/seeders/drinks'
-import { seedEntries } from '../../prisma/seeders/entries'
+import { seedUsers } from '@waterlog/prisma/seeders/users'
+import { seedDrinks } from '@waterlog/prisma/seeders/drinks'
+import { seedEntries } from '@waterlog/prisma/seeders/entries'
 import { EntriesPaginated } from '../__generated__/graphql'
 import { AppContext } from '../types/context'
-// import redis from '../__mocks__/redis'
 import { testServer } from './helpers/server'
 import prisma from './helpers/prisma'
 
@@ -38,7 +37,6 @@ describe('entries', () => {
     })))
 
     contextValue = {
-      // redis,
       prisma,
       user: 'user-123',
     }

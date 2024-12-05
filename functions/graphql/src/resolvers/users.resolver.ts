@@ -1,7 +1,7 @@
+import { deconstructId } from '@waterlog/utils'
 import { UserResolvers } from '../__generated__/graphql'
 import { Drinks } from '../models/Drink.model'
 import { Entries } from '../models/Entry.model'
-import { deconstructId } from '@/utils/cursorHash'
 import { DrinkHistory } from '@/models/History.model'
 
 export const usersResolver: UserResolvers = {
