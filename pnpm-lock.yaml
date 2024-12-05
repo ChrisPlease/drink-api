@@ -82,11 +82,11 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7
       axios:
-        specifier: ^1.7.7
+        specifier: ^1.6.8
         version: 1.7.8
     devDependencies:
       '@types/aws-lambda':
-        specifier: ^8.10.145
+        specifier: ^8.10.136
         version: 8.10.146
       esbuild:
         specifier: ^0.20.2
