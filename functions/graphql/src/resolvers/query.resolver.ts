@@ -120,6 +120,7 @@ export const queryResolvers: QueryResolvers = {
 
       return response
     } catch (error) {
+
         console.error('Error invoking NutritionixApiFunction:', error)
         // Handle or re-throw the error based on your error handling strategy.
         // For instance, you could return a default response or a specific error object to the caller.

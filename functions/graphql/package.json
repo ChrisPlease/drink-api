@@ -7,6 +7,7 @@
   "scripts": {
     "build": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node22 --external:@prisma/client --external:.prisma/client --outfile=dist/index.cjs",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --external:@prisma/client --external:.prisma/client --target=node22 --outfile=dist/index.cjs",
+    "dev": "pnpm build:dev --watch",
     "test": "pnpm run test:unit --run; pnpm run test:int --run",
     "test:unit": "vitest -c ./vitest.config.unit.mts",
     "test:int": "./scripts/run-integration.sh",

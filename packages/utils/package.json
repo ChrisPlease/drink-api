@@ -8,12 +8,14 @@
   "scripts": {
     "prebuild": "rimraf ./dist",
     "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node22 --outfile=dist/index.cjs && pnpm types",
-    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node22 --outfile=dist/index.cjs && pnpm types",
+    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node22 --outfile=dist/index.cjs",
+    "postbuild:dev": "pnpm types",
     "types": "tsc -d --declarationDir dist --declarationMap --emitDeclarationOnly",
     "dev": "concurrently \"pnpm build:dev --watch\" \"pnpm types --watch\"",
     "watch": "NODE_ENV=development pnpm build:dev --watch"
   },
   "devDependencies": {
+    "concurrently": "^9.1.2",
     "esbuild": "^0.24.2",
     "rimraf": "^6.0.1"
   },
