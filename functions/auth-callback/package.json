@@ -6,6 +6,7 @@
   "scripts": {
     "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node22 --outfile=dist/index.cjs",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node22 --outfile=dist/index.cjs",
+    "dev": "pnpm build:dev --watch",
     "start": "pnpx aws-lambda-ric dist/index.handler",
     "test": "pnpm run test:unit --run",
     "test:unit": "vitest -c vitest.config.unit.mts"
