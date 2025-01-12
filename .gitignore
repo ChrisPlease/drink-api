@@ -18,10 +18,6 @@ sample.*
 .env
 .env.*
 !.env.sample
-
-# nginx certs
-certs
+*.log
 
 backups
-
-debug.log

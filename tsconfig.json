@@ -12,10 +12,15 @@
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "strictNullChecks": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
     "typeRoots": ["types", "node_modules/@types"],
-
+    "paths": {
+      "@prisma/client": [
+        "./layers/prisma/nodejs/node_modules/.prisma/client"
+      ]
+    },
   },
   "include": [
     "types/*.d.ts",

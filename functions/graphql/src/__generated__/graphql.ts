@@ -25,7 +25,7 @@ export type Scalars = {
 };
 
 /** Absolute ingredient used in drink, size is based on absolute volume (ounces) */
-export type AbsoluteIngredient = DrinkIngredient & {
+export type AbsoluteIngredient = DrinkIngredient & Node & {
   __typename?: 'AbsoluteIngredient';
   drink?: Maybe<DrinkResult>;
   id: Scalars['ID']['output'];
@@ -255,6 +255,7 @@ export type DrinkServingSizeInput = {
 export type DrinkSort = {
   createdAt?: InputMaybe<Sort>;
   entryCount?: InputMaybe<Sort>;
+  lastEntry?: InputMaybe<Sort>;
   name?: InputMaybe<Sort>;
   nutrition?: InputMaybe<DrinkNutritionSort>;
 };
@@ -560,7 +561,7 @@ export type QueryUserArgs = {
 };
 
 /** Relative Ingredient used in drink, size is based on total drink serving size (parts) */
-export type RelativeIngredient = DrinkIngredient & {
+export type RelativeIngredient = DrinkIngredient & Node & {
   __typename?: 'RelativeIngredient';
   drink?: Maybe<DrinkResult>;
   id: Scalars['ID']['output'];
@@ -718,7 +719,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = Reso
 export type ResolversInterfaceTypes<_RefType extends Record<string, unknown>> = ResolversObject<{
   Drink: ( BaseDrinkModel ) | ( MixedDrinkModel ) | ( ScanDrinkModel );
   DrinkIngredient: ( Omit<AbsoluteIngredient, 'drink'> & { drink?: Maybe<_RefType['DrinkResult']> } ) | ( Omit<RelativeIngredient, 'drink'> & { drink?: Maybe<_RefType['DrinkResult']> } );
-  Node: ( BaseDrinkModel ) | ( DrinkHistoryModel ) | ( EntryModel ) | ( MixedDrinkModel ) | ( Omit<User, 'drinks' | 'drinksHistory' | 'entries'> & { drinks?: Maybe<_RefType['DrinksPaginated']>, drinksHistory?: Maybe<_RefType['DrinksHistoryPaginated']>, entries?: Maybe<_RefType['EntriesPaginated']> } );
+  Node: ( Omit<AbsoluteIngredient, 'drink'> & { drink?: Maybe<_RefType['DrinkResult']> } ) | ( BaseDrinkModel ) | ( DrinkHistoryModel ) | ( EntryModel ) | ( MixedDrinkModel ) | ( Omit<RelativeIngredient, 'drink'> & { drink?: Maybe<_RefType['DrinkResult']> } ) | ( Omit<User, 'drinks' | 'drinksHistory' | 'entries'> & { drinks?: Maybe<_RefType['DrinksPaginated']>, drinksHistory?: Maybe<_RefType['DrinksHistoryPaginated']>, entries?: Maybe<_RefType['EntriesPaginated']> } );
   Nutrition: ( DrinkNutrition ) | ( EntryNutrition );
   PaginatedQuery: ( Omit<DrinksHistoryPaginated, 'edges'> & { edges: Array<_RefType['DrinkHistoryEdge']> } ) | ( Omit<DrinksPaginated, 'edges'> & { edges: Array<_RefType['DrinkEdge']> } ) | ( Omit<EntriesPaginated, 'edges'> & { edges: Array<_RefType['EntryEdge']> } );
 }>;
@@ -1018,7 +1019,7 @@ export type MutationResolvers<ContextType = AppContext, ParentType extends Resol
 }>;
 
 export type NodeResolvers<ContextType = AppContext, ParentType extends ResolversParentTypes['Node'] = ResolversParentTypes['Node']> = ResolversObject<{
-  __resolveType: TypeResolveFn<'BaseDrink' | 'DrinkHistory' | 'Entry' | 'MixedDrink' | 'User', ParentType, ContextType>;
+  __resolveType: TypeResolveFn<'AbsoluteIngredient' | 'BaseDrink' | 'DrinkHistory' | 'Entry' | 'MixedDrink' | 'RelativeIngredient' | 'User', ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
 }>;
 

@@ -8,6 +8,25 @@ const mockAgent = new MockAgent()
 setGlobalDispatcher(mockAgent)
 
 const mockPool = mockAgent.get(`${process.env.NUTRITIONIX_API}`)
+const mockItem = {
+  upc: '123',
+  serving: {
+    servingSize: 8,
+    servingUnit: 'fl oz',
+    metricSize: undefined,
+  },
+  nutrition: {
+    calories: 0,
+    totalFat: 0,
+    saturatedFat: 0,
+    sodium: 0,
+    carbohydrates: 0,
+    sugar: 0,
+    addedSugar: 0,
+    protein: 0,
+    potassium: 0,
+  },
+}
 
 mockPool.intercept({
   path: '/v2/search/item',
@@ -21,21 +40,20 @@ mockPool.intercept({
   },
 }).reply(200, {
   status: { ok: true },
+  foods: [mockItem],
   message: 'transaction processed',
 })
 
-describe('this', () => {
+describe('nutritionix handler', () => {
   let ctx: Context
   const cb = () => {}
 
   beforeEach(() => {
     ctx = {} as Context
   })
-  test('this', async () => {
-    // console.log(process.env.NUTRITIONIX_API)
-    const foo = await handler({ upc: '123' }, ctx, cb)
+  test('returns a `NutritionixItem` object', async () => {
+    const res = await handler({ upc: '123' }, ctx, cb)
 
-    console.log(foo)
-    expect(true).toBeTruthy()
+    expect(res).toEqual(mockItem)
   })
 })

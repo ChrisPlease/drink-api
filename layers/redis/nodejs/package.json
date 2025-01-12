@@ -2,11 +2,11 @@
   "name": "@waterlog/redis",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/client.cjs",
+  "main": "dist/redis.cjs",
   "type": "commonjs",
   "scripts": {
-    "build": "esbuild client.ts --platform=node --minify --bundle --target=node20 --outfile=dist/client.cjs",
-    "build:dev": "esbuild client.ts --platform=node --sourceMap --bundle --target=node20 --outfile=dist/index.cjs"
+    "build": "esbuild redis.ts --platform=node --minify --bundle --target=node20 --outfile=dist/redis.cjs",
+    "build:dev": "esbuild redis.ts --platform=node --sourceMap --bundle --target=node20 --outfile=dist/redis.cjs"
   },
   "keywords": [],
   "author": "",

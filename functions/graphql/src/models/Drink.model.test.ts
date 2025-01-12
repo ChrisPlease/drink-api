@@ -6,7 +6,7 @@ import {
   expect,
   vi,
 } from 'vitest'
-import { Drink, Prisma } from '@prisma/client'
+import { Drink, Prisma } from '/opt/nodejs/node_modules/.prisma/client'
 import {
   deconstructId,
   encodeCursor,
@@ -26,8 +26,12 @@ import {
 import { DrinkWithIngredientCountPayload } from '../types/drinks'
 import { Drinks } from './Drink.model'
 
-vi.mock('../utils/queries', () => ({
-  queryIngredientNutrition: vi.fn().mockResolvedValue([{}]),
+vi.mock('/opt/nodejs/node_modules/.prisma/client/sql', () => ({
+  getIngredientNutrition: vi.fn().mockReturnValue({
+    values: [{
+      id: '123',
+    }],
+  }),
 }))
 
 describe('Drink Model', () => {
@@ -149,7 +153,6 @@ describe('Drink Model', () => {
     test('makes calls to the database to return drinks and count', async () => {
       expect.assertions(2)
       await drink.findManyPaginated({}, 'user-123')
-
       expect(prisma.drink.findMany).toHaveBeenCalledWith({
         include: {
           _count: {
@@ -171,7 +174,6 @@ describe('Drink Model', () => {
             },
           ],
           deleted: null,
-          nutrition: {},
         },
        })
        expect(prisma.drink.count).toHaveBeenCalled()
@@ -660,7 +662,7 @@ describe('Drink Model', () => {
 
     test('returns unwrapped ingredients', async () => {
       const res = await drink.findDrinkIngredients(toCursorHash('BaseDrink:123'))
-      expect(res).toEqual([{ id: '123' }, { id: '456' }])
+      expect(res).toEqual([{ id: toCursorHash('Ingredient:123') }, { id: toCursorHash('Ingredient:456') }])
     })
   })
 

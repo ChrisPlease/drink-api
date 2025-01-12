@@ -71,7 +71,8 @@ export default [{
       project: [
         "./tsconfig.json",
         "./functions/*/tsconfig.json",
-        "./packages/*/tsconfig.json"
+        "./packages/*/tsconfig.json",
+        "./layers/*/nodejs/tsconfig.json"
       ],
     },
   },
@@ -84,7 +85,8 @@ export default [{
         project: [
           "./tsconfig.json",
           "./functions/*/tsconfig.json",
-          "./packages/*/tsconfig.json"
+          "./packages/*/tsconfig.json",
+          "./layers/*/nodejs/tsconfig.json"
         ],
       },
       node: {

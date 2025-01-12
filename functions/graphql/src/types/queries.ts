@@ -1,4 +1,4 @@
-import { Drink } from '@prisma/client'
+import { Drink } from '/opt/nodejs/node_modules/.prisma/client'
 
 export interface RawDrink extends Drink {
   ingredients: number;

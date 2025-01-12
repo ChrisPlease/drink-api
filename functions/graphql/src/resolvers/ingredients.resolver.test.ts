@@ -3,14 +3,20 @@ import {
   describe,
   test,
   expect,
+  vi,
 } from 'vitest'
-import { Drink } from '@prisma/client'
+import { Drink } from '/opt/nodejs/node_modules/.prisma/client'
 import { GraphQLResolveInfo } from 'graphql'
 import { deconstructId } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
 // import redis from '../__mocks__/redis'
 import { AppContext } from '../types/context'
 import { ingredientResolvers, ingredientTypeResolvers } from './ingredients.resolver'
+
+
+vi.mock('/opt/nodejs/node_modules/.prisma/client/sql', () => ({
+  getIngredientCount: vi.fn().mockReturnValue({}),
+}))
 
 describe('ingredients.resolver', () => {
   let ctx: AppContext
@@ -42,19 +48,19 @@ describe('ingredients.resolver', () => {
       prisma.$queryRaw.mockResolvedValue([res])
       await ingredientResolvers.drink?.({ id: '123' }, {}, ctx, {} as GraphQLResolveInfo)
 
-      expect(prisma.$queryRaw).toHaveBeenCalled()
+      expect(prisma.$queryRawTyped).toHaveBeenCalled()
     })
 
     test('returns a MixedDrink type when response has ingredients', async () => {
       res = { ingredients: 3 } as Drink & { ingredients: number }
-      prisma.$queryRaw.mockResolvedValue([res])
+      prisma.$queryRawTyped.mockResolvedValue([res])
       const result = await ingredientResolvers.drink?.({ id: '123' }, {}, ctx, {} as GraphQLResolveInfo)
 
       expect(deconstructId(result?.id || '')[0]).toEqual('MixedDrink')
     })
     test('returns a MixedDrink type when response has ingredients', async () => {
       res = { ingredients: 0 } as Drink & { ingredients: number }
-      prisma.$queryRaw.mockResolvedValue([res])
+      prisma.$queryRawTyped.mockResolvedValue([res])
       const result = await ingredientResolvers.drink?.({ id: '123' }, {}, ctx, {} as GraphQLResolveInfo)
 
       expect(deconstructId(result?.id || '')[0]).toEqual('BaseDrink')

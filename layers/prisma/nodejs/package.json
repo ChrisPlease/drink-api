@@ -2,6 +2,7 @@
   "name": "@waterlog/prisma",
   "version": "1.0.0",
   "description": "",
+  "main": "./dist/client.cjs",
   "scripts": {
     "build": "pnpm generate",
     "generate": "PRISMA_CLI_BINARY_TARGETS=linux-arm64-openssl-3.0.x pnpm --filter ./ exec prisma generate",

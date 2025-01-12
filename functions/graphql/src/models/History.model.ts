@@ -68,7 +68,6 @@ export function DrinkHistory(client: PrismaClient) {
       async (args): Promise<DrinkHistoryModel[]> => {
         const { take, cursor } = args
         const [,id] = deconstructId(cursor?.id || '')
-
         return queryDrinkHistory(
           client,
           {

@@ -6,6 +6,6 @@
       "@/*": ["./src/*"],
     }
   },
-  "include": ["./**/*.ts", "../../types/env.d.ts", "../../layers/**/*"],
+  "include": ["./**/*.ts", "../../types/env.d.ts", "../../layers/**/*", "vitest.config.unit.mts"],
   "exclude": ["node_modules"]
 }

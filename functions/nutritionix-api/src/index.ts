@@ -21,22 +21,29 @@ export const handler: Handler<CustomEvent> = async ({ upc }) => {
 }
 
 
-async function baseFetch(path: string, params: Record<string, string>): Promise<NutritionixResponse | undefined> {
+async function baseFetch(
+  path: string,
+  params: Record<string, string>,
+): Promise<NutritionixResponse | undefined> {
   const headers: Headers = new Headers()
   const queryParams = new URLSearchParams(params)
   headers.set('x-app-id', process.env.NUTRITIONIX_APP_ID)
   headers.set('x-app-key', process.env.NUTRITIONIX_API_KEY)
 
-  const res = await undiciFetch(`${process.env.NUTRITIONIX_API}/v2/${path}?${queryParams.toString()}`, {
-    headers,
-  })
+  try {
+    const res = await undiciFetch(`${process.env.NUTRITIONIX_API}/v2/${path}?${queryParams.toString()}`, {
+      headers,
+    })
 
-  if (res.ok) {
-    return await res.json() as NutritionixResponse
-  } else {
-    throw new ApiError(res.status)
+    if (res.ok) {
+      return await res.json() as NutritionixResponse
+    } else {
+      throw new ApiError(res.status)
+    }
+
+  } catch (err) {
+    console.log('err', err)
   }
-
 
 }
 
@@ -44,8 +51,6 @@ async function fetchItem<T>(params: { upc: string }): Promise<T | undefined> {
   try {
 
     const res = await baseFetch('search/item', params)
-
-    console.log('RES', res)
     const item = res?.foods?.[0]
 
     if (item)
@@ -59,7 +64,8 @@ async function fetchItem<T>(params: { upc: string }): Promise<T | undefined> {
 
 function mapNutritionixToDrinkNutrition(item: NutritionixItem, upc: string) {
   return {
-    name: `${item.brand_name} ${item.food_name}`,
+    name: item.food_name,
+    brand: item.brand_name,
     upc,
     serving: {
       servingSize: item.serving_qty || 8,
@@ -67,18 +73,18 @@ function mapNutritionixToDrinkNutrition(item: NutritionixItem, upc: string) {
       metricSize: item.nf_metric_qty,
     },
     nutrition: {
-      calories: item.nf_calories,
+      calories: item.nf_calories || 0,
 
-      totalFat: item.nf_total_fat,
-      saturatedFat: item.nf_saturated_fat,
-      sodium: item.nf_sodium,
-      carbohydrates: item.nf_total_carbohydrate,
+      totalFat: item.nf_total_fat || 0,
+      saturatedFat: item.nf_saturated_fat || 0,
+      sodium: item.nf_sodium || 0,
+      carbohydrates: item.nf_total_carbohydrate || 0,
 
-      sugar: item.nf_sugars,
-      addedSugar: item.nf_sugars,
+      sugar: item.nf_sugars || 0,
+      addedSugar: item.nf_sugars || 0,
 
-      protein: item.nf_protein,
-      potassium: item.nf_potassium,
+      protein: item.nf_protein || 0,
+      potassium: item.nf_potassium || 0,
     },
   }
 }

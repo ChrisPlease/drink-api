@@ -1,4 +1,5 @@
 import { PrismaClient, Drink, Prisma } from '/opt/nodejs/node_modules/.prisma/client'
+import { getIngredientNutrition } from '/opt/nodejs/node_modules/.prisma/client/sql'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import {
   constructId,
@@ -20,8 +21,6 @@ import {
 } from '@/__generated__/graphql'
 import { snakeToCamel } from '@/utils/string-manipulation'
 import { rangeFilter, stringFilter } from '@/utils/filters'
-import { queryIngredientNutrition } from '@/utils/queries'
-import { DrinkWithIngredientCountPayload } from '@/types/drinks'
 import { NutritionResult, ReturnedDrinkResult } from '@/types/models'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
@@ -31,7 +30,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
     async findUniqueById(drinkId: string) {
       const [,id] = deconstructId(drinkId)
-      const response = <DrinkWithIngredientCountPayload>await prismaDrink.findUnique({
+      const response = await prismaDrink.findUnique({
         where: { id },
         include: {
           _count: {
@@ -80,7 +79,7 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
       const filter: Prisma.DrinkWhereInput = {
         ...stringFilter('name', search),
-        nutrition,
+        ...(Object.keys(nutrition).length > 0 ? { nutrition } : {}),
         ...(id?.in ? { id: { in: id.in.map(drinkId => deconstructId(drinkId)?.[1]) } } : {}),
         ...(
           (isMixedDrink !== undefined)
@@ -112,16 +111,18 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       })[0]
 
       const mappedSortKey =
-        sortKey === 'entryCount' ? 'entries' : sortKey
+        sortKey === 'entryCount' || sortKey === 'lastEntry'
+          ? 'entries'
+          : sortKey
 
       const orderBy = <Prisma.DrinkOrderByWithRelationInput>(
         ['name', 'createdAt'].includes(sortKey)
           ? { [sortKey]: sortValue.toLowerCase() }
           : ([
             {
-              [mappedSortKey]: (mappedSortKey === 'entries'
-                ? { _count: sortValue.toLowerCase() }
-                : sortValue),
+              [mappedSortKey]: (mappedSortKey !== 'entries'
+                ? sortValue
+                : sortKey === 'entryCount' ? { _count: sortValue.toLowerCase() } : [{ timestamp: sortValue.toLowerCase() }]),
             }, {
               name: Sort.Asc.toLowerCase(),
             },
@@ -143,10 +144,23 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
         },
         orderBy,
       }
+
       return await findManyCursorConnection<ReturnedDrinkResult, Prisma.DrinkWhereUniqueInput>(
         (args) => prismaDrink
-          .findMany({ ...args, include, orderBy: orderByArg, ...baseArgs })
-          .then(drinks => drinks.map(({ _count, id, servingSize, servingUnit, metricSize, ...drink }) => ({
+          .findMany({
+            ...args,
+            include,
+            orderBy: orderByArg,
+            ...baseArgs,
+          })
+          .then(drinks => drinks.map(({
+            _count,
+            id,
+            servingSize,
+            servingUnit,
+            metricSize,
+            ...drink
+          }) => ({
             id: constructId(_count.ingredients > 0 ? 'MixedDrink' : 'BaseDrink', id),
             serving: { metricSize, servingUnit, servingSize },
             ...drink,
@@ -298,7 +312,12 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
 
       const ingredients = await prismaDrink.findUnique({ where: { id } })
         .ingredients({ include: { ingredient: true } })
-        .then(ingredients => ingredients?.map(({ ingredient }) => ingredient))
+        .then(ingredients => ingredients?.map(({
+          ingredient: {
+            id,
+            ...ingredient
+          },
+        }) => ({ id: toCursorHash(`Ingredient:${id}`), ...ingredient })))
 
       return ingredients || []
     },
@@ -315,10 +334,9 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       drinkId: string,
       client: TransactionClient,
     ): Promise<NutritionResult> {
-      const [rawQuery] = await queryIngredientNutrition(client as PrismaClient, drinkId)
-
-      return Object.entries(rawQuery).reduce((acc, [key, val]) => ({
-        [snakeToCamel(key)]: +(val as string),
+      const [rawQuery] = await client.$queryRawTyped(getIngredientNutrition(drinkId)) ?? []
+      return Object.entries(rawQuery || {}).reduce((acc, [key, val]) => ({
+        [snakeToCamel(key)]: val,
         ...acc,
       }), {} as NutritionResult)
     },

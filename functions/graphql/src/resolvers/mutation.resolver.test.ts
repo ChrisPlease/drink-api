@@ -178,8 +178,7 @@ describe('mutationResolvers', () => {
 
       test('throws when id is not provided', async () => {
         expect.assertions(2)
-        /* eslint-disable-next-line */
-        // @ts-expect-error
+        // @ts-expect-error - id is not optional
         delete args.drinkInput.id
 
         try {
@@ -191,6 +190,7 @@ describe('mutationResolvers', () => {
       })
 
       test('throws when id is not found', async () => {
+        vi.spyOn(console, 'error').mockReturnValue()
         expect.assertions(2)
 
         prisma.drink.findUniqueOrThrow.mockRejectedValue(new Error('not found'))
