@@ -15,7 +15,7 @@ import { DrinkResult, DrinksPaginated, MixedDrink } from '../__generated__/graph
 import prisma from './helpers/prisma'
 import { testServer } from './helpers/server'
 
-describe.only('drinks', () => {
+describe('drinks', () => {
   let contextValue: AppContext
   let QUERY: DocumentNode
   let waterId: string
