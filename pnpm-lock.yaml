@@ -129,8 +129,8 @@ importers:
         specifier: ^4.11.3
         version: 4.11.3(graphql@16.10.0)
       '@apollo/server-plugin-response-cache':
-        specifier: ^4.1.3
-        version: 4.1.3(@apollo/server@4.11.3(graphql@16.10.0))(graphql@16.10.0)
+        specifier: ^4.1.4
+        version: 4.1.4(@apollo/server@4.11.3(graphql@16.10.0))(graphql@16.10.0)
       '@apollo/utils.keyvadapter':
         specifier: ^4.0.0
         version: 4.0.0
@@ -155,7 +155,7 @@ importers:
     devDependencies:
       '@graphql-codegen/cli':
         specifier: ^5.0.3
-        version: 5.0.3(@types/node@20.17.9)(graphql@16.10.0)(typescript@5.7.2)
+        version: 5.0.3(@types/node@22.10.5)(graphql@16.10.0)(typescript@5.7.2)
       '@graphql-codegen/introspection':
         specifier: ^4.0.3
         version: 4.0.3(graphql@16.10.0)
@@ -172,8 +172,8 @@ importers:
         specifier: ^8.10.147
         version: 8.10.147
       '@types/node':
-        specifier: ^20.17.9
-        version: 20.17.9
+        specifier: ^22.10.5
+        version: 22.10.5
       '@waterlog/prisma':
         specifier: workspace:^
         version: link:../../layers/prisma/nodejs
@@ -282,8 +282,8 @@ packages:
     peerDependencies:
       graphql: 14.x || 15.x || 16.x
 
-  '@apollo/server-plugin-response-cache@4.1.3':
-    resolution: {integrity: sha512-8WaP4Xo9GGIbWn4ZG/TlYKZLo/YI8tuORvxzLOKnZa3EqUvt7iTCGHX491dWNiGkm93VgDDdo5r0WEvLDdHSmQ==}
+  '@apollo/server-plugin-response-cache@4.1.4':
+    resolution: {integrity: sha512-MicQsfTbwIzUc7GCFwY9uOz46ad2q22f4RWy42YEoy4YKGdrnl3X0rfs5GpBliw54nM3fxYIdmvGKeO2W7wMSg==}
     engines: {node: '>=14.16.0'}
     peerDependencies:
       '@apollo/server': ^4.0.1
@@ -297,10 +297,6 @@ packages:
 
   '@apollo/usage-reporting-protobuf@4.1.1':
     resolution: {integrity: sha512-u40dIUePHaSKVshcedO7Wp+mPiZsaU6xjv9J+VyxpoU/zL6Jle+9zWeG98tr/+SZ0nZ4OXhrbb8SNr0rAPpIDA==}
-
-  '@apollo/utils.createhash@2.0.1':
-    resolution: {integrity: sha512-fQO4/ZOP8LcXWvMNhKiee+2KuKyqIcfHrICA+M4lj/h/Lh1H10ICcUtk6N/chnEo5HXu0yejg64wshdaiFitJg==}
-    engines: {node: '>=14'}
 
   '@apollo/utils.createhash@2.0.2':
     resolution: {integrity: sha512-UkS3xqnVFLZ3JFpEmU/2cM2iKJotQXMoSTgxXsfQgXLC5gR1WaepoXagmYnPSA7Q/2cmnyTYK5OgAgoC4RULPg==}
@@ -2086,6 +2082,9 @@ packages:
 
   '@types/node@20.17.9':
     resolution: {integrity: sha512-0JOXkRyLanfGPE2QRCwgxhzlBAvaRdCNMcvbd7jFfpmD4eEXll7LRwy5ymJmyeZqk7Nh7eD2LeUyQ68BbndmXw==}
+
+  '@types/node@22.10.5':
+    resolution: {integrity: sha512-F8Q+SeGimwOo86fiovQh8qiXfFEh2/ocYv7tU5pJ3EXMSSxk1Joj5wefpFK2fHTf/N6HKGSxIDBT9f3gCxXPkQ==}
 
   '@types/qs@6.9.17':
     resolution: {integrity: sha512-rX4/bPcfmvxHDv0XjfJELTTr+iB+tn032nPILqHm5wbthUUUuVtNGGqzhya9XUxjTP8Fpr0qYgSZZKxGY++svQ==}
@@ -4684,6 +4683,9 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
+  undici-types@6.20.0:
+    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
+
   undici@6.21.0:
     resolution: {integrity: sha512-BUgJXc752Kou3oOIuU1i+yZZypyZRqNPW0vqoMPl8VaoalSfeR0D8/t4iAS3yirs79SSMTxTag+ZC86uswv+Cw==}
     engines: {node: '>=18.17'}
@@ -5012,10 +5014,10 @@ snapshots:
       '@apollo/utils.logger': 2.0.1
       graphql: 16.10.0
 
-  '@apollo/server-plugin-response-cache@4.1.3(@apollo/server@4.11.3(graphql@16.10.0))(graphql@16.10.0)':
+  '@apollo/server-plugin-response-cache@4.1.4(@apollo/server@4.11.3(graphql@16.10.0))(graphql@16.10.0)':
     dependencies:
       '@apollo/server': 4.11.3(graphql@16.10.0)
-      '@apollo/utils.createhash': 2.0.1
+      '@apollo/utils.createhash': 2.0.2
       '@apollo/utils.keyvaluecache': 2.1.1
       graphql: 16.10.0
 
@@ -5053,11 +5055,6 @@ snapshots:
   '@apollo/usage-reporting-protobuf@4.1.1':
     dependencies:
       '@apollo/protobufjs': 1.2.7
-
-  '@apollo/utils.createhash@2.0.1':
-    dependencies:
-      '@apollo/utils.isnodelike': 2.0.1
-      sha.js: 2.4.11
 
   '@apollo/utils.createhash@2.0.2':
     dependencies:
@@ -6171,7 +6168,7 @@ snapshots:
       graphql: 16.10.0
       tslib: 2.6.3
 
-  '@graphql-codegen/cli@5.0.3(@types/node@20.17.9)(graphql@16.10.0)(typescript@5.7.2)':
+  '@graphql-codegen/cli@5.0.3(@types/node@22.10.5)(graphql@16.10.0)(typescript@5.7.2)':
     dependencies:
       '@babel/generator': 7.26.3
       '@babel/template': 7.25.9
@@ -6182,12 +6179,12 @@ snapshots:
       '@graphql-tools/apollo-engine-loader': 8.0.7(graphql@16.10.0)
       '@graphql-tools/code-file-loader': 8.1.8(graphql@16.10.0)
       '@graphql-tools/git-loader': 8.0.12(graphql@16.10.0)
-      '@graphql-tools/github-loader': 8.0.7(@types/node@20.17.9)(graphql@16.10.0)
+      '@graphql-tools/github-loader': 8.0.7(@types/node@22.10.5)(graphql@16.10.0)
       '@graphql-tools/graphql-file-loader': 8.0.6(graphql@16.10.0)
       '@graphql-tools/json-file-loader': 8.0.6(graphql@16.10.0)
       '@graphql-tools/load': 8.0.7(graphql@16.10.0)
-      '@graphql-tools/prisma-loader': 8.0.17(@types/node@20.17.9)(graphql@16.10.0)
-      '@graphql-tools/url-loader': 8.0.18(@types/node@20.17.9)(graphql@16.10.0)
+      '@graphql-tools/prisma-loader': 8.0.17(@types/node@22.10.5)(graphql@16.10.0)
+      '@graphql-tools/url-loader': 8.0.18(@types/node@22.10.5)(graphql@16.10.0)
       '@graphql-tools/utils': 10.6.2(graphql@16.10.0)
       '@whatwg-node/fetch': 0.9.23
       chalk: 4.1.2
@@ -6195,7 +6192,7 @@ snapshots:
       debounce: 1.2.1
       detect-indent: 6.1.0
       graphql: 16.10.0
-      graphql-config: 5.1.3(@types/node@20.17.9)(graphql@16.10.0)(typescript@5.7.2)
+      graphql-config: 5.1.3(@types/node@22.10.5)(graphql@16.10.0)(typescript@5.7.2)
       inquirer: 8.2.6
       is-glob: 4.0.3
       jiti: 1.21.6
@@ -6457,6 +6454,20 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  '@graphql-tools/executor-http@1.1.12(@types/node@22.10.5)(graphql@16.10.0)':
+    dependencies:
+      '@graphql-tools/utils': 10.6.2(graphql@16.10.0)
+      '@repeaterjs/repeater': 3.0.6
+      '@whatwg-node/disposablestack': 0.0.5
+      '@whatwg-node/fetch': 0.10.1
+      extract-files: 11.0.0
+      graphql: 16.10.0
+      meros: 1.3.0(@types/node@22.10.5)
+      tslib: 2.8.1
+      value-or-promise: 1.0.12
+    transitivePeerDependencies:
+      - '@types/node'
+
   '@graphql-tools/executor-legacy-ws@1.1.5(graphql@16.10.0)':
     dependencies:
       '@graphql-tools/utils': 10.6.2(graphql@16.10.0)
@@ -6490,10 +6501,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@graphql-tools/github-loader@8.0.7(@types/node@20.17.9)(graphql@16.10.0)':
+  '@graphql-tools/github-loader@8.0.7(@types/node@22.10.5)(graphql@16.10.0)':
     dependencies:
       '@ardatan/sync-fetch': 0.0.1
-      '@graphql-tools/executor-http': 1.1.12(@types/node@20.17.9)(graphql@16.10.0)
+      '@graphql-tools/executor-http': 1.1.12(@types/node@22.10.5)(graphql@16.10.0)
       '@graphql-tools/graphql-tag-pluck': 8.3.7(graphql@16.10.0)
       '@graphql-tools/utils': 10.6.2(graphql@16.10.0)
       '@whatwg-node/fetch': 0.10.1
@@ -6580,9 +6591,9 @@ snapshots:
       graphql: 16.10.0
       tslib: 2.6.3
 
-  '@graphql-tools/prisma-loader@8.0.17(@types/node@20.17.9)(graphql@16.10.0)':
+  '@graphql-tools/prisma-loader@8.0.17(@types/node@22.10.5)(graphql@16.10.0)':
     dependencies:
-      '@graphql-tools/url-loader': 8.0.18(@types/node@20.17.9)(graphql@16.10.0)
+      '@graphql-tools/url-loader': 8.0.18(@types/node@22.10.5)(graphql@16.10.0)
       '@graphql-tools/utils': 10.6.2(graphql@16.10.0)
       '@types/js-yaml': 4.0.9
       '@whatwg-node/fetch': 0.10.1
@@ -6637,6 +6648,27 @@ snapshots:
       '@ardatan/sync-fetch': 0.0.1
       '@graphql-tools/executor-graphql-ws': 1.3.4(graphql@16.10.0)
       '@graphql-tools/executor-http': 1.1.12(@types/node@20.17.9)(graphql@16.10.0)
+      '@graphql-tools/executor-legacy-ws': 1.1.5(graphql@16.10.0)
+      '@graphql-tools/utils': 10.6.2(graphql@16.10.0)
+      '@graphql-tools/wrap': 10.0.24(graphql@16.10.0)
+      '@types/ws': 8.5.13
+      '@whatwg-node/fetch': 0.10.1
+      graphql: 16.10.0
+      isomorphic-ws: 5.0.0(ws@8.18.0)
+      tslib: 2.8.1
+      value-or-promise: 1.0.12
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - '@types/node'
+      - bufferutil
+      - encoding
+      - utf-8-validate
+
+  '@graphql-tools/url-loader@8.0.18(@types/node@22.10.5)(graphql@16.10.0)':
+    dependencies:
+      '@ardatan/sync-fetch': 0.0.1
+      '@graphql-tools/executor-graphql-ws': 1.3.4(graphql@16.10.0)
+      '@graphql-tools/executor-http': 1.1.12(@types/node@22.10.5)(graphql@16.10.0)
       '@graphql-tools/executor-legacy-ws': 1.1.5(graphql@16.10.0)
       '@graphql-tools/utils': 10.6.2(graphql@16.10.0)
       '@graphql-tools/wrap': 10.0.24(graphql@16.10.0)
@@ -7261,11 +7293,11 @@ snapshots:
   '@types/body-parser@1.19.5':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.17.9
+      '@types/node': 22.10.5
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.17.9
+      '@types/node': 22.10.5
 
   '@types/cookie@0.6.0': {}
 
@@ -7273,7 +7305,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.6':
     dependencies:
-      '@types/node': 20.17.9
+      '@types/node': 22.10.5
       '@types/qs': 6.9.17
       '@types/range-parser': 1.2.7
       '@types/send': 0.17.4
@@ -7303,12 +7335,16 @@ snapshots:
 
   '@types/node-fetch@2.6.12':
     dependencies:
-      '@types/node': 20.17.9
+      '@types/node': 22.10.5
       form-data: 4.0.1
 
   '@types/node@20.17.9':
     dependencies:
       undici-types: 6.19.8
+
+  '@types/node@22.10.5':
+    dependencies:
+      undici-types: 6.20.0
 
   '@types/qs@6.9.17': {}
 
@@ -7317,12 +7353,12 @@ snapshots:
   '@types/send@0.17.4':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 20.17.9
+      '@types/node': 22.10.5
 
   '@types/serve-static@1.15.7':
     dependencies:
       '@types/http-errors': 2.0.4
-      '@types/node': 20.17.9
+      '@types/node': 22.10.5
       '@types/send': 0.17.4
 
   '@types/statuses@2.0.5': {}
@@ -7335,7 +7371,7 @@ snapshots:
 
   '@types/ws@8.5.13':
     dependencies:
-      '@types/node': 20.17.9
+      '@types/node': 22.10.5
 
   '@typescript-eslint/eslint-plugin@8.17.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@2.4.1))(typescript@5.7.2))(eslint@9.16.0(jiti@2.4.1))(typescript@5.7.2)':
     dependencies:
@@ -8787,6 +8823,27 @@ snapshots:
       - typescript
       - utf-8-validate
 
+  graphql-config@5.1.3(@types/node@22.10.5)(graphql@16.10.0)(typescript@5.7.2):
+    dependencies:
+      '@graphql-tools/graphql-file-loader': 8.0.6(graphql@16.10.0)
+      '@graphql-tools/json-file-loader': 8.0.6(graphql@16.10.0)
+      '@graphql-tools/load': 8.0.7(graphql@16.10.0)
+      '@graphql-tools/merge': 9.0.12(graphql@16.10.0)
+      '@graphql-tools/url-loader': 8.0.18(@types/node@22.10.5)(graphql@16.10.0)
+      '@graphql-tools/utils': 10.6.2(graphql@16.10.0)
+      cosmiconfig: 8.3.6(typescript@5.7.2)
+      graphql: 16.10.0
+      jiti: 2.4.1
+      minimatch: 9.0.5
+      string-env-interpolation: 1.0.1
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - '@types/node'
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+
   graphql-depth-limit@1.1.0(graphql@16.10.0):
     dependencies:
       arrify: 1.0.1
@@ -9359,6 +9416,10 @@ snapshots:
   meros@1.3.0(@types/node@20.17.9):
     optionalDependencies:
       '@types/node': 20.17.9
+
+  meros@1.3.0(@types/node@22.10.5):
+    optionalDependencies:
+      '@types/node': 22.10.5
 
   methods@1.1.2: {}
 
@@ -10285,6 +10346,8 @@ snapshots:
   undefsafe@2.0.5: {}
 
   undici-types@6.19.8: {}
+
+  undici-types@6.20.0: {}
 
   undici@6.21.0: {}
 
