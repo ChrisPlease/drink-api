@@ -22,6 +22,7 @@ import {
 import { snakeToCamel } from '@/utils/string-manipulation'
 import { rangeFilter, stringFilter } from '@/utils/filters'
 import { NutritionResult, ReturnedDrinkResult } from '@/types/models'
+import { queryIngredientNutrition } from '@/utils/queries'
 
 type TransactionClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>
 
@@ -334,9 +335,10 @@ export function Drinks(prismaDrink: PrismaClient['drink']) {
       drinkId: string,
       client: TransactionClient,
     ): Promise<NutritionResult> {
-      const [rawQuery] = await client.$queryRawTyped(getIngredientNutrition(drinkId)) ?? []
-      return Object.entries(rawQuery || {}).reduce((acc, [key, val]) => ({
-        [snakeToCamel(key)]: val,
+      const [rawQuery] = await queryIngredientNutrition(client as PrismaClient, drinkId)
+
+      return Object.entries(rawQuery).reduce((acc, [key, val]) => ({
+        [snakeToCamel(key)]: +(val as string),
         ...acc,
       }), {} as NutritionResult)
     },

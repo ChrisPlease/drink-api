@@ -48,19 +48,19 @@ describe('ingredients.resolver', () => {
       prisma.$queryRaw.mockResolvedValue([res])
       await ingredientResolvers.drink?.({ id: '123' }, {}, ctx, {} as GraphQLResolveInfo)
 
-      expect(prisma.$queryRawTyped).toHaveBeenCalled()
+      expect(prisma.$queryRaw).toHaveBeenCalled()
     })
 
     test('returns a MixedDrink type when response has ingredients', async () => {
       res = { ingredients: 3 } as Drink & { ingredients: number }
-      prisma.$queryRawTyped.mockResolvedValue([res])
+      prisma.$queryRaw.mockResolvedValue([res])
       const result = await ingredientResolvers.drink?.({ id: '123' }, {}, ctx, {} as GraphQLResolveInfo)
 
       expect(deconstructId(result?.id || '')[0]).toEqual('MixedDrink')
     })
     test('returns a MixedDrink type when response has ingredients', async () => {
       res = { ingredients: 0 } as Drink & { ingredients: number }
-      prisma.$queryRawTyped.mockResolvedValue([res])
+      prisma.$queryRaw.mockResolvedValue([res])
       const result = await ingredientResolvers.drink?.({ id: '123' }, {}, ctx, {} as GraphQLResolveInfo)
 
       expect(deconstructId(result?.id || '')[0]).toEqual('BaseDrink')

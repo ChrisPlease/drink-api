@@ -6,6 +6,7 @@ import {
   IngredientResolvers,
   RelativeIngredientResolvers,
 } from '@/__generated__/graphql'
+import { queryIngredientCount } from '@/utils/queries'
 
 
 export const ingredientTypeResolvers: IngredientResolvers = {
@@ -25,21 +26,21 @@ export const ingredientResolvers: AbsoluteIngredientResolvers & RelativeIngredie
     const [{
       id,
       ingredients,
-      user_id: userId,
-      created_at: createdAt,
-      metric_size: metricSize,
-      serving_size: servingSize,
-      serving_unit: servingUnit,
+      // user_id: userId,
+      // created_at: createdAt,
+      // metric_size: metricSize,
+      // serving_size: servingSize,
+      // serving_unit: servingUnit,
       ...drink
-    }] = await prisma.$queryRawTyped(getIngredientCount(ingredientId)) ?? [{}]
+    }] = await queryIngredientCount(prisma, ingredientId)// prisma.$queryRawTyped(getIngredientCount(ingredientId)) ?? [{}]
 
     return {
       id: constructId(`${ingredients! > 0 ? 'Mixed' : 'Base'}Drink`, id),
-      userId,
-      createdAt,
-      metricSize,
-      servingSize,
-      servingUnit,
+      // userId,
+      // createdAt,
+      // metricSize,
+      // servingSize,
+      // servingUnit,
       ...drink,
     }
   },

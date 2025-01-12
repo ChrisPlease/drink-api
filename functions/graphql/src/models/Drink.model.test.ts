@@ -26,12 +26,8 @@ import {
 import { DrinkWithIngredientCountPayload } from '../types/drinks'
 import { Drinks } from './Drink.model'
 
-vi.mock('/opt/nodejs/node_modules/.prisma/client/sql', () => ({
-  getIngredientNutrition: vi.fn().mockReturnValue({
-    values: [{
-      id: '123',
-    }],
-  }),
+vi.mock('../utils/queries', () => ({
+  queryIngredientNutrition: vi.fn().mockResolvedValue([{}]),
 }))
 
 describe('Drink Model', () => {
