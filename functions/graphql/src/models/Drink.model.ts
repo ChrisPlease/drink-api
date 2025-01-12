@@ -1,5 +1,4 @@
 import { PrismaClient, Drink, Prisma } from '/opt/nodejs/node_modules/.prisma/client'
-import { getIngredientNutrition } from '/opt/nodejs/node_modules/.prisma/client/sql'
 import { findManyCursorConnection } from '@devoxa/prisma-relay-cursor-connection'
 import {
   constructId,
