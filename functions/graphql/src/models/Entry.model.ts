@@ -60,7 +60,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
 
     async findWithNutrition(
       args: Prisma.EntryFindManyArgs,
-    ): Promise<ResolvedEntry[]> {
+    ) {
       const entries = await prismaEntry.findMany({
         ...args,
         include: {
@@ -205,7 +205,7 @@ export function Entries(prismaEntry: PrismaClient['entry']) {
     async createEntry(
       args: MutationEntryCreateArgs & { userId: string },
       prismaDrink: PrismaClient['drink'],
-    ): Promise<ResolvedEntry> {
+    ) {
       const {
         drinkId,
         volume: inputVolume,

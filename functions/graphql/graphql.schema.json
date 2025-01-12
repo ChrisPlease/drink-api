@@ -61,6 +61,11 @@
             "kind": "INTERFACE",
             "name": "DrinkIngredient",
             "ofType": null
+          },
+          {
+            "kind": "INTERFACE",
+            "name": "Node",
+            "ofType": null
           }
         ],
         "enumValues": null,
@@ -1240,7 +1245,13 @@
           }
         ],
         "inputFields": null,
-        "interfaces": [],
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "Node",
+            "ofType": null
+          }
+        ],
         "enumValues": null,
         "possibleTypes": [
           {
@@ -2056,6 +2067,18 @@
           },
           {
             "name": "entryCount",
+            "description": null,
+            "type": {
+              "kind": "ENUM",
+              "name": "Sort",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "lastEntry",
             "description": null,
             "type": {
               "kind": "ENUM",
@@ -3350,6 +3373,11 @@
         "possibleTypes": [
           {
             "kind": "OBJECT",
+            "name": "AbsoluteIngredient",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
             "name": "BaseDrink",
             "ofType": null
           },
@@ -3366,6 +3394,11 @@
           {
             "kind": "OBJECT",
             "name": "MixedDrink",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "RelativeIngredient",
             "ofType": null
           },
           {
@@ -4223,6 +4256,11 @@
           {
             "kind": "INTERFACE",
             "name": "DrinkIngredient",
+            "ofType": null
+          },
+          {
+            "kind": "INTERFACE",
+            "name": "Node",
             "ofType": null
           }
         ],

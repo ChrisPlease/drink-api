@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '/opt/nodejs/node_modules/.prisma/client'
 import { beforeEach } from 'vitest'
 import { mockDeep, mockReset } from 'vitest-mock-extended'
 

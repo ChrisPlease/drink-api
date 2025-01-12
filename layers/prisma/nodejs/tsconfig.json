@@ -1,0 +1,8 @@
+{
+  "extends": "../../../tsconfig.json",
+  "include": [
+    "./**/*.ts",
+    "../../../types/env.d.ts",
+    "./node_modules/.prisma/client/index.d.ts"
+  ]
+}

@@ -8,9 +8,13 @@
         "../../layers/prisma/nodejs/*",
         "../../layers/redis/nodejs/*"
       ]
-
     }
   },
-  "include": ["./**/*.ts", "../../types/env.d.ts", "../../layers/**/*"],
+  "include": [
+    "./**/*.ts",
+    "../../types/env.d.ts",
+    "../../layers/**/*",
+    "vitest.config.integration.mts"
+  ],
   "exclude": ["node_modules"]
 }

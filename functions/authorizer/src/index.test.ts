@@ -4,7 +4,7 @@ import { APIGatewayAuthorizerEvent, Context } from 'aws-lambda'
 import { handler } from '.'
 
 
-vi.mock('/opt/nodejs/client', () => ({
+vi.mock('/opt/nodejs/redis', () => ({
   getKeyvClient: vi.fn(() => ({
     get: vi.fn(),
     set: vi.fn(),
@@ -120,16 +120,12 @@ describe('handler', () => {
   describe('success', () => {
     let token: string
 
-    beforeEach(() => {
+    beforeEach(async () => {
       jwksMock.start()
       token = jwksMock.token({
         aud: process.env.AUTH0_AUDIENCE,
         iss: process.env.AUTH0_DOMAIN,
       })
-    })
-
-    afterEach(() => {
-      jwksMock.start()
     })
 
     test('returns successful when token is valid', async () => {

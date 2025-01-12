@@ -4,7 +4,7 @@ import { configDotenv } from 'dotenv'
 import { ApiError } from '@waterlog/utils'
 import jwksClient, { RsaSigningKey } from 'jwks-rsa'
 import { decode, verify, JwtPayload, SignOptions } from 'jsonwebtoken'
-import { getKeyvClient } from '/opt/nodejs/client'
+import { getKeyvClient } from '/opt/nodejs/redis'
 
 configDotenv()
 

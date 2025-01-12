@@ -1,4 +1,4 @@
-import { Drink, Entry } from '@prisma/client'
+import { Drink, Entry } from '/opt/nodejs/node_modules/.prisma/client'
 import { BaseDrink, DrinkNutrition, DrinkServingSize, MixedDrink } from '@/__generated__/graphql'
 
 

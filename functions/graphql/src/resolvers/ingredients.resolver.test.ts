@@ -3,14 +3,20 @@ import {
   describe,
   test,
   expect,
+  vi,
 } from 'vitest'
-import { Drink } from '@prisma/client'
+import { Drink } from '/opt/nodejs/node_modules/.prisma/client'
 import { GraphQLResolveInfo } from 'graphql'
 import { deconstructId } from '@waterlog/utils'
 import prisma from '../__mocks__/prisma'
 // import redis from '../__mocks__/redis'
 import { AppContext } from '../types/context'
 import { ingredientResolvers, ingredientTypeResolvers } from './ingredients.resolver'
+
+
+vi.mock('/opt/nodejs/node_modules/.prisma/client/sql', () => ({
+  getIngredientCount: vi.fn().mockReturnValue({}),
+}))
 
 describe('ingredients.resolver', () => {
   let ctx: AppContext

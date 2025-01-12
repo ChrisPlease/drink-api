@@ -51,7 +51,6 @@ export const queryResolvers: QueryResolvers = {
     const drink = await Drinks(prisma.drink)
       .findUniqueById(id)
 
-
     return drink
   },
 
@@ -103,13 +102,9 @@ export const queryResolvers: QueryResolvers = {
 
   async drinkScan(_, { upc }, { prisma }) {
     const drink = <Drink>await prisma.drink.findUnique({ where: { upc } })
-
     if (drink) return { ...drink, id: toCursorHash(`BaseDrink:${drink.id}`) } as Drink
     try {
       const lambdaClient = new LambdaClient(clientOptions)
-      console.log('================================================')
-      console.log(process.env.NUTRITIONIX_LAMBDA)
-      console.log('================================================')
       const cmd = new InvokeCommand({
           FunctionName: process.env.NUTRITIONIX_LAMBDA,
           InvocationType: 'RequestResponse',
@@ -122,15 +117,14 @@ export const queryResolvers: QueryResolvers = {
       if (response.error) {
           throw new Error(response.error) // Handle known error cases.
       }
-      console.log(response)
 
       return response
-  } catch (error) {
-      console.error('Error invoking NutritionixApiFunction:', error)
-      // Handle or re-throw the error based on your error handling strategy.
-      // For instance, you could return a default response or a specific error object to the caller.
-      return { error: 'Failed to fetch drink details.' }
-  }
+    } catch (error) {
+        console.error('Error invoking NutritionixApiFunction:', error)
+        // Handle or re-throw the error based on your error handling strategy.
+        // For instance, you could return a default response or a specific error object to the caller.
+        return { error: 'Failed to fetch drink details.' }
+    }
   },
 }
 

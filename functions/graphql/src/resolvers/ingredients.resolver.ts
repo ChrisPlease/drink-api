@@ -1,5 +1,4 @@
-import { Drink } from '/opt/nodejs/node_modules/.prisma/client'
-import { constructId } from '@waterlog/utils'
+import { constructId, deconstructId } from '@waterlog/utils'
 import {
   AbsoluteIngredient,
   AbsoluteIngredientResolvers,
@@ -21,15 +20,26 @@ export const ingredientTypeResolvers: IngredientResolvers = {
 export const ingredientResolvers: AbsoluteIngredientResolvers & RelativeIngredientResolvers = {
   ...ingredientTypeResolvers,
 
-  async drink(parent, _, { prisma }): Promise<Drink> {
+  async drink(parent, _, { prisma }) {
+    const [,ingredientId] = deconstructId(parent.id)
     const [{
       id,
       ingredients,
+      // user_id: userId,
+      // created_at: createdAt,
+      // metric_size: metricSize,
+      // serving_size: servingSize,
+      // serving_unit: servingUnit,
       ...drink
-    }] = await queryIngredientCount(prisma, parent.id)
+    }] = await queryIngredientCount(prisma, ingredientId)// prisma.$queryRawTyped(getIngredientCount(ingredientId)) ?? [{}]
 
     return {
-      id: constructId(`${ingredients > 0 ? 'Mixed' : 'Base'}Drink`, id),
+      id: constructId(`${ingredients! > 0 ? 'Mixed' : 'Base'}Drink`, id),
+      // userId,
+      // createdAt,
+      // metricSize,
+      // servingSize,
+      // servingUnit,
       ...drink,
     }
   },

@@ -82,6 +82,7 @@ input DrinkSort {
   name: Sort
   createdAt: Sort
   entryCount: Sort
+  lastEntry: Sort
 
   nutrition: DrinkNutritionSort
 }
@@ -293,7 +294,7 @@ union DrinkResult = BaseDrink | MixedDrink
 """
 Ingredient Interface to combine drink and ID
 """
-interface DrinkIngredient {
+interface DrinkIngredient implements Node {
   id: ID!
   drink: DrinkResult
 }
@@ -301,7 +302,7 @@ interface DrinkIngredient {
 """
 Relative Ingredient used in drink, size is based on total drink serving size (parts)
 """
-type RelativeIngredient implements DrinkIngredient {
+type RelativeIngredient implements DrinkIngredient & Node {
   id: ID!
   parts: Float
   drink: DrinkResult
@@ -310,7 +311,7 @@ type RelativeIngredient implements DrinkIngredient {
 """
 Absolute ingredient used in drink, size is based on absolute volume (ounces)
 """
-type AbsoluteIngredient implements DrinkIngredient {
+type AbsoluteIngredient implements DrinkIngredient & Node {
   id: ID!
   volume: Float
   drink: DrinkResult
