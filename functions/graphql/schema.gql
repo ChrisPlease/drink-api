@@ -141,7 +141,7 @@ interface Nutrition {
 """
 Drink Serving Size field
 """
-# eslint-disable-next-line @graphql-eslint/strict-id-in-types
+ 
 type DrinkServingSize {
   servingSize: Float
   servingUnit: String
@@ -151,7 +151,7 @@ type DrinkServingSize {
 """
 Drink Health Nutrition field
 """
-# eslint-disable-next-line @graphql-eslint/strict-id-in-types
+ 
 type DrinkNutrition implements Nutrition {
   coefficient: Float
 
@@ -175,7 +175,7 @@ Entry nutrition field.
 
 Contains water content and servings
 """
-# eslint-disable-next-line @graphql-eslint/strict-id-in-types
+ 
 type EntryNutrition implements Nutrition {
   servings: Float
 
@@ -220,7 +220,7 @@ interface Drink @cacheControl(maxAge: 300) {
 """
 Result form scanning a drink upc
 """
-# eslint-disable-next-line @graphql-eslint/strict-id-in-types
+ 
 type ScanDrink implements Drink {
   id: ID!
   upc: String

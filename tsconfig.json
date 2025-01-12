@@ -25,6 +25,8 @@
   "include": [
     "types/*.d.ts",
     "./*.mts",
+    "./*.ts",
+    "./*.mjs"
   ],
   "exclude": [
     "./**/*.js"
