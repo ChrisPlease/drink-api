@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.145",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.24.2",
     "nodemon": "^3.1.7"
   },
   "keywords": [],
