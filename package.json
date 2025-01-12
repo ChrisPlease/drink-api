@@ -7,7 +7,7 @@
   "scripts": {
     "test": "pnpm -r --if-present test",
     "build": "pnpm -r build",
-    "lint": "eslint '{packages,functions,layers}/**/*.{ts,tsx,js,jsx}'"
+    "lint": "eslint ."
   },
   "keywords": [
     "typescript",
