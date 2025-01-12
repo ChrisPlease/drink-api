@@ -1,4 +1,4 @@
-import graphqlPlugin from "@graphql-eslint/eslint-plugin";
+import graphqlPlugin, { parser } from "@graphql-eslint/eslint-plugin";
 import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import stylistic from '@stylistic/eslint-plugin'
@@ -35,6 +35,11 @@ export default [{
 
   languageOptions: {
     parser: graphqlPlugin.parser,
+    parserOptions: {
+      graphQLConfig: {
+        schema: './functions/graphql/schema.gql'
+      },
+    },
   },
 
   rules: {

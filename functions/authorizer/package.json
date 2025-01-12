@@ -5,8 +5,8 @@
   "main": "dist/index.cjs",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/index.ts --platform=node --bundle --minify --target=node18 --outfile=dist/index.cjs",
-    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node18 --outfile=dist/index.cjs",
+    "build": "esbuild src/index.ts --platform=node --bundle --minify --target=node22 --outfile=dist/index.cjs",
+    "build:dev": "esbuild src/index.ts --platform=node --sourcemap --packages=external --bundle --target=node22 --outfile=dist/index.cjs",
     "dev": "pnpm build:dev --watch",
     "test": "pnpm run test:unit --run",
     "test:unit": "vitest -c vitest.config.unit.mts"
@@ -20,9 +20,9 @@
     "jwks-rsa": "^3.1.0"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.145",
+    "@types/aws-lambda": "^8.10.147",
     "@types/jsonwebtoken": "^9.0.7",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.24.2",
     "lambda-local": "^2.2.0",
     "mock-jwks": "^3.2.2"
   }

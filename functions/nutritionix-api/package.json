@@ -4,17 +4,16 @@
   "description": "",
   "main": "dist/index.cjs",
   "scripts": {
-    "build": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node20 --outfile=dist/index.cjs",
-    "build:dev": "esbuild src/index.ts --platform=node --bundle --target=node18 --outfile=dist/index.cjs",
+    "build": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node22 --outfile=dist/index.cjs",
+    "build:dev": "esbuild src/index.ts --platform=node --bundle --target=node22 --outfile=dist/index.cjs",
     "dev": "pnpm build:dev --watch",
     "test": "pnpm run test:unit --run",
     "test:unit": "vitest -c ./vitest.config.unit.mts",
     "watch": "pnpm build:dev --watch"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.145",
-    "esbuild": "^0.20.2",
-    "nodemon": "^3.1.7"
+    "@types/aws-lambda": "^8.10.147",
+    "esbuild": "^0.24.2"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +21,6 @@
   "dependencies": {
     "@waterlog/utils": "workspace:*",
     "aws-lambda": "^1.0.7",
-    "undici": "^6.20.1"
+    "undici": "^7.2.1"
   }
 }
