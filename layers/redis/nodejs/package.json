@@ -5,8 +5,8 @@
   "main": "dist/redis.cjs",
   "type": "commonjs",
   "scripts": {
-    "build": "esbuild redis.ts --platform=node --minify --bundle --target=node20 --outfile=dist/redis.cjs",
-    "build:dev": "esbuild redis.ts --platform=node --sourceMap --bundle --target=node20 --outfile=dist/redis.cjs"
+    "build": "esbuild redis.ts --platform=node --minify --bundle --target=node22 --outfile=dist/redis.cjs",
+    "build:dev": "esbuild redis.ts --platform=node --sourceMap --bundle --target=node22 --outfile=dist/redis.cjs"
   },
   "keywords": [],
   "author": "",
