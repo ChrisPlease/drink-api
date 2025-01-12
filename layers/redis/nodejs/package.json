@@ -16,7 +16,7 @@
     "esbuild": "^0.24.2"
   },
   "dependencies": {
-    "@keyv/redis": "^4.0.2",
-    "keyv": "^5.2.1"
+    "@keyv/redis": "^4.2.0",
+    "keyv": "^5.2.3"
   }
 }
