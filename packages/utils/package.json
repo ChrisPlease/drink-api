@@ -6,7 +6,7 @@
   "main": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "prebuild": "rm -rf ./dist",
+    "prebuild": "rimraf ./dist",
     "build": "esbuild src/index.ts --platform=node --minify --bundle --target=node22 --outfile=dist/index.cjs && pnpm types",
     "build:dev": "esbuild src/index.ts --platform=node --sourcemap --bundle --target=node22 --outfile=dist/index.cjs && pnpm types",
     "types": "tsc -d --declarationDir dist --declarationMap --emitDeclarationOnly",
@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "esbuild": "^0.24.2",
-    "rimraf": "^5.0.10"
+    "rimraf": "^6.0.1"
   },
   "keywords": [],
   "author": "",
